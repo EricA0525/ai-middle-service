@@ -230,13 +230,15 @@ def create_aigc_task(req: AigcRequest):
     
     # 发送HTTPS请求
     try:
-        conn = HTTPSConnection(host)           # 创建HTTPS连接
+        conn = HTTPSConnection(host, timeout=1800)  # 创建HTTPS连接，超时30分钟
         conn.request("POST", "/", headers=headers, body=payload.encode("utf-8"))
         resp = conn.getresponse()              # 获取响应
         result = json.loads(resp.read().decode("utf-8"))  # 解析JSON响应
         return result
+    except TimeoutError:
+        raise HTTPException(status_code=504, detail="请求腾讯云API超时，请稍后重试")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"API请求失败: {str(e)}")
 
 
 # ============ 查询任务接口 ============
