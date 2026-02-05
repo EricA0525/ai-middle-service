@@ -1,0 +1,9 @@
+# Ignore untracked projects for now (until they have their own repos)
+aigc-create/
+tc-api/
+
+# Common ignores
+*.pyc
+__pycache__/
+.env
+*.log
