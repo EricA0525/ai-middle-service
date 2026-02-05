@@ -1,0 +1,52 @@
+# ===========================================
+# Market Insight Agent - pyproject.toml
+# ===========================================
+# 项目配置文件
+
+[project]
+name = "market-insight-agent"
+version = "1.0.0"
+description = "AI-powered market insight report generation system"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Private"}
+authors = [
+    {name = "Development Team"}
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | venv
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

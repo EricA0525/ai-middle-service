@@ -1,0 +1,443 @@
+<!-- 
+Market Insight Agent - Brand Health Report Template
+=====================================================
+品牌健康度诊断报告模板
+
+使用方式：
+1. 通过 Jinja2 渲染此模板
+2. 传入 context 包含各板块内容
+
+模板变量：
+- params: 用户输入参数 (brand_name, competitors, region)
+- sections: 各板块生成的内容
+- charts: SVG 图表代码
+- metadata: 报告元数据 (生成时间, task_id 等)
+
+TODO: 
+1. 从参考模板 fake_brand_insight_report.html 迁移完整结构
+2. 添加 Jinja2 占位符
+3. 保持 CSS 样式一致
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>品牌洞察报告 - 云南白药</title>
+    <style>
+    /* Style migrated from fake_brand_insight_report.html */
+    :root {
+      --bg: #0b0d12;
+      --panel: #111522;
+      --panel2:#0f1320;
+      --text: #e9ecf3;
+      --muted: #aab3c5;
+      --border: rgba(255,255,255,.10);
+      --accent: #7aa2ff;
+      --good:#5ee38f;
+      --warn:#ffd36b;
+      --bad:#ff6b6b;
+      --chip:#1a2140;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 30% -10%, rgba(122,162,255,.25), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(94,227,143,.12), transparent 50%),
+                  linear-gradient(180deg, #07080c, var(--bg));
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 36px 18px 80px; }
+    .hero {
+      padding: 28px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero:before {
+      content:"";
+      position:absolute; inset:-80px -120px auto auto;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle at 30% 30%, rgba(122,162,255,.35), transparent 60%);
+      filter: blur(8px);
+      transform: rotate(12deg);
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      letter-spacing: .4px;
+    }
+    .meta {
+      display:flex; flex-wrap: wrap; gap: 10px 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chip {
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      background: rgba(122,162,255,.10);
+      border: 1px solid rgba(122,162,255,.20);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #d7e2ff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (min-width: 900px) {
+      .grid.cols2 { grid-template-columns: 1fr 1fr; }
+      .grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+      margin-top: 14px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      display:flex; align-items:center; justify-content: space-between;
+      gap: 10px;
+      color: #f2f4fb;
+    }
+    .kpis {
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (min-width: 900px) {
+      .kpis { grid-template-columns: repeat(4, 1fr); }
+    }
+    .kpi {
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .kpi .label { color: var(--muted); font-size: 12px; }
+    .kpi .value { font-size: 20px; margin-top: 4px; font-weight: 700; }
+    .kpi .note { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .pill {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .section-title {
+      margin: 26px 4px 12px;
+      font-size: 22px;
+      letter-spacing: .2px;
+      color: #f2f4fb;
+    }
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .list {
+      margin: 10px 0 0;
+      padding-left: 16px;
+      color: #dfe5f6;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .table,
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .table th, .table td,
+    table th, table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      vertical-align: top;
+    }
+    .table th,
+    table th {
+      text-align: left;
+      color: #dfe5f6;
+      background: rgba(255,255,255,.04);
+      font-weight: 700;
+    }
+    .table tr:hover td,
+    table tr:hover td {
+      background: rgba(122,162,255,.06);
+    }
+    .badge {
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: #dfe5f6;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      display:inline-block;
+    }
+    .dot.good { background: var(--good); }
+    .dot.warn { background: var(--warn); }
+    .dot.bad { background: var(--bad); }
+    .two-col {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .two-col { grid-template-columns: 1.2fr .8fr; }
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .hr {
+      height: 1px;
+      background: rgba(255,255,255,.10);
+      margin: 14px 0;
+    }
+    .code {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #d7e2ff;
+      background: rgba(122,162,255,.08);
+      border: 1px solid rgba(122,162,255,.18);
+      padding: 10px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      white-space: pre;
+    }
+    .foot {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .chart-container {
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 10px;
+    }
+    .chart-container svg { display: block; width: 100%; height: auto; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>🎯 品牌洞察报告</h1>
+            <div class="meta">
+                <span><strong>品牌：</strong>云南白药</span>
+                <span><strong>地区：</strong>中国大陆</span>
+                
+                <span><strong>生成时间：</strong>2026-02-02 10:56:54</span>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="card" id="executive_summary">
+            <h2>📋 执行摘要</h2>
+            <ul>
+<li><b>品牌延展成功，口腔护理建立强关联</b>：云南白药将成熟品牌记忆延伸至牙膏，并以“牙龈出血、疼痛、口腔粘膜损伤”功效诉求强化认同与信任。 <span class="small">来源：【[PDF] “百里挑一，还是三心二意” - 贝恩公司】</span></li>
+<li><b>营销投入强化心智</b>：2011-2013年广告预算提升，配合线上线下多触点传播，持续巩固功效与品牌名称的联想。 <span class="small">来源：【[PDF] “百里挑一，还是三心二意” - 贝恩公司】</span></li>
+<li><b>产品差异化与国家级背书支撑品牌力</b>：核心白药系列处方与工艺列为国家保密范围，且多年入选国家医保甲类目录，形成权威背书与差异化优势。 <span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></li>
+<li><b>行业景气具备政策与需求双驱动</b>：国家持续推动中医药高质量发展规划，叠加居民健康追求提升，为行业提供上行环境。 <span class="small">来源：【Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...】</span></li>
+<li><b>治理优化迹象（需持续跟踪）</b>：混合所有制改革后，人均销售收入回升，管理费用率下降，显示运营效率改善趋势。 <span class="small">来源：【[PDF] 国有企业混合所有制改革中的控制权安排* - 上海对外经贸大学】</span></li>
+</ul>
+        </div>
+
+        <!-- Risk Redlines -->
+        <div class="card" id="risk_redlines">
+            <h2>⚠️ 风险红线</h2>
+            <p>当前存在明显风险：云南白药在“品牌延伸（牙膏等）+国家背书（保密工艺、医保甲类）+政策支持的中医药景气”框架下受益明显，但也更容易受到监管、舆情与竞争格局变化的放大影响。</p>
+<ul>
+<li>
+    风险1：品牌功效传播与监管/舆情波动风险（核心卖点被质疑或被要求调整）
+    <p>依据采集信息，云南白药牙膏长期以“牙龈出血、疼痛、口腔粘膜损伤”等功效进行传播，并通过提高广告预算与全渠道营销强化品牌记忆；消费者对功效与口腔护理相关性形成较强认同与信任。<span class="small">来源：[PDF] “百里挑一，还是三心二意” - 贝恩公司</span></p>
+<p><strong>触发信号</strong>：功效宣称/广告表述被监管关注；社媒与电商平台出现“功效不符、夸大宣传”等集中讨论；渠道端要求调整宣传物料或话术。</p>
+<p><strong>建议对策</strong>：系统梳理功效宣称与证据链（临床/机理/用户数据等），在传播上强化“适用场景+边界条件+合规表述”；建立舆情监测与快速澄清机制，关键触点（电商详情页、短视频脚本、线下物料）做合规审校闭环。</p>
+</li>
+<li>
+    风险2：对“国家级背书”的依赖带来的政策与目录调整不确定性
+    <p>采集信息显示，云南白药核心白药系列“处方、工艺列为国家保密范围”，且“多年来入选国家医保甲类药品目录”，品牌获得国家级背书；同时中国医药市场监管与医疗保障制度对行业影响显著。<span class="small">来源：国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一</span></p>
+<p><strong>触发信号</strong>：医保、医疗保障相关政策口径变化；围绕“保密工艺/成分透明度、真实世界证据”等方面的监管讨论升温；行业对“疗效证据、合规成本”要求提高。</p>
+<p><strong>建议对策</strong>：提前开展政策情景推演与产品线分层（医保依赖型 vs. 自费消费型）；加强循证与质量一致性对外沟通（在不触及保密边界下提升可解释性）；在渠道与定价策略上降低单一政策变量对经营的冲击。</p>
+</li>
+<li>
+    风险3：竞品强化差异化、传统中医药赛道竞争加剧导致的份额与心智挤压
+    <p>采集信息显示，传统中医药市场中存在多家企业同场竞争；同时行业评估强调“真正提供与众不同的产品”，云南白药与健康元因“独特的产品类别”在该指标上得分较高。<span class="small">来源：【中国传统中医药市场规模、趋势、增长报告2030】</span> <span class="small">来源：国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一</span></p>
+<p><strong>触发信号</strong>：竞品在核心品类推出更强“差异化卖点/证据背书/渠道打法”；消费者评价出现“同质化、替代性强”；渠道终端更偏向推销毛利更高或更易成交的替代品牌。</p>
+<p><strong>建议对策</strong>：围绕“独特产品类别”做清晰的产品矩阵与人群分层，强化可感知的差异化（成分机理解释、体验指标、使用场景）；在重点渠道打造可复制的“教育+转化” SOP，避免单纯依赖广告投放拉动。</p>
+</li>
+<li>
+    风险4：混改后治理与成本改善的可持续性风险（管理效率回升后出现反复）
+    <p>采集信息显示，云南白药混合所有制改革后，人均销售收入“止跌回升”，管理费用率在混改后出现下降趋势（文中将管理费用率视为代理成本指标之一）。<span class="small">来源：[PDF] 国有企业混合所有制改革中的控制权安排* - 上海对外经贸大学</span></p>
+<p><strong>触发信号</strong>：管理费用率与组织效率指标出现反弹；关键岗位人员波动、决策链条变长；内部控制与激励机制调整引发执行力下降。</p>
+<p><strong>建议对策</strong>：固化混改阶段形成的降本增效机制（预算约束、绩效指标、授权体系）；对关键流程（采购、营销费用、合规审查）建立可量化的过程KPI与审计抽查；通过人才与激励机制稳定核心团队。</p>
+</li>
+</ul>
+<p>建议：以“合规与循证”为底座、以“差异化与场景化”为抓手，建立舆情与政策双预警机制；同时对产品矩阵与治理效率做季度复盘，确保在政策支持中医药发展的窗口期内，把风险暴露前置、把应对动作标准化。<span class="small">来源：Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...)</span></p>
+        </div>
+
+        <!-- Market Insights -->
+        <div class="card" id="market_insights">
+            <h2>📊 市场洞察</h2>
+            <p>云南白药在中医药景气上行的宏观背景下受益于政策与健康需求双轮驱动，行业发展前景被普遍看好。<span class="small">来源：Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...)</span> 品牌端，其白药系列因处方与工艺列入国家保密范围、并长期进入国家医保甲类目录，形成较强的国家级背书与差异化认知。<span class="small">来源：国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一</span> 口腔护理延伸亦强化品牌心智：通过“功效-场景”传播与线上线下触点运营，并在2011-2013年显著提高广告预算，推动消费者信任迁移与品类增长。<span class="small">来源：[PDF] “百里挑一，还是三心二意” - 贝恩公司</span></p>
+
+            
+        </div>
+
+        <!-- Consumer Insights -->
+        <div class="card" id="consumer_insights">
+            <h2>👥 消费者洞察</h2>
+            <h3>云南白药消费者画像（基于采集数据推断）</h3>
+<p>从现有信息看，云南白药的核心消费者主要围绕“可信赖的中医药品牌背书”与“明确功效场景驱动”形成：一方面，白药系列产品具备国家级背书（工艺/处方保密、长期纳入国家医保甲类等），使消费者更容易建立安全感与信任；另一方面，云南白药通过将品牌记忆延伸到牙膏，并以“牙龈出血/疼痛/口腔黏膜损伤”等强场景诉求强化认知，吸引在口腔问题上有明确困扰、追求快速有效解决方案的人群。</p>
+<p><span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】；【[PDF] “百里挑一，还是三心二意” - 贝恩公司】</span></p>
+<ul>
+<li>功效问题导向型：更可能在出现牙龈出血、疼痛、口腔黏膜损伤等具体问题时主动寻求对应产品，对“功效与口腔护理相关性”认同强。<span class="small">来源：【[PDF] “百里挑一，还是三心二意” - 贝恩公司】</span></li>
+<li>高信任、重背书型：对“国家级背书/医保目录”等信号敏感，倾向选择被认为更可靠、更规范的品牌。<span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></li>
+<li>品牌延伸接受度高：对“成熟医药品牌跨到日化/口腔护理”的延伸接受度较高，愿意把既有信任迁移到新类别（如牙膏）。<span class="small">来源：【[PDF] “百里挑一，还是三心二意” - 贝恩公司】</span></li>
+<li>健康意识上行人群：在“追求健康”与政策支持推动的背景下，更愿意持续关注中医药与健康相关产品与服务。<span class="small">来源：【Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...)】</span></li>
+<li>偏好差异化与“真正不同”的产品：受访者认为中国医药品牌更注重消费者关怀度；同时，“提供与众不同的产品”是品牌价值的重要来源，云南白药在该指标上表现突出。<span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></li>
+</ul>
+<p>需要说明的是：当前采集数据对人口统计（年龄、性别、城市线级、收入等）没有直接信息，因此画像以行为与心理特征为主；若需更细分人群（如高频复购者/新客/价格敏感者），有待进一步调研补足（如电商评论语料、渠道结构、用户调研）。</p>
+        </div>
+
+        <!-- Brand Health -->
+        <div class="card" id="brand_health">
+            <h2>🏥 健康度诊断</h2>
+            <h3>云南白药品牌健康状况诊断（定性）</h3>
+<p>基于现有采集数据，云南白药的品牌健康状况整体呈“认知度较高、差异化较强、延展能力已被验证，同时受行业政策与健康需求趋势支撑”的特征；但在更细分的口碑分层、与主要竞品的量化对比等方面，当前信息仍不足，部分结论需进一步调研补全。</p>
+<h3>1) 品牌认知与心智占位</h3>
+<ul>
+<li>品牌记忆具备“功效-场景”强绑定特征：在口腔护理品类中，云南白药通过“牙龈出血、疼痛、口腔粘膜损伤”等功效诉求与品牌名称呼应，强化消费者对品牌功效的联想与记忆。<span class="small">来源：[PDF] “百里挑一，还是三心二意” - 贝恩公司</span></li>
+<li>品牌延伸成功案例明确：消费者对功效与口腔护理相关性产生强烈认同，并对品牌产生较高信任度，显示其品牌资产可跨品类迁移。<span class="small">来源：[PDF] “百里挑一，还是三心二意” - 贝恩公司</span></li>
+<li>在触达层面有持续投入与系统化传播：材料提到其在2011-2013年间提升广告预算，并开展线上线下多触点营销，有利于维持品牌可见度与心智份额。<span class="small">来源：[PDF] “百里挑一，还是三心二意” - 贝恩公司</span></li>
+</ul>
+<h3>2) 口碑与信任基础</h3>
+<ul>
+<li>信任来源偏“功效可信”与“国家背书”：其核心白药系列产品被描述为处方/工艺列入国家保密范围，且多年入选国家医保甲类目录，形成强背书叙事，有助于构建稳固信任。<span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></li>
+<li>消费者对医药品牌整体“更关怀消费者而非利润”的看法偏正面；在该语境下，云南白药具备承接行业信任红利的基础。<span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></li>
+<li>口碑风险提示（数据不足）：当前材料更多是“信任/背书/营销有效性”的正向信息，缺少对负面评价、舆情事件、售后体验、功效争议等维度的公开证据，建议补采社媒与电商评论、投诉与监管通报等信息以完成闭环。<span class="small">来源：有待进一步调研（当前采集数据未覆盖）</span></li>
+</ul>
+<h3>3) 竞争力与差异化</h3>
+<ul>
+<li>差异化来源于“独特产品类别+保密工艺+医保背书”的组合：在“与众不同的产品”指标上，云南白药被描述为得分最高之一，尤其强调其核心白药系列的独特性与国家级背书。<span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></li>
+<li>营销与品牌资产协同：口腔护理案例显示其能把成熟品牌记忆延伸到新场景，并用清晰的功效语言巩固差异化位置。<span class="small">来源：[PDF] “百里挑一，还是三心二意” - 贝恩公司</span></li>
+<li>竞争格局信息不完整：市场报告提及传统中医药相关企业名单包含云南白药及多家同业（如天士力、广药集团、康美药业、北京同仁堂等），但未给出份额、增速或定位差异细节，暂无法做严格横向强弱对比。<span class="small">来源：【中国传统中医药市场规模、趋势、增长报告2030】</span></li>
+</ul>
+<h3>4) 外部环境与增长支撑（对品牌健康的影响）</h3>
+<ul>
+<li>政策环境利好中医药行业发展：材料指出国家层面持续出台中医药支持政策（如“十四五”中医药发展规划），有利于行业景气与社会认可度提升，通常会对头部品牌形成正向外溢。<span class="small">来源：【Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...)】</span></li>
+<li>公众健康需求提升带来品类机会：材料提及“人民追求健康”，为医药与健康消费相关品牌提供更广泛的需求基础。<span class="small">来源：【Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...)】</span></li>
+</ul>
+<h3>5) 组织与经营侧信号（对品牌投入与执行的支撑）</h3>
+<ul>
+<li>混合所有制改革后经营效率改善的迹象：材料提及混改后人均销售收入止跌回升、管理费用率下降等现象，侧面反映管理与资源配置可能更有效率，通常有利于品牌运营的持续性与执行力。<span class="small">来源：【[PDF] 国有企业混合所有制改革中的控制权安排* - 上海对外经贸大学】</span></li>
+</ul>
+<h3>结论性判断（不含评分）</h3>
+<table>
+<tr>
+<th>维度</th>
+<th>诊断结论（定性）</th>
+<th>关键依据</th>
+</tr>
+<tr>
+<td>品牌认知</td>
+<td>品牌认知度较高，且具备明确的功效心智占位与跨品类延展能力</td>
+<td>功效-场景强绑定、口腔护理延伸成功、持续广告与多触点营销</td>
+</tr>
+<tr>
+<td>口碑/信任</td>
+<td>信任基础较强，背书叙事清晰；但缺少负面与分层口碑数据，需补证</td>
+<td>国家保密/医保甲类背书、消费者对医药品牌关怀度的正面看法</td>
+</tr>
+<tr>
+<td>竞争力</td>
+<td>差异化竞争力突出，核心资产壁垒叙事明确；横向量化对比不足</td>
+<td>“与众不同的产品”指标表现突出、核心白药系列独特性</td>
+</tr>
+<tr>
+<td>外部环境</td>
+<td>行业政策与健康需求趋势对品牌健康形成支撑</td>
+<td>中医药政策推动、公众健康需求增强</td>
+</tr>
+</table>
+<h3>建议的进一步调研清单（用于完善诊断）</h3>
+<ul>
+<li>口碑分层：电商平台评价结构、复购与不满点、功效争议与敏感点梳理。<span class="small">来源：有待进一步调研（当前采集数据未覆盖）</span></li>
+<li>竞品对标：与天士力、同仁堂、广药等在“核心品类心智、渠道覆盖、品牌延展边界”上的对比证据。<span class="small">来源：有待进一步调研（当前采集数据未覆盖）</span></li>
+<li>品牌资产一致性：不同业务线（核心白药系列 vs. 日化/口腔护理等）的品牌主张是否一致、是否存在稀释风险。<span class="small">来源：有待进一步调研（当前采集数据未覆盖）</span></li>
+</ul>
+        </div>
+
+        <!-- Strategy -->
+        <div class="card" id="strategy">
+            <h2>💡 策略建议</h2>
+            <h3>云南白药：可执行策略建议（2-4条）</h3>
+<ul>
+<li>
+<p><b>强化“国家级背书 + 核心白药”主线，做成可复用的品牌信任资产</b></p>
+<p>将“核心白药系列产品处方与工艺列为国家保密范围、长期入选国家医保甲类目录”的信息，系统化为对外沟通框架（产品包装关键信息呈现、医生/药师端教育话术、消费者端科普内容与FAQ），持续强化“可信赖的中医药品牌”心智，并在不同品类中保持同一套证据链表达。</p>
+<p><span class="small">来源：【国药集团是最有价值的中国医药品牌;广药集团在中医药品牌中排名第一】</span></p>
+</li>
+<li>
+<p><b>以“功效-场景”打法复制牙膏成功经验，优先拓展高关联的健康消费品类</b></p>
+<p>借鉴云南白药牙膏围绕“牙龈出血/疼痛/口腔黏膜损伤”等明确问题场景，形成强认同并通过线上线下多触点持续传播的做法，选择与白药品牌记忆高度相关、且消费者易理解的“症状/场景”切入（先做少数重点品类，再扩展），并建立统一的传播主张与触点组合，避免多线分散导致记忆弱化。</p>
+<p><span class="small">来源：【[PDF] “百里挑一，还是三心二意” - 贝恩公司】</span></p>
+</li>
+<li>
+<p><b>围绕政策与健康需求上行，提前布局“中医药健康服务能力”相关的产品与服务组合</b></p>
+<p>在行业政策持续推动、中医药振兴发展与“健康中国”方向明确的背景下，面向“预防-日常管理-康复”链路，梳理可标准化交付的产品组合与用户教育内容（如人群分层、用药/用品指导、线上内容矩阵与线下专业渠道协同），并优先在政策友好、消费者健康意识更强的场景中试点与迭代。</p>
+<p><span class="small">来源：【Initial Report: 云南白药(000538), 43% 5-Year Potential Upside (Ying ...)】</span></p>
+</li>
+<li>
+<p><b>以混改后“费用与效率改善”的管理经验为基础，建立可复制的精益投放与组织协同机制</b></p>
+<p>结合混合所有制改革后管理费用率下降、人均效率指标改善的结论，进一步把“预算-渠道-触点-内容”的决策流程做成机制化（例如：年度投放主题与核心证据链统一、重点品类优先级与资源倾斜规则、跨部门协同KPI），减少重复建设与内耗，支撑多品类扩张下的运营一致性。</p>
+<p><span class="small">来源：【[PDF] 国有企业混合所有制改革中的控制权安排* - 上海对外经贸大学】</span></p>
+</li>
+</ul>
+        </div>
+
+        <!-- Footer -->
+        <footer
+            style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 12px;">
+            <p>Generated by Market Insight Agent | Task ID: task_ea2a27bbb40d</p>
+        </footer>
+    </div>
+</body>
+
+</html>

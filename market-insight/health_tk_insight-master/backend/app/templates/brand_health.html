@@ -1,0 +1,322 @@
+<!-- 
+Market Insight Agent - Brand Health Report Template
+=====================================================
+品牌健康度诊断报告模板
+
+使用方式：
+1. 通过 Jinja2 渲染此模板
+2. 传入 context 包含各板块内容
+
+模板变量：
+- params: 用户输入参数 (brand_name, competitors, region)
+- sections: 各板块生成的内容
+- charts: SVG 图表代码
+- metadata: 报告元数据 (生成时间, task_id 等)
+
+TODO: 
+1. 从参考模板 fake_brand_insight_report.html 迁移完整结构
+2. 添加 Jinja2 占位符
+3. 保持 CSS 样式一致
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>品牌洞察报告 - {{ params.brand_name | default('Unknown') }}</title>
+    <style>
+    /* Style migrated from fake_brand_insight_report.html */
+    :root {
+      --bg: #0b0d12;
+      --panel: #111522;
+      --panel2:#0f1320;
+      --text: #e9ecf3;
+      --muted: #aab3c5;
+      --border: rgba(255,255,255,.10);
+      --accent: #7aa2ff;
+      --good:#5ee38f;
+      --warn:#ffd36b;
+      --bad:#ff6b6b;
+      --chip:#1a2140;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 30% -10%, rgba(122,162,255,.25), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(94,227,143,.12), transparent 50%),
+                  linear-gradient(180deg, #07080c, var(--bg));
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 36px 18px 80px; }
+    .hero {
+      padding: 28px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero:before {
+      content:"";
+      position:absolute; inset:-80px -120px auto auto;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle at 30% 30%, rgba(122,162,255,.35), transparent 60%);
+      filter: blur(8px);
+      transform: rotate(12deg);
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      letter-spacing: .4px;
+    }
+    .meta {
+      display:flex; flex-wrap: wrap; gap: 10px 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chip {
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      background: rgba(122,162,255,.10);
+      border: 1px solid rgba(122,162,255,.20);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #d7e2ff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (min-width: 900px) {
+      .grid.cols2 { grid-template-columns: 1fr 1fr; }
+      .grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+      margin-top: 14px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      display:flex; align-items:center; justify-content: space-between;
+      gap: 10px;
+      color: #f2f4fb;
+    }
+    .kpis {
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (min-width: 900px) {
+      .kpis { grid-template-columns: repeat(4, 1fr); }
+    }
+    .kpi {
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .kpi .label { color: var(--muted); font-size: 12px; }
+    .kpi .value { font-size: 20px; margin-top: 4px; font-weight: 700; }
+    .kpi .note { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .pill {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .section-title {
+      margin: 26px 4px 12px;
+      font-size: 22px;
+      letter-spacing: .2px;
+      color: #f2f4fb;
+    }
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .list {
+      margin: 10px 0 0;
+      padding-left: 16px;
+      color: #dfe5f6;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .table,
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .table th, .table td,
+    table th, table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      vertical-align: top;
+    }
+    .table th,
+    table th {
+      text-align: left;
+      color: #dfe5f6;
+      background: rgba(255,255,255,.04);
+      font-weight: 700;
+    }
+    .table tr:hover td,
+    table tr:hover td {
+      background: rgba(122,162,255,.06);
+    }
+    .badge {
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: #dfe5f6;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      display:inline-block;
+    }
+    .dot.good { background: var(--good); }
+    .dot.warn { background: var(--warn); }
+    .dot.bad { background: var(--bad); }
+    .two-col {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .two-col { grid-template-columns: 1.2fr .8fr; }
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .hr {
+      height: 1px;
+      background: rgba(255,255,255,.10);
+      margin: 14px 0;
+    }
+    .code {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #d7e2ff;
+      background: rgba(122,162,255,.08);
+      border: 1px solid rgba(122,162,255,.18);
+      padding: 10px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      white-space: pre;
+    }
+    .foot {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .chart-container {
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 10px;
+    }
+    .chart-container svg { display: block; width: 100%; height: auto; }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>🎯 品牌洞察报告</h1>
+            <div class="meta">
+                <span><strong>品牌：</strong>{{ params.brand_name | default('N/A') }}</span>
+                <span><strong>地区：</strong>{{ params.region | default('N/A') }}</span>
+                {% if params.competitors %}
+                <span><strong>竞品：</strong>{{ params.competitors | join(', ') }}</span>
+                {% endif %}
+                <span><strong>生成时间：</strong>{{ metadata.created_at | default('N/A') }}</span>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="card" id="executive_summary">
+            <h2>📋 执行摘要</h2>
+            {{ sections.executive_summary | safe | default('[待生成]') }}
+        </div>
+
+        <!-- Risk Redlines -->
+        <div class="card" id="risk_redlines">
+            <h2>⚠️ 风险红线</h2>
+            {{ sections.risk_redlines | safe | default('[待生成]') }}
+        </div>
+
+        <!-- Market Insights -->
+        <div class="card" id="market_insights">
+            <h2>📊 市场洞察</h2>
+            {{ sections.market_insights | safe | default('[待生成]') }}
+
+            {% if charts.trend_chart %}
+            <div class="chart-container">
+                {{ charts.trend_chart | safe }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Consumer Insights -->
+        <div class="card" id="consumer_insights">
+            <h2>👥 消费者洞察</h2>
+            {{ sections.consumer_insights | safe | default('[待生成]') }}
+        </div>
+
+        <!-- Brand Health -->
+        <div class="card" id="brand_health">
+            <h2>🏥 健康度诊断</h2>
+            {{ sections.brand_health | safe | default('[待生成]') }}
+        </div>
+
+        <!-- Strategy -->
+        <div class="card" id="strategy">
+            <h2>💡 策略建议</h2>
+            {{ sections.strategy | safe | default('[待生成]') }}
+        </div>
+
+        <!-- Footer -->
+        <footer
+            style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--muted); font-size: 12px;">
+            <p>Generated by Market Insight Agent | Task ID: {{ metadata.task_id | default('N/A') }}</p>
+        </footer>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+# ===========================================
+# Market Insight Agent - Docker Compose
+# ===========================================
+# 用于本地开发环境的完整服务编排
+
+version: '3.8'
+
+services:
+  # ========== 主应用 ==========
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app  # 开发时热重载
+      - ./data:/app/data
+    depends_on:
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # ========== Celery Worker ==========
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data
+    depends_on:
+      - redis
+    command: celery -A app.services.task_manager worker --loglevel=info
+    restart: unless-stopped
+
+  # ========== Redis ==========
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

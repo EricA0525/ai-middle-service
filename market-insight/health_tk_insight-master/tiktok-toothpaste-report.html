@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok 美区牙膏品类市场洞察报告</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --tiktok-cyan: #69C9D0;
+      --tiktok-pink: #EE1D52;
+      --tiktok-purple: #7C3AED;
+      --background: #0a0a0a;
+      --card-bg: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --success: #22c55e;
+      --warning: #eab308;
+      --destructive: #ef4444;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding: 40px;
+      background: linear-gradient(135deg, var(--tiktok-pink), var(--tiktok-purple), var(--tiktok-cyan));
+      border-radius: 16px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    /* Section */
+    .section {
+      margin-bottom: 50px;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--tiktok-cyan);
+      display: inline-block;
+    }
+    
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    .metric-card {
+      text-align: center;
+    }
+    
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--tiktok-cyan), var(--tiktok-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    
+    .metric-trend {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+    
+    .trend-up {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+    
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    
+    /* Price Chart (CSS-based) */
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .chart-label {
+      width: 100px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    
+    .chart-bar-container {
+      flex: 1;
+      height: 32px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 0 12px;
+    }
+    
+    .chart-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .chart-percent {
+      width: 60px;
+      text-align: right;
+      font-weight: 600;
+    }
+    
+    /* Case Study Cards */
+    .case-card {
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .case-header {
+      padding: 20px;
+      color: white;
+    }
+    
+    .case-header.visual { background: linear-gradient(135deg, var(--tiktok-purple), var(--tiktok-cyan)); }
+    .case-header.painpoint { background: linear-gradient(135deg, var(--tiktok-cyan), var(--tiktok-pink)); }
+    .case-header.authority { background: linear-gradient(135deg, var(--tiktok-pink), #dc2626); }
+    
+    .case-content {
+      padding: 20px;
+      background: var(--card-bg);
+    }
+    
+    .case-metric {
+      display: flex;
+      gap: 20px;
+      margin: 16px 0;
+    }
+    
+    .case-metric-item {
+      background: rgba(255,255,255,0.05);
+      padding: 12px 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .case-metric-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--tiktok-cyan);
+    }
+    
+    .case-metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .badge-warning { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--destructive); }
+    .badge-purple { background: rgba(124, 58, 237, 0.2); color: var(--tiktok-purple); }
+    
+    /* Alert */
+    .alert {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid;
+    }
+    
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--destructive);
+    }
+    
+    .alert-warning {
+      background: rgba(234, 179, 8, 0.1);
+      border-color: var(--warning);
+    }
+    
+    .alert-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .alert-content {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Insight Box */
+    .insight-box {
+      background: linear-gradient(135deg, rgba(105, 201, 208, 0.1), rgba(124, 58, 237, 0.1));
+      border: 1px solid rgba(105, 201, 208, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .insight-title {
+      color: var(--tiktok-cyan);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    /* Link Button */
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+    
+    .link-btn:hover {
+      background: var(--border);
+      border-color: var(--tiktok-cyan);
+    }
+    
+    /* Concentration Warning */
+    .concentration-warning {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(234, 179, 8, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 24px;
+    }
+    
+    .concentration-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--destructive);
+    }
+    
+    /* Rules Grid */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .rule-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    .rule-card h4 {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .rule-list {
+      list-style: none;
+    }
+    
+    .rule-list li {
+      padding: 8px 0;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .rule-list li:last-child {
+      border-bottom: none;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 1.8rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .case-metric { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🦷 TikTok 美区牙膏品类市场洞察</h1>
+      <p>专业市场研究报告 · 数据驱动决策</p>
+    </header>
+
+    <!-- Section 1: 市场大盘概览 -->
+    <section class="section">
+      <h2 class="section-title">📊 市场大盘概览</h2>
+      
+      <div class="cards-grid">
+        <div class="card metric-card">
+          <div class="metric-value">0.312%</div>
+          <div class="metric-label">美区市场份额</div>
+          <span class="metric-trend trend-up">↑ 稳步上升</span>
+        </div>
+        
+        <div class="card metric-card">
+          <div class="metric-value">$192.26万</div>
+          <div class="metric-label">周销售额</div>
+          <span class="metric-trend trend-up">↑ +20.29%</span>
+        </div>
+        
+        <div class="card metric-card">
+          <div class="metric-value">8.90万</div>
+          <div class="metric-label">动销商品数</div>
+          <span class="metric-trend trend-up">↑ 活跃增长</span>
+        </div>
+        
+        <div class="card metric-card">
+          <div class="metric-value">+20.29%</div>
+          <div class="metric-label">销售额增长率</div>
+          <span class="metric-trend trend-up">↑ 强劲增长</span>
+        </div>
+        
+        <div class="card metric-card">
+          <div class="metric-value">Top 1</div>
+          <div class="metric-label">所属类目 - 美妆个护</div>
+          <span class="badge badge-purple">热门类目</span>
+        </div>
+      </div>
+      
+      <div class="insight-box">
+        <div class="insight-title">💡 核心洞察</div>
+        <p>高增长潜力：尽管竞争激烈，但作为美妆个护的重要组成部分，牙膏品类仍保持20%以上的强劲增长。市场处于快速扩张期，适合有差异化产品的卖家入局。</p>
+      </div>
+    </section>
+
+    <!-- Section 2: 价格带分析 -->
+    <section class="section">
+      <h2 class="section-title">💰 价格带分析</h2>
+      
+      <div class="card">
+        <h4 style="margin-bottom: 24px;">销量分布（按价格区间）</h4>
+        
+        <div class="chart-bar">
+          <span class="chart-label">$10 - $15</span>
+          <div class="chart-bar-container">
+            <div class="chart-bar-fill" style="width: 38.07%; background: linear-gradient(90deg, var(--tiktok-cyan), var(--tiktok-purple));">最大份额</div>
+          </div>
+          <span class="chart-percent">38.07%</span>
+        </div>
+        
+        <div class="chart-bar">
+          <span class="chart-label">$20 - $30</span>
+          <div class="chart-bar-container">
+            <div class="chart-bar-fill" style="width: 26.60%; background: linear-gradient(90deg, var(--tiktok-pink), var(--tiktok-purple));"></div>
+          </div>
+          <span class="chart-percent">26.60%</span>
+        </div>
+        
+        <div class="chart-bar">
+          <span class="chart-label">$5 - $10</span>
+          <div class="chart-bar-container">
+            <div class="chart-bar-fill" style="width: 12.92%; background: var(--tiktok-cyan);"></div>
+          </div>
+          <span class="chart-percent">12.92%</span>
+        </div>
+        
+        <div class="chart-bar">
+          <span class="chart-label">$15 - $20</span>
+          <div class="chart-bar-container">
+            <div class="chart-bar-fill" style="width: 10.50%; background: var(--tiktok-pink);"></div>
+          </div>
+          <span class="chart-percent">10.50%</span>
+        </div>
+        
+        <div class="chart-bar">
+          <span class="chart-label">&lt;$5</span>
+          <div class="chart-bar-container">
+            <div class="chart-bar-fill" style="width: 6.20%; background: var(--text-muted);"></div>
+          </div>
+          <span class="chart-percent">6.20%</span>
+        </div>
+        
+        <div class="chart-bar">
+          <span class="chart-label">&gt;$30</span>
+          <div class="chart-bar-container">
+            <div class="chart-bar-fill" style="width: 5.71%; background: var(--text-muted);"></div>
+          </div>
+          <span class="chart-percent">5.71%</span>
+        </div>
+        
+        <div class="insight-box" style="margin-top: 24px;">
+          <div class="insight-title">📈 分析结论</div>
+          <p>消费者偏好明确：$5-$30 的中等价格区间贡献了超过 77% 的销量。$10-$15 是黄金价格带（38.07%），两头（低价/高价）市场渗透率较低。建议新卖家主攻 $10-$30 区间。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 竞品分析 -->
+    <section class="section">
+      <h2 class="section-title">🏆 头部品牌与竞品分析</h2>
+      
+      <div class="card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>品牌/店铺</th>
+                <th>核心卖点</th>
+                <th>预估销售额</th>
+                <th>策略特点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-warning">🥇 1</span></td>
+                <td><strong>NOBS</strong></td>
+                <td>纳米羟基磷灰石修复</td>
+                <td style="color: var(--success); font-weight: 600;">~$1,930万</td>
+                <td>高客单价，成分科普，市场统治力强</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-purple">🥈 2</span></td>
+                <td><strong>MSDRWIKEY</strong></td>
+                <td>SP-6 益生菌牙膏</td>
+                <td style="color: var(--tiktok-cyan); font-weight: 600;">~$525万</td>
+                <td>口腔菌群平衡，差异化定位</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-success">🥉 3</span></td>
+                <td><strong>BodyAccel</strong></td>
+                <td>美白牙膏</td>
+                <td style="font-weight: 600;">~$180万</td>
+                <td>低价走量策略</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="concentration-warning">
+          <div class="concentration-value">73%</div>
+          <p style="font-weight: 600; margin: 8px 0;">Top 10 卖家占据的市场份额</p>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">⚠️ 市场集中度极高，新入局者需谨慎评估竞争策略</p>
+        </div>
+      </div>
+      
+      <!-- 成分趋势 -->
+      <h4 style="margin: 32px 0 16px;">🧪 热门成分趋势</h4>
+      <div class="cards-grid">
+        <div class="card">
+          <span class="badge badge-success" style="margin-bottom: 12px;">修复</span>
+          <h4>纳米羟基磷灰石</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">牙釉质修复，替代氟化物的天然成分</p>
+        </div>
+        <div class="card">
+          <span class="badge badge-purple" style="margin-bottom: 12px;">平衡</span>
+          <h4>口腔益生菌</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">SP-6等菌株，调节口腔菌群生态</p>
+        </div>
+        <div class="card">
+          <span class="badge badge-warning" style="margin-bottom: 12px;">天然</span>
+          <h4>无氟配方</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">迎合天然健康趋势的消费偏好</p>
+        </div>
+        <div class="card">
+          <span class="badge" style="background: rgba(124, 58, 237, 0.2); color: var(--tiktok-purple); margin-bottom: 12px;">美白</span>
+          <h4>紫色校色剂</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">互补色原理，视觉即时美白效果</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: 内容营销策略 -->
+    <section class="section">
+      <h2 class="section-title">🎬 内容营销策略</h2>
+      
+      <!-- 核心逻辑 -->
+      <div class="card" style="text-align: center; padding: 32px; margin-bottom: 24px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(105, 201, 208, 0.1));">
+        <h4 style="margin-bottom: 24px;">核心转化逻辑</h4>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <div style="padding: 20px 30px; background: rgba(238, 29, 82, 0.1); border-radius: 12px; border: 1px solid rgba(238, 29, 82, 0.3);">
+            <strong>🎯 痛点展示</strong><br>
+            <small style="color: var(--text-muted);">引发情感共鸣</small>
+          </div>
+          <span style="font-size: 2rem;">+</span>
+          <div style="padding: 20px 30px; background: rgba(105, 201, 208, 0.1); border-radius: 12px; border: 1px solid rgba(105, 201, 208, 0.3);">
+            <strong>⚡ 视觉冲击</strong><br>
+            <small style="color: var(--text-muted);">值得分享的内容</small>
+          </div>
+          <span style="font-size: 2rem;">=</span>
+          <div style="padding: 20px 30px; background: linear-gradient(135deg, var(--tiktok-pink), var(--tiktok-purple)); border-radius: 12px;">
+            <strong>📈 转化成交</strong><br>
+            <small style="opacity: 0.8;">点击 → 购买 → 收入</small>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 案例卡片 -->
+      <h4 style="margin-bottom: 16px;">典型案例分析</h4>
+      <div class="cards-grid">
+        <!-- 案例1 -->
+        <div class="case-card card" style="padding: 0;">
+          <div class="case-header visual">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">案例 1</span>
+              <span class="badge badge-warning">⚠️ 低转化</span>
+            </div>
+            <h4>视觉冲击流</h4>
+            <p style="opacity: 0.8; font-size: 0.9rem;">紫色牙膏变色</p>
+          </div>
+          <div class="case-content">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+              <strong style="color: var(--text);">视觉钩子：</strong>互补色原理（紫+黄=白），瞬间变白效果
+            </p>
+            <p style="font-size: 0.85rem; margin-bottom: 12px;">
+              <span style="color: var(--text-muted);">核心关键词：</span>
+              <span class="badge badge-purple">紫色校色剂</span>
+            </p>
+            <div class="case-metric">
+              <div class="case-metric-item" style="flex: 1;">
+                <div class="case-metric-value">320万+</div>
+                <div class="case-metric-label">播放量</div>
+              </div>
+              <div class="case-metric-item" style="flex: 1;">
+                <div class="case-metric-value" style="color: var(--warning);">0.0754%</div>
+                <div class="case-metric-label">转化率</div>
+              </div>
+            </div>
+            <div style="background: rgba(234, 179, 8, 0.1); padding: 12px; border-radius: 8px; font-size: 0.85rem;">
+              <strong>洞察：</strong>流量大但信任度低，价格与价值不匹配。高播放量≠高转化。
+            </div>
+            <a href="https://tiktok.com/@zariyahnatalya/video/7542218650787351839?local=en" target="_blank" class="link-btn">
+              🔗 查看对标视频
+            </a>
+          </div>
+        </div>
+        
+        <!-- 案例2 -->
+        <div class="case-card card" style="padding: 0;">
+          <div class="case-header painpoint">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">案例 2</span>
+              <span class="badge badge-success">✓ 有效</span>
+            </div>
+            <h4>痛点直击流</h4>
+            <p style="opacity: 0.8; font-size: 0.9rem;">蛀牙修复 (NOBS)</p>
+          </div>
+          <div class="case-content">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+              <strong style="color: var(--text);">视觉钩子：</strong>展示蛀牙/牙洞 → 引出成分 → 填充修复过程
+            </p>
+            <p style="font-size: 0.85rem; margin-bottom: 12px;">
+              <span style="color: var(--text-muted);">核心关键词：</span>
+              <span class="badge badge-success">羟基磷灰石 / 无氟</span>
+            </p>
+            <div class="case-metric">
+              <div class="case-metric-item" style="flex: 1;">
+                <div class="case-metric-value">471K</div>
+                <div class="case-metric-label">播放量</div>
+              </div>
+              <div class="case-metric-item" style="flex: 1;">
+                <div class="case-metric-value" style="color: var(--success);">0.30%</div>
+                <div class="case-metric-label">转化率</div>
+              </div>
+            </div>
+            <div style="background: rgba(34, 197, 94, 0.1); padding: 12px; border-radius: 8px; font-size: 0.85rem;">
+              <strong>洞察：</strong>痛点可视化创造即时情感连接，天然成分定位建立信任，转化率稳定。
+            </div>
+            <a href="https://tiktok.com/@celia0149/video/7554297641614560567?local=en" target="_blank" class="link-btn">
+              🔗 查看对标视频
+            </a>
+          </div>
+        </div>
+        
+        <!-- 案例3 -->
+        <div class="case-card card" style="padding: 0;">
+          <div class="case-header authority">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span class="badge" style="background: rgba(255,255,255,0.2); color: white;">案例 3</span>
+              <span class="badge badge-danger">⚠️ 高风险</span>
+            </div>
+            <h4>权威背书流（高风险）</h4>
+            <p style="opacity: 0.8; font-size: 0.9rem;">医生/牙医讲解</p>
+          </div>
+          <div class="case-content">
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+              <strong style="color: var(--text);">视觉钩子：</strong>3D 动画医生 + 牙龈出血等画面
+            </p>
+            <p style="font-size: 0.85rem; margin-bottom: 12px;">
+              <span style="color: var(--text-muted);">核心关键词：</span>
+              <span class="badge badge-purple">益生菌 SP-6</span>
+            </p>
+            <div class="case-metric">
+              <div class="case-metric-item" style="flex: 1;">
+                <div class="case-metric-value">320万</div>
+                <div class="case-metric-label">播放量</div>
+              </div>
+              <div class="case-metric-item" style="flex: 1;">
+                <div class="case-metric-value" style="color: var(--tiktok-cyan);">1.53%</div>
+                <div class="case-metric-label">转化率</div>
+              </div>
+            </div>
+            <div class="alert alert-danger" style="margin-top: 12px;">
+              <div class="alert-title">⚠️ 平台风险警告</div>
+              <div class="alert-content">平台正在严查 AI 生成的假医生视频，此类内容有封号风险。3D 动画医生已被禁止！</div>
+            </div>
+            <a href="https://www.tiktok.com/view/product/1729655434325889186" target="_blank" class="link-btn">
+              🔗 查看对标视频
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 策略总结 -->
+      <div class="cards-grid" style="margin-top: 24px;">
+        <div class="card" style="border-color: rgba(105, 201, 208, 0.3);">
+          <h4 style="color: var(--tiktok-cyan); margin-bottom: 12px;">✓ 推荐做法</h4>
+          <ul class="rule-list">
+            <li>• 前5秒展示用户痛点</li>
+            <li>• 使用真实用户评价和反馈</li>
+            <li>• 突出独特成分（羟基磷灰石、益生菌）</li>
+            <li>• 包含明确的购买引导（CTA）</li>
+          </ul>
+        </div>
+        <div class="card" style="border-color: rgba(234, 179, 8, 0.3);">
+          <h4 style="color: var(--warning); margin-bottom: 12px;">⚠️ 注意事项</h4>
+          <ul class="rule-list">
+            <li>• 高播放量 ≠ 高转化</li>
+            <li>• 价格错位会扼杀转化</li>
+            <li>• 确保展示价格与实际价格一致</li>
+            <li>• 真实地营造稀缺感/紧迫感</li>
+          </ul>
+        </div>
+        <div class="card" style="border-color: rgba(239, 68, 68, 0.3);">
+          <h4 style="color: var(--destructive); margin-bottom: 12px;">✗ 禁止行为</h4>
+          <ul class="rule-list">
+            <li>• AI 生成的假医生（已禁止）</li>
+            <li>• 3D 医学动画（平台严查）</li>
+            <li>• 夸大医疗效果宣称</li>
+            <li>• 误导性的前后对比图</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: 平台合规风控 -->
+    <section class="section">
+      <h2 class="section-title">🛡️ 平台合规与风控</h2>
+      
+      <div class="alert alert-danger">
+        <div class="alert-title">🚫 绝对禁止 - 红线警告</div>
+        <div class="alert-content">
+          <ul style="margin-top: 8px;">
+            <li>• 禁止医疗效果承诺："治愈"、"永久美白"、"100%有效"</li>
+            <li>• 禁止 AI 生成的假医生/专家形象</li>
+            <li>• 禁止血腥或令人不适的牙齿病变画面</li>
+            <li>• 禁止未经证实的对比效果图（Before/After需合规）</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="rules-grid" style="margin-top: 24px;">
+        <div class="rule-card">
+          <h4>📋 必备资质认证</h4>
+          <ul class="rule-list">
+            <li><strong>FDA 注册</strong> - 美国食品药品监督管理局</li>
+            <li><strong>COA 证书</strong> - 成分分析报告</li>
+            <li><strong>GMP 认证</strong> - 良好生产规范</li>
+            <li><strong>产品责任险</strong> - 建议购买</li>
+          </ul>
+        </div>
+        
+        <div class="rule-card">
+          <h4>⚠️ 禁用词汇清单</h4>
+          <ul class="rule-list">
+            <li style="color: var(--destructive);">❌ "彻底治愈"、"根治"</li>
+            <li style="color: var(--destructive);">❌ "永久美白"、"一劳永逸"</li>
+            <li style="color: var(--destructive);">❌ "FDA认证"（应为"FDA注册"）</li>
+            <li style="color: var(--destructive);">❌ "医生推荐"（无真实背书）</li>
+            <li style="color: var(--destructive);">❌ "100%有效"、"保证效果"</li>
+          </ul>
+        </div>
+        
+        <div class="rule-card">
+          <h4>✓ 合规话术建议</h4>
+          <ul class="rule-list">
+            <li style="color: var(--success);">✓ "帮助改善"、"有助于"</li>
+            <li style="color: var(--success);">✓ "临床研究表明"（需有出处）</li>
+            <li style="color: var(--success);">✓ "天然成分"、"温和配方"</li>
+            <li style="color: var(--success);">✓ "用户反馈"、"真实体验"</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="alert alert-warning" style="margin-top: 24px;">
+        <div class="alert-title">💡 达人合作注意事项</div>
+        <div class="alert-content">
+          <ul style="margin-top: 8px;">
+            <li>• 提供完整的产品Brief，包含禁用词清单</li>
+            <li>• 要求达人在发布前提交脚本审核</li>
+            <li>• 合同中明确违规责任条款</li>
+            <li>• 定期监控达人发布内容的合规性</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>📊 TikTok 美区牙膏品类市场洞察报告</p>
+      <p style="margin-top: 8px;">数据来源：TikTok Shop 公开数据 · 报告生成时间：2026年2月</p>
+      <p style="margin-top: 16px; opacity: 0.6;">本报告仅供市场研究参考，不构成投资建议</p>
+    </footer>
+  </div>
+</body>
+</html>

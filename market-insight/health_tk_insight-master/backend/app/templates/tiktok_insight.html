@@ -1,0 +1,220 @@
+<!-- 
+Market Insight Agent - TikTok Insight Report Template
+=======================================================
+TikTok 社媒洞察报告模板
+
+使用方式：
+1. 通过 Jinja2 渲染此模板
+2. 传入 context 包含各板块内容
+
+模板变量：
+- params: 用户输入参数 (category, selling_points)
+- sections: 各板块生成的内容
+- charts: SVG 图表代码
+- metadata: 报告元数据
+
+TODO: 
+1. 从参考模板 tiktok-toothpaste-report.html 迁移完整结构
+2. 添加 Jinja2 占位符
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TikTok 社媒洞察报告 - {{ params.category | default('Unknown') }}</title>
+    <style>
+    /* Style migrated from tiktok-toothpaste-report.html */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --tiktok-cyan: #69C9D0;
+      --tiktok-pink: #EE1D52;
+      --tiktok-purple: #7C3AED;
+      --background: #0a0a0a;
+      --card-bg: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --success: #22c55e;
+      --warning: #eab308;
+      --destructive: #ef4444;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding: 40px;
+      background: linear-gradient(135deg, var(--tiktok-pink), var(--tiktok-purple), var(--tiktok-cyan));
+      border-radius: 16px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    /* Section */
+    .section {
+      margin-bottom: 50px;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--tiktok-cyan);
+      display: inline-block;
+    }
+    
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 1.8rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 TikTok 社媒洞察报告</h1>
+            <p>
+                品类：{{ params.category | default('N/A') }}
+                {% if params.selling_points %}
+                ｜卖点：{{ params.selling_points | join(' | ') }}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="section" id="category_trends">
+            <div class="section-title">📈 品类趋势</div>
+            <div class="card">
+                {{ sections.category_trends | safe | default('[待生成]') }}
+                {% if charts.trend_chart %}
+                <div style="margin-top: 16px;">
+                    {{ charts.trend_chart | safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="section" id="hot_videos">
+            <div class="section-title">🔥 热门视频分析</div>
+            <div class="card">
+                {{ sections.hot_videos | safe | default('[待生成]') }}
+            </div>
+        </div>
+
+        <div class="section" id="selling_points">
+            <div class="section-title">🎯 卖点策略洞察</div>
+            <div class="card">
+                {{ sections.selling_points | safe | default('[待生成]') }}
+                {% if charts.selling_points_bar %}
+                <div style="margin-top: 16px;">
+                    {{ charts.selling_points_bar | safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="section" id="creator_ecosystem">
+            <div class="section-title">👤 达人生态</div>
+            <div class="card">
+                {{ sections.creator_ecosystem | safe | default('[待生成]') }}
+                {% if charts.creator_radar %}
+                <div style="margin-top: 16px;">
+                    {{ charts.creator_radar | safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="section" id="creative_suggestions">
+            <div class="section-title">💡 创意方向建议</div>
+            <div class="card">
+                {{ sections.creative_suggestions | safe | default('[待生成]') }}
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Generated by Market Insight Agent | Task ID: {{ metadata.task_id | default('N/A') }}</p>
+        </div>
+    </div>
+</body>
+
+</html>
