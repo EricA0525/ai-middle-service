@@ -16,8 +16,10 @@ def main():
     response = httpx.post(
         f"{BASE_URL}/brand-health",
         json={
-            "brand_name": "云南白药",
-            "region": "中国大陆"
+            "brand_name": "索尼",
+            "category": "耳机",  # 新增：指定品类
+            "region": "中国大陆",
+            "competitors": ["Bose", "Apple AirPods"]
         },
         timeout=30
     )

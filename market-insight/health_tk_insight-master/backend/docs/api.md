@@ -49,8 +49,9 @@ Market Insight Agent API 提供市场洞察报告自动生成服务。
 **请求体**:
 ```json
 {
-    "brand_name": "AOS",
-    "competitors": ["BrandX", "BrandY"],
+    "brand_name": "索尼",
+    "category": "耳机",
+    "competitors": ["Bose", "Apple AirPods"],
     "region": "中国大陆"
 }
 ```
@@ -58,6 +59,7 @@ Market Insight Agent API 提供市场洞察报告自动生成服务。
 | 字段 | 类型 | 必填 | 描述 |
 |------|------|------|------|
 | brand_name | string | ✅ | 品牌名称 |
+| category | string | ❌ | 品类名称。当品牌涉及多品类时建议指定（如"索尼"可指定"耳机"或"游戏机"） |
 | competitors | string[] | ❌ | 竞品列表 |
 | region | string | ✅ | 目标地区 |
 
@@ -227,9 +229,10 @@ Market Insight Agent API 提供市场洞察报告自动生成服务。
 curl -X POST http://localhost:8000/api/v1/brand-health \
   -H "Content-Type: application/json" \
   -d '{
-    "brand_name": "AOS",
+    "brand_name": "索尼",
+    "category": "耳机",
     "region": "中国大陆",
-    "competitors": ["BrandX"]
+    "competitors": ["Bose", "Apple AirPods"]
   }'
 
 # 2. 查询状态（轮询）
@@ -251,7 +254,8 @@ async def generate_report():
         response = await client.post(
             "http://localhost:8000/api/v1/brand-health",
             json={
-                "brand_name": "AOS",
+                "brand_name": "索尼",
+                "category": "耳机",
                 "region": "中国大陆",
             },
         )
@@ -276,13 +280,14 @@ async def generate_report():
 ### JavaScript (前端)
 
 ```javascript
-async function generateReport(brandName, region) {
+async function generateReport(brandName, category, region) {
   // 1. 提交任务
   const submitResponse = await fetch('/api/v1/brand-health', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       brand_name: brandName,
+      category: category,  // 可选：指定品类
       region: region,
     }),
   });

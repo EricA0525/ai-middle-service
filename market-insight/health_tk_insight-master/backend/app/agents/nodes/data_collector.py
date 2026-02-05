@@ -206,17 +206,29 @@ class DataCollectorNode:
         return []
 
     def _build_tavily_query(self, params: Dict[str, Any], task_type: str) -> str:
+        """根据任务类型和参数构建搜索查询"""
         if task_type == "tiktok_insight":
             category = params.get("category", "")
             selling_points = params.get("selling_points", []) or []
             sp_text = " ".join(selling_points[:5])
             return f"TikTok {category} trend insights {sp_text}".strip()
 
+        # 品牌健康分析查询
         brand_name = params.get("brand_name", "")
+        category = params.get("category", "")  # 品类（可选）
         region = params.get("region", "")
         competitors = params.get("competitors", []) or []
-        comp_text = " ".join(competitors[:5])
-        return f"{brand_name} market analysis {region} competitors {comp_text}".strip()
+        comp_text = " ".join(competitors[:3]) if competitors else ""
+        
+        # 构建查询：品牌 + 品类（如果有）+ 地区 + 竞品
+        query_parts = [brand_name]
+        if category:
+            query_parts.append(category)  # 如 "索尼 耳机"
+        query_parts.extend(["market analysis", region])
+        if comp_text:
+            query_parts.append(f"competitors {comp_text}")
+        
+        return " ".join(query_parts).strip()
 
     def _normalize_tavily_results(self, results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """

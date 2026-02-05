@@ -22,13 +22,20 @@ class BrandHealthRequest(BaseModel):
         min_length=1,
         max_length=100,
         description="目标分析品牌名称",
-        json_schema_extra={"example": "AOS"},
+        json_schema_extra={"example": "索尼"},
+    )
+    
+    category: Optional[str] = Field(
+        default=None,
+        max_length=100,
+        description="品牌下的具体品类（可选）。当品牌涉及多个品类时建议指定，如'索尼'可指定'耳机'或'游戏机'",
+        json_schema_extra={"example": "耳机"},
     )
     
     competitors: Optional[List[str]] = Field(
         default=None,
         description="推荐竞品列表",
-        json_schema_extra={"example": ["BrandX", "BrandY", "BrandZ"]},
+        json_schema_extra={"example": ["Bose", "Apple AirPods"]},
     )
     
     region: str = Field(
@@ -42,8 +49,9 @@ class BrandHealthRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "brand_name": "AOS",
-                "competitors": ["BrandX", "BrandY", "BrandZ"],
+                "brand_name": "索尼",
+                "category": "耳机",
+                "competitors": ["Bose", "Apple AirPods"],
                 "region": "中国大陆",
             }
         }
