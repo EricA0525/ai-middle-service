@@ -18,7 +18,10 @@ def get_cred():
     sid = os.getenv("TENCENTCLOUD_SECRET_ID")
     sk = os.getenv("TENCENTCLOUD_SECRET_KEY")
     if not sid or not sk:
-        raise HTTPException(500, "Missing TENCENTCLOUD_SECRET_ID / TENCENTCLOUD_SECRET_KEY")
+        raise HTTPException(
+            500, 
+            "Missing credentials: TENCENTCLOUD_SECRET_ID and TENCENTCLOUD_SECRET_KEY environment variables are required. Please see README.md for setup instructions."
+        )
     return credential.Credential(sid, sk)
 
 @app.get("/health")
