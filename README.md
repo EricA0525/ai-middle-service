@@ -141,7 +141,7 @@ export $(cat .env | xargs) && uvicorn app:app --host 0.0.0.0 --port 8002
 
 1. 在项目根目录创建新的服务目录
 2. 创建 `.env.example` 文件说明所需环境变量
-3. 创建 `README.md` 文档服务功能和使用方法
+3. 创建 `README.md` 文档说明服务功能和使用方法
 4. 更新本文档添加新服务说明
 
 ### 环境变量命名规范
