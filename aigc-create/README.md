@@ -31,6 +31,12 @@ TENCENTCLOUD_SECRET_KEY=your_secret_key_here
 ### 2. 安装依赖
 
 ```bash
+pip install -r requirements.txt
+```
+
+或手动安装：
+
+```bash
 pip install fastapi uvicorn pydantic tencentcloud-sdk-python
 ```
 

@@ -68,7 +68,7 @@ cd ../tc-api && cp .env.example .env
 **启动命令：**
 ```bash
 cd aigc-create
-pip install fastapi uvicorn pydantic tencentcloud-sdk-python
+pip install -r requirements.txt
 uvicorn app:app --reload --port 8000
 ```
 
@@ -86,7 +86,7 @@ uvicorn app:app --reload --port 8000
 **启动命令：**
 ```bash
 cd tc-api
-pip install fastapi uvicorn pydantic vod-python-sdk tencentcloud-sdk-python
+pip install -r requirements.txt
 uvicorn app:app --reload --port 8001
 ```
 

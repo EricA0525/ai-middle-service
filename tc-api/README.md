@@ -31,7 +31,13 @@ TENCENTCLOUD_SECRET_KEY=your_secret_key_here
 ### 2. 安装依赖
 
 ```bash
-pip install fastapi uvicorn pydantic vod-python-sdk tencentcloud-sdk-python
+pip install -r requirements.txt
+```
+
+或手动安装：
+
+```bash
+pip install fastapi uvicorn pydantic vod-python-sdk tencentcloud-sdk-python python-multipart
 ```
 
 ### 3. 启动服务
