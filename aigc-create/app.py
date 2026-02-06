@@ -89,6 +89,7 @@ class AigcRequest(BaseModel):
     duration: Optional[int] = 6
     resolution: Optional[str] = "768P"
     aspect_ratio: Optional[str] = "16:9"
+    audio_generation: str = "Enabled"
     enhance_switch: Optional[str] = "Disabled"
     enhance_prompt: Optional[str] = "Enabled"
     frame_interpolate: Optional[str] = "Disabled"
@@ -169,6 +170,10 @@ def create_aigc_task(req: AigcRequest):
     # 智能插帧（仅Vidu支持）
     if req.frame_interpolate:
         output_config["FrameInterpolate"] = req.frame_interpolate
+
+    # 音频生成开关（使用请求参数）
+    if req.audio_generation:  # ✅ 修复：使用 req.audio_generation
+        output_config["AudioGeneration"] = req.audio_generation  # ✅ 修复：正确拼写
     
     # 如果有输出配置，添加到请求体
     if output_config:
