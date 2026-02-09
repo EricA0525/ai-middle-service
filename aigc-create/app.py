@@ -175,6 +175,9 @@ def create_aigc_task(req: AigcRequest):
     if req.audio_generation:  # ✅ 修复：使用 req.audio_generation
         output_config["AudioGeneration"] = req.audio_generation  # ✅ 修复：正确拼写
     
+    # 人物生成配置
+    output_config["PersonGeneration"] = "AllowAdult"
+    
     # 如果有输出配置，添加到请求体
     if output_config:
         payload_data["OutputConfig"] = output_config
