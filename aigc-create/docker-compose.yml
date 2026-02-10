@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: aigc-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - aigc-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build: .
+    container_name: aigc-api
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - TENCENTCLOUD_SECRET_ID=${TENCENTCLOUD_SECRET_ID}
+      - TENCENTCLOUD_SECRET_KEY=${TENCENTCLOUD_SECRET_KEY}
+      - VOD_SUBAPP_ID=${VOD_SUBAPP_ID:-1320866336}
+      - DEFAULT_THRESHOLD=${DEFAULT_THRESHOLD:-12}
+      - MAX_THRESHOLD=${MAX_THRESHOLD:-12}
+      - MIN_THRESHOLD=${MIN_THRESHOLD:-2}
+      - THRESHOLD_DECREASE=${THRESHOLD_DECREASE:-2}
+      - THRESHOLD_INCREASE=${THRESHOLD_INCREASE:-1}
+      - RECOVERY_INTERVAL=${RECOVERY_INTERVAL:-60}
+      - TENCENT_CLOUD_TIMEOUT=${TENCENT_CLOUD_TIMEOUT:-1800}
+    # 开发模式使用 --reload，生产环境去掉此flag
+    command: uvicorn app:app --host 0.0.0.0 --port 8000
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - aigc-network
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+
+  worker:
+    build: .
+    container_name: aigc-worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - TENCENTCLOUD_SECRET_ID=${TENCENTCLOUD_SECRET_ID}
+      - TENCENTCLOUD_SECRET_KEY=${TENCENTCLOUD_SECRET_KEY}
+      - VOD_SUBAPP_ID=${VOD_SUBAPP_ID:-1320866336}
+      - DEFAULT_THRESHOLD=${DEFAULT_THRESHOLD:-12}
+      - MAX_THRESHOLD=${MAX_THRESHOLD:-12}
+      - MIN_THRESHOLD=${MIN_THRESHOLD:-2}
+      - THRESHOLD_DECREASE=${THRESHOLD_DECREASE:-2}
+      - THRESHOLD_INCREASE=${THRESHOLD_INCREASE:-1}
+      - RECOVERY_INTERVAL=${RECOVERY_INTERVAL:-60}
+      - WORKER_POLL_INTERVAL=${WORKER_POLL_INTERVAL:-2}
+      - WORKER_BLOCK_TIME=${WORKER_BLOCK_TIME:-5000}
+      - TENCENT_CLOUD_TIMEOUT=${TENCENT_CLOUD_TIMEOUT:-1800}
+      - CONSUMER_NAME=worker-1
+    command: python worker.py
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - aigc-network
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+
+networks:
+  aigc-network:
+    driver: bridge
+
+volumes:
+  redis-data:
