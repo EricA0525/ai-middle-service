@@ -7,15 +7,17 @@
 ## 实施的应用
 
 ### 1. Market Insight 应用 ✅
+
 - **路径**: `market-insight/health_tk_insight-master/backend/`
 - **实现方式**: 创建专门的中间件模块
 - **日志库**: loguru
 - **文件变更**:
   - 新建 `app/middleware/__init__.py`
-  - 新建 `app/middleware/logging.py` 
+  - 新建 `app/middleware/logging.py`
   - 修改 `app/main.py` 注册中间件
 
 ### 2. AIGC Create 应用 ✅
+
 - **路径**: `aigc-create/`
 - **实现方式**: 在 app.py 中直接添加中间件
 - **日志库**: Python 内置 print
@@ -23,6 +25,7 @@
   - 修改 `app.py` 添加 APILoggingMiddleware 类
 
 ### 3. TC API 应用 ✅
+
 - **路径**: `tc-api/`
 - **实现方式**: 在 app.py 中直接添加中间件
 - **日志库**: Python 内置 print
@@ -32,6 +35,7 @@
 ## 日志追踪的内容
 
 ### ✅ 请求追踪
+
 - HTTP 方法 (GET, POST, PUT, DELETE 等)
 - 请求路径
 - 查询参数
@@ -40,11 +44,13 @@
 - 请求体内容 (POST/PUT/PATCH 请求)
 
 ### ✅ 响应追踪
+
 - HTTP 状态码
 - 响应处理时间（毫秒精度）
 - 成功/失败标识 (2xx-3xx = 成功, 4xx-5xx = 失败)
 
 ### ✅ 错误追踪
+
 - 捕获所有异常
 - 记录错误详细信息
 - 记录异常堆栈
@@ -59,6 +65,7 @@
 ## 测试验证
 
 ✅ 已通过完整测试：
+
 - 成功的 GET 请求
 - 成功的 POST 请求（带请求体）
 - 失败的请求（400、404 错误）
@@ -74,21 +81,21 @@
 
 ### 日志输出示例
 
-```
 [INFO] API Request Started | POST /aigc/create | Client: 192.168.1.100
 [INFO] API Request Success | POST /aigc/create | Status: 200 | Time: 125.3ms
 [DEBUG] Request Details: {"method": "POST", "path": "/aigc/create", "query_params": {}, "client_ip": "192.168.1.100", "process_time_ms": 125.3, "request_body": {"prompt": "一个小男孩在街上跑步"}, "status_code": 200, "success": true}
-```
 
 ### 查看日志
 
 **开发环境**:
+
 ```bash
 # 日志直接输出到控制台
 uvicorn app:app --reload
 ```
 
 **生产环境**:
+
 ```bash
 # 使用环境变量配置 (market-insight)
 export LOG_TO_FILE=true
@@ -119,6 +126,7 @@ grep "API Request Started" /var/log/app.log | awk '{print $7}' | sort | uniq -c 
 📄 **API_LOGGING_README.md** - 详细的使用和维护文档
 
 包含：
+
 - 功能详细说明
 - 日志示例
 - 技术实现细节

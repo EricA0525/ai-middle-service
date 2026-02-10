@@ -11,6 +11,7 @@
 每个 API 请求都会记录以下信息：
 
 #### 请求信息
+
 - **HTTP 方法**：GET、POST、PUT、PATCH、DELETE 等
 - **请求路径**：完整的 URL 路径
 - **查询参数**：URL 中的查询字符串参数
@@ -19,11 +20,13 @@
 - **请求体**：POST/PUT/PATCH 请求的请求体内容（JSON 格式）
 
 #### 响应信息
+
 - **响应状态码**：HTTP 状态码（200、404、500 等）
 - **处理时间**：请求处理耗时（毫秒）
 - **成功标志**：判断请求是否成功（2xx-3xx 为成功，4xx-5xx 为失败）
 
 #### 错误信息
+
 - **异常详情**：捕获并记录所有异常和错误堆栈
 - **错误消息**：记录错误的详细描述
 
@@ -39,32 +42,28 @@
 ### 3. 日志示例
 
 #### 成功的 GET 请求
-```
+
 [INFO] API Request Started | GET /health | Client: 192.168.1.100
 [INFO] API Request Success | GET /health | Status: 200 | Time: 1.5ms
 [DEBUG] Request Details: {"method": "GET", "path": "/health", "query_params": {}, "client_ip": "192.168.1.100", "process_time_ms": 1.5, "status_code": 200, "success": true}
-```
 
 #### 成功的 POST 请求（带请求体）
-```
+
 [INFO] API Request Started | POST /aigc/create | Client: 192.168.1.100
 [INFO] API Request Success | POST /aigc/create | Status: 200 | Time: 125.3ms
 [DEBUG] Request Details: {"method": "POST", "path": "/aigc/create", "query_params": {}, "client_ip": "192.168.1.100", "process_time_ms": 125.3, "request_body": {"prompt": "一个小男孩在街上跑步", "model_name": "Hailuo"}, "status_code": 200, "success": true}
-```
 
 #### 失败的请求
-```
+
 [INFO] API Request Started | GET /nonexistent | Client: 192.168.1.100
 [WARNING] API Request Failed | GET /nonexistent | Status: 404 | Time: 0.8ms
 [DEBUG] Request Details: {"method": "GET", "path": "/nonexistent", "query_params": {}, "client_ip": "192.168.1.100", "process_time_ms": 0.8, "status_code": 404, "success": false}
-```
 
 #### 异常请求
-```
+
 [INFO] API Request Started | POST /api/v1/tasks | Client: 192.168.1.100
 [ERROR] API Request Exception | POST /api/v1/tasks | Error: Database connection failed
 [ERROR] API Request Error | POST /api/v1/tasks | Error: Database connection failed | Time: 50.2ms
-```
 
 ## 应用实现
 
@@ -73,11 +72,13 @@
 **位置**：`market-insight/health_tk_insight-master/backend/`
 
 **实现方式**：
+
 - 创建专门的中间件模块：`app/middleware/logging.py`
 - 使用 `loguru` 库进行日志记录
 - 在 `app/main.py` 中注册中间件
 
 **文件变更**：
+
 - ✅ `app/middleware/__init__.py`（新建）
 - ✅ `app/middleware/logging.py`（新建）
 - ✅ `app/main.py`（修改，添加中间件导入和注册）
@@ -87,11 +88,13 @@
 **位置**：`aigc-create/`
 
 **实现方式**：
+
 - 在 `app.py` 中直接定义 `APILoggingMiddleware` 类
 - 使用 Python 标准的 `print` 输出日志
 - 在创建 FastAPI 应用后立即注册中间件
 
 **文件变更**：
+
 - ✅ `app.py`（修改，添加中间件类和注册）
 
 ### 3. TC API 应用
@@ -99,11 +102,13 @@
 **位置**：`tc-api/`
 
 **实现方式**：
+
 - 在 `app.py` 中直接定义 `APILoggingMiddleware` 类
 - 使用 Python 标准的 `print` 输出日志
 - 在创建 FastAPI 应用后立即注册中间件
 
 **文件变更**：
+
 - ✅ `app.py`（修改，添加中间件类和注册）
 
 ## 使用说明
@@ -111,6 +116,7 @@
 ### 查看日志
 
 #### 开发环境
+
 日志会直接输出到控制台（stdout）。运行应用时可以直接看到：
 
 ```bash
@@ -146,22 +152,26 @@ uvicorn app:app --host 0.0.0.0 --port 8000 >> /var/log/app.log 2>&1
 ### 日志分析
 
 #### 查找特定接口的调用
+
 ```bash
 grep "GET /health" /var/log/app.log
 ```
 
 #### 查找失败的请求
+
 ```bash
 grep "\[WARNING\] API Request Failed" /var/log/app.log
 grep "\[ERROR\]" /var/log/app.log
 ```
 
 #### 查找慢请求（处理时间超过 1000ms）
+
 ```bash
 grep -E "Time: [0-9]{4,}\.[0-9]+ms" /var/log/app.log
 ```
 
 #### 统计接口调用次数
+
 ```bash
 grep "API Request Started" /var/log/app.log | awk '{print $7}' | sort | uniq -c | sort -rn
 ```
@@ -217,6 +227,7 @@ python test_logging_simple.py
 ```
 
 测试覆盖：
+
 - ✅ 成功的 GET 请求
 - ✅ 成功的 POST 请求（带请求体）
 - ✅ 失败的请求（400 错误）
@@ -284,6 +295,7 @@ request_duration.observe(process_time)
 ## 总结
 
 本实现为所有 API 接口提供了完整的日志追踪能力，能够：
+
 - ✅ 追踪所有接口调用
 - ✅ 记录成功和失败的请求
 - ✅ 记录请求和响应的详细信息
