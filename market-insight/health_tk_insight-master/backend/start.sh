@@ -1,0 +1,50 @@
+#!/bin/bash
+# ===========================================
+# Market Insight Agent - Startup Script
+# ===========================================
+# 启动脚本，用于在8100端口启动服务
+
+set -e
+
+echo "=========================================="
+echo "Market Insight Agent - Starting Service"
+echo "=========================================="
+
+# 获取脚本所在目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# 检查.env文件是否存在
+if [ ! -f .env ]; then
+    echo "⚠️  .env file not found, copying from .env.example..."
+    cp .env.example .env
+    echo "✅ .env file created. Please edit it to add your API keys."
+fi
+
+# 检查Python环境
+if ! command -v python3 &> /dev/null; then
+    echo "❌ Python 3 is not installed. Please install Python 3."
+    exit 1
+fi
+
+# 检查依赖是否安装
+if ! python3 -c "import fastapi" &> /dev/null; then
+    echo "⚠️  Dependencies not installed. Installing..."
+    pip install -r requirements.txt
+fi
+
+# 读取端口配置
+PORT=${API_PORT:-8100}
+
+echo ""
+echo "🚀 Starting service on port $PORT..."
+echo ""
+
+# 启动服务
+uvicorn app.main:app --host 0.0.0.0 --port $PORT --reload
+
+echo ""
+echo "✅ Service started successfully!"
+echo "📝 API Documentation: http://localhost:$PORT/docs"
+echo "🔍 Health Check: http://localhost:$PORT/health"
+echo ""
