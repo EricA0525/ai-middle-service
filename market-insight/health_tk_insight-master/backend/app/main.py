@@ -23,6 +23,7 @@ from loguru import logger
 from app.config import settings
 from app.api.v1.router import api_router
 from app.db.session import init_db
+from app.middleware.logging import LoggingMiddleware
 
 
 @asynccontextmanager
@@ -122,6 +123,9 @@ def create_app() -> FastAPI:
         )
     
     # ========== 注册中间件 ==========
+    # 日志中间件（应该最先注册，以便记录所有请求）
+    app.add_middleware(LoggingMiddleware)
+    
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # 生产环境应限制具体域名
