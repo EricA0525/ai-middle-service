@@ -53,9 +53,14 @@ TENCENTCLOUD_SECRET_KEY=your_secret_key_here
 
 ### 2. 启动服务
 
-使用Docker Compose启动所有服务：
+**生产环境**：
 ```bash
 docker-compose up -d
+```
+
+**开发环境**（带热重载）：
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 查看服务状态：
@@ -170,7 +175,8 @@ aigc-create/
 ├── config.py                # 共享配置
 ├── requirements.txt         # Python依赖
 ├── Dockerfile              # Docker镜像构建
-├── docker-compose.yml      # Docker编排配置
+├── docker-compose.yml      # Docker编排配置（生产）
+├── docker-compose.dev.yml  # Docker开发环境配置
 ├── .env.example            # 环境变量模板
 ├── .gitignore              # Git忽略文件
 ├── test_queue.py           # 队列系统测试

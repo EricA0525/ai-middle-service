@@ -1,0 +1,11 @@
+version: '3.8'
+
+# 开发环境配置 - 带有代码热重载功能
+# 使用方法: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  api:
+    # 覆盖生产环境配置，启用热重载
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - LOG_LEVEL=DEBUG
