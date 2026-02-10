@@ -14,9 +14,20 @@ cd /d %~dp0
 
 REM 检查.env文件是否存在
 if not exist .env (
-    echo [WARNING] .env file not found, copying from .env.example...
-    copy .env.example .env
-    echo [SUCCESS] .env file created. Please edit it to add your API keys.
+    echo [WARNING] .env file not found, copying from configuration template...
+    if exist .env.8100 (
+        copy .env.8100 .env
+        echo [SUCCESS] .env file created from .env.8100 (configured for port 8100^).
+    ) else if exist .env.example (
+        copy .env.example .env
+        echo [SUCCESS] .env file created from .env.example.
+        echo [WARNING] Please edit .env to set API_PORT=8100
+    ) else (
+        echo [ERROR] No template file found (.env.8100 or .env.example^)
+        pause
+        exit /b 1
+    )
+    echo [INFO] Please edit .env to add your API keys if needed.
 )
 
 REM 检查Python环境

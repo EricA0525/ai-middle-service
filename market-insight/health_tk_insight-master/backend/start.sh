@@ -16,9 +16,19 @@ cd "$SCRIPT_DIR"
 
 # 检查.env文件是否存在
 if [ ! -f .env ]; then
-    echo "⚠️  .env file not found, copying from .env.example..."
-    cp .env.example .env
-    echo "✅ .env file created. Please edit it to add your API keys."
+    echo "⚠️  .env file not found, copying from .env.8100..."
+    if [ -f .env.8100 ]; then
+        cp .env.8100 .env
+        echo "✅ .env file created from .env.8100 (configured for port 8100)."
+    elif [ -f .env.example ]; then
+        cp .env.example .env
+        echo "✅ .env file created from .env.example."
+        echo "⚠️  Please edit .env to set API_PORT=8100"
+    else
+        echo "❌ No template file found (.env.8100 or .env.example)"
+        exit 1
+    fi
+    echo "📝 Please edit .env to add your API keys if needed."
 fi
 
 # 检查Python环境
