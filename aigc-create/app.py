@@ -119,7 +119,10 @@ def create_aigc_task(req: AigcRequest):
     
     # 检查密钥是否存在
     if not secret_id or not secret_key:
-        raise HTTPException(status_code=500, detail="Missing credentials")
+        raise HTTPException(
+            status_code=500, 
+            detail="Missing credentials: TENCENTCLOUD_SECRET_ID and TENCENTCLOUD_SECRET_KEY environment variables are required. Please see README.md for setup instructions."
+        )
     
     # 腾讯云API基础配置
     service = "vod"                           # 服务名称
@@ -284,7 +287,10 @@ def get_task_detail(req: TaskDetailRequest):
     
     # 检查密钥是否存在
     if not secret_id or not secret_key:
-        raise HTTPException(status_code=500, detail="Missing credentials")
+        raise HTTPException(
+            status_code=500, 
+            detail="Missing credentials: TENCENTCLOUD_SECRET_ID and TENCENTCLOUD_SECRET_KEY environment variables are required. Please see README.md for setup instructions."
+        )
     
     try:
         # 创建腾讯云认证对象
