@@ -45,20 +45,15 @@ if errorlevel 1 (
     pip install -r requirements.txt
 )
 
-REM 读取端口配置（默认8100）
+REM 读取端口配置（从.env文件或默认8100）
 set PORT=8100
-if defined API_PORT set PORT=%API_PORT%
+for /f "tokens=1,2 delims==" %%a in ('type .env 2^>nul ^| findstr /r "^API_PORT="') do set PORT=%%b
 
 echo.
 echo [INFO] Starting service on port %PORT%...
+echo [INFO] API Documentation: http://localhost:%PORT%/docs
+echo [INFO] Health Check: http://localhost:%PORT%/health
 echo.
 
 REM 启动服务
 uvicorn app.main:app --host 0.0.0.0 --port %PORT% --reload
-
-echo.
-echo [SUCCESS] Service started successfully!
-echo [INFO] API Documentation: http://localhost:%PORT%/docs
-echo [INFO] Health Check: http://localhost:%PORT%/health
-echo.
-pause

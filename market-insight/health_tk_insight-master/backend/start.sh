@@ -43,18 +43,17 @@ if ! python3 -c "import fastapi" &> /dev/null; then
     pip install -r requirements.txt
 fi
 
-# 读取端口配置
+# 读取端口配置 (从.env文件或环境变量，默认8100)
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | grep API_PORT | xargs)
+fi
 PORT=${API_PORT:-8100}
 
 echo ""
 echo "🚀 Starting service on port $PORT..."
+echo "📝 API Documentation: http://localhost:$PORT/docs"
+echo "🔍 Health Check: http://localhost:$PORT/health"
 echo ""
 
 # 启动服务
 uvicorn app.main:app --host 0.0.0.0 --port $PORT --reload
-
-echo ""
-echo "✅ Service started successfully!"
-echo "📝 API Documentation: http://localhost:$PORT/docs"
-echo "🔍 Health Check: http://localhost:$PORT/health"
-echo ""
