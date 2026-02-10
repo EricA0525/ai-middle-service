@@ -44,6 +44,7 @@ class Config:
     TENCENTCLOUD_SECRET_ID: str = os.getenv("TENCENTCLOUD_SECRET_ID", "")
     TENCENTCLOUD_SECRET_KEY: str = os.getenv("TENCENTCLOUD_SECRET_KEY", "")
     VOD_SUBAPP_ID: int = int(os.getenv("VOD_SUBAPP_ID", "1320866336"))
+    TENCENT_CLOUD_TIMEOUT: int = int(os.getenv("TENCENT_CLOUD_TIMEOUT", "1800"))  # API超时(秒)
     
     @classmethod
     def get_redis_client(cls) -> redis.Redis:

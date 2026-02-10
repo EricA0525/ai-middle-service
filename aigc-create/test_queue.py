@@ -32,7 +32,8 @@ def test_stream_operations(client):
             client.delete(Config.STREAM_KEY)
             client.delete(Config.ACTIVE_COUNT_KEY)
             client.delete(Config.THRESHOLD_KEY)
-        except:
+        except Exception:
+            # 忽略删除错误（键可能不存在）
             pass
         
         # 初始化阈值

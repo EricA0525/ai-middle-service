@@ -182,7 +182,8 @@ def get_task_status(task_id: str):
             try:
                 stream_info = redis_client.xinfo_stream(Config.STREAM_KEY)
                 position = stream_info.get("length", 0)
-            except:
+            except Exception:
+                # Stream可能不存在或其他Redis错误
                 position = 0
         
         # 准备响应
@@ -196,7 +197,8 @@ def get_task_status(task_id: str):
         if "result" in task_info:
             try:
                 response["result"] = json.loads(task_info["result"])
-            except:
+            except (json.JSONDecodeError, TypeError):
+                # 如果解析失败，直接返回原始字符串
                 response["result"] = task_info["result"]
         
         return response
@@ -222,7 +224,8 @@ def get_queue_info():
         try:
             stream_info = redis_client.xinfo_stream(Config.STREAM_KEY)
             queue_length = stream_info.get("length", 0)
-        except:
+        except Exception:
+            # Stream可能不存在或其他Redis错误
             queue_length = 0
         
         # 获取活跃任务数

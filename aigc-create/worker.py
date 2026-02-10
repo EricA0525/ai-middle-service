@@ -123,7 +123,8 @@ class AigcWorker:
         if task_data.get("audio_generation"):
             output_config["AudioGeneration"] = task_data["audio_generation"]
         
-        output_config["PersonGeneration"] = "AllowAdult"
+        # 人像生成配置（可配置，默认允许成人）
+        output_config["PersonGeneration"] = task_data.get("person_generation", "AllowAdult")
         
         if output_config:
             payload_data["OutputConfig"] = output_config
@@ -169,7 +170,7 @@ class AigcWorker:
         }
         
         # 发送请求
-        conn = HTTPSConnection(host, timeout=1800)
+        conn = HTTPSConnection(host, timeout=Config.TENCENT_CLOUD_TIMEOUT)
         conn.request("POST", "/", headers=headers, body=payload.encode("utf-8"))
         resp = conn.getresponse()
         result = json.loads(resp.read().decode("utf-8"))
