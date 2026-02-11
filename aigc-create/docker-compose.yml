@@ -1,9 +1,10 @@
 # ===========================================
 # AIGC Video Generation Service - Docker Compose
 # ===========================================
-# 用于部署腾讯云AIGC视频生成服务
 # Redis端口: 6380 (避免与market-insight的6379冲突)
 # API端口: 8020 (避免与market-insight的8010冲突)
+
+version: '3.8'
 
 services:
   # ========== Redis ==========
@@ -14,6 +15,7 @@ services:
       - "6380:6379"
     volumes:
       - redis_data:/data
+    command: redis-server --appendonly yes
     restart: unless-stopped
 
   # ========== API 服务 ==========
@@ -30,11 +32,10 @@ services:
       - .env
     depends_on:
       - redis
+    command: uvicorn app:app --host 0.0.0.0 --port 8000
     restart: unless-stopped
 
   # ========== Worker ==========
-  # 注意：当前app.py未使用Celery，此服务为预留
-  # 如需启用，需要在app.py中添加Celery任务定义
   worker:
     build:
       context: .
@@ -42,12 +43,12 @@ services:
     container_name: aigc-worker
     environment:
       - REDIS_URL=redis://redis:6379/0
+      - CONSUMER_NAME=worker-1
     env_file:
       - .env
     depends_on:
       - redis
-    # 暂时使用sleep命令保持容器运行，实际使用时替换为celery命令
-    command: sh -c "echo 'Worker container ready (Celery not configured yet)' && tail -f /dev/null"
+    command: python -u worker.py
     restart: unless-stopped
 
 volumes:
