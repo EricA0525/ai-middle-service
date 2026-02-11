@@ -5,8 +5,6 @@
 # Redis端口: 6380 (避免与market-insight的6379冲突)
 # API端口: 8020 (避免与market-insight的8010冲突)
 
-version: '3.8'
-
 services:
   # ========== Redis ==========
   redis:
