@@ -1,0 +1,67 @@
+# ===========================================
+# AIGC Video Generation Service - Docker Compose
+# ===========================================
+# 用于部署腾讯云AIGC视频生成服务
+# Redis端口: 6380 (避免与market-insight的6379冲突)
+# API端口: 8020 (避免与market-insight的8010冲突)
+
+version: '3.8'
+
+services:
+  # ========== Redis ==========
+  redis:
+    image: redis:7-alpine
+    container_name: aigc-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - aigc-network
+
+  # ========== API 服务 ==========
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aigc-api
+    ports:
+      - "8020:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - aigc-network
+
+  # ========== Celery Worker ==========
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aigc-worker
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    command: celery -A app worker --loglevel=info
+    restart: unless-stopped
+    networks:
+      - aigc-network
+
+networks:
+  aigc-network:
+    driver: bridge
+
+volumes:
+  redis_data:
