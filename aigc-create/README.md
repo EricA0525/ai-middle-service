@@ -28,6 +28,7 @@ vi .env
 ```
 
 将以下两项替换为实际值：
+
 - `TENCENTCLOUD_SECRET_ID=your_secret_id_here`
 - `TENCENTCLOUD_SECRET_KEY=your_secret_key_here`
 
@@ -42,6 +43,7 @@ docker compose up -d --build
 ### 4. 验证服务
 
 #### 查看容器状态
+
 ```bash
 # 查看所有aigc相关容器
 docker ps | grep aigc
@@ -53,6 +55,7 @@ docker ps | grep aigc
 ```
 
 #### 查看日志
+
 ```bash
 # 查看API日志
 docker logs aigc-api
@@ -65,6 +68,7 @@ docker logs aigc-redis
 ```
 
 #### 测试API
+
 ```bash
 # 访问API文档（Swagger UI）
 curl http://localhost:8020/docs
@@ -99,18 +103,21 @@ docker compose down -v
 ### 端口冲突
 
 如果遇到端口冲突，请检查：
+
 1. market-insight 服务是否占用了 6379 或 8010 端口
 2. 其他服务是否占用了 6380 或 8020 端口
 
 ### 容器无法启动
 
 检查日志：
+
 ```bash
 docker logs aigc-api
 docker logs aigc-worker
 ```
 
 常见问题：
+
 - 检查 `.env` 文件是否存在且配置正确
 - 检查腾讯云密钥是否有效
 - 检查Docker守护进程是否正常运行
