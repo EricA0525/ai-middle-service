@@ -17,8 +17,6 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
-    networks:
-      - aigc-network
 
   # ========== API 服务 ==========
   api:
@@ -30,17 +28,15 @@ services:
       - "8020:8000"
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
     env_file:
       - .env
     depends_on:
       - redis
     restart: unless-stopped
-    networks:
-      - aigc-network
 
-  # ========== Celery Worker ==========
+  # ========== Worker ==========
+  # 注意：当前app.py未使用Celery，此服务为预留
+  # 如需启用，需要在app.py中添加Celery任务定义
   worker:
     build:
       context: .
@@ -48,20 +44,13 @@ services:
     container_name: aigc-worker
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
     env_file:
       - .env
     depends_on:
       - redis
-    command: celery -A app worker --loglevel=info
+    # 暂时使用sleep命令保持容器运行，实际使用时替换为celery命令
+    command: sh -c "echo 'Worker container ready (Celery not configured yet)' && tail -f /dev/null"
     restart: unless-stopped
-    networks:
-      - aigc-network
-
-networks:
-  aigc-network:
-    driver: bridge
 
 volumes:
   redis_data:
