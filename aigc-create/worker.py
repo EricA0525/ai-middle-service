@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 AIGC 任务消费 Worker
-从 Redis Stream 消费任务 → 控制并发 → 调腾讯云 API → 结果写回 Redis
+核心修复：使用 Redis Lua 脚本保证「检查并发+领取任务」的原子性，防止超并发
 """
 
 import hashlib
@@ -36,13 +36,60 @@ BLOCK_TIME = int(os.getenv("WORKER_BLOCK_TIME", "5000"))  # 毫秒
 # 优雅退出
 running = True
 
+
 def handle_signal(signum, frame):
     global running
     print(f"[INFO] 收到信号 {signum}，准备退出...")
     running = False
 
+
 signal.signal(signal.SIGTERM, handle_signal)
 signal.signal(signal.SIGINT, handle_signal)
+
+
+# ========== Lua 原子脚本：检查并发 + 原子递增 ==========
+# KEYS[1] = ACTIVE_COUNT_KEY
+# KEYS[2] = THRESHOLD_KEY
+# ARGV[1] = default_threshold
+# 返回: >0 表示成功领取（返回新的 active_count），0 表示并发已满
+LUA_ATOMIC_CLAIM = r.register_script("""
+local active_key      = KEYS[1]
+local threshold_key   = KEYS[2]
+local default_threshold = tonumber(ARGV[1])
+
+local threshold = tonumber(redis.call('GET', threshold_key)) or default_threshold
+local active    = tonumber(redis.call('GET', active_key)) or 0
+
+if active >= threshold then
+    return 0
+end
+
+-- 原子递增
+local new_count = redis.call('INCR', active_key)
+
+-- 双重检查：如果 INCR 之后超了（极端情况），回退
+if new_count > threshold then
+    redis.call('DECR', active_key)
+    return 0
+end
+
+return new_count
+""")
+
+# Lua 原子脚本：安全递减 active_count（不会变负数）
+# KEYS[1] = ACTIVE_COUNT_KEY
+# 返回: 递减后的值
+LUA_ATOMIC_RELEASE = r.register_script("""
+local active_key = KEYS[1]
+local current = tonumber(redis.call('GET', active_key)) or 0
+
+if current <= 0 then
+    redis.call('SET', active_key, 0)
+    return 0
+end
+
+return redis.call('DECR', active_key)
+""")
 
 
 # ========== 腾讯云 API 调用 ==========
@@ -168,6 +215,22 @@ def get_current_threshold() -> int:
     return int(val) if val else DEFAULT_THRESHOLD
 
 
+def atomic_claim_slot() -> int:
+    """
+    原子性领取一个并发槽位
+    返回: >0 表示成功（新的 active_count），0 表示并发已满
+    """
+    return LUA_ATOMIC_CLAIM(
+        keys=[ACTIVE_COUNT_KEY, THRESHOLD_KEY],
+        args=[DEFAULT_THRESHOLD],
+    )
+
+
+def atomic_release_slot():
+    """原子性释放一个并发槽位（不会变负数）"""
+    LUA_ATOMIC_RELEASE(keys=[ACTIVE_COUNT_KEY])
+
+
 def decrease_threshold():
     """报错后降低阈值"""
     current = get_current_threshold()
@@ -198,6 +261,7 @@ def try_recover_threshold():
 def process_task(task_id: str):
     """
     处理单个任务：调腾讯云 API，把结果写回 Redis
+    注意：进入此函数时，并发槽位已经被 atomic_claim_slot 占住了
     """
     task_key = f"{TASK_PREFIX}{task_id}"
 
@@ -213,9 +277,6 @@ def process_task(task_id: str):
 
     # 更新状态为处理中
     r.hset(task_key, "status", "processing")
-
-    # 增加活跃计数
-    r.incr(ACTIVE_COUNT_KEY)
 
     try:
         # 调用腾讯云
@@ -264,11 +325,8 @@ def process_task(task_id: str):
         r.hset(task_key, "error", str(e))
 
     finally:
-        # 减少活跃计数
-        r.decr(ACTIVE_COUNT_KEY)
-        # 防止计数变为负数
-        if int(r.get(ACTIVE_COUNT_KEY) or 0) < 0:
-            r.set(ACTIVE_COUNT_KEY, 0)
+        # 原子性释放槽位（不会变负数）
+        atomic_release_slot()
 
 
 # ========== 主循环 ==========
@@ -294,11 +352,9 @@ def main():
     # 初始化
     init_consumer_group()
 
-    # 初始化阈值
     if not r.exists(THRESHOLD_KEY):
         r.set(THRESHOLD_KEY, DEFAULT_THRESHOLD)
 
-    # 初始化活跃计数
     if not r.exists(ACTIVE_COUNT_KEY):
         r.set(ACTIVE_COUNT_KEY, 0)
 
@@ -307,24 +363,32 @@ def main():
             # 尝试恢复阈值
             try_recover_threshold()
 
-            # 检查并发
-            active = get_active_count()
-            threshold = get_current_threshold()
-
-            if active >= threshold:
+            # ====== 核心修复：原子性领取并发槽位 ======
+            claimed = atomic_claim_slot()
+            if claimed == 0:
                 # 并发已满，等待
                 time.sleep(POLL_INTERVAL)
                 continue
 
-            # 从 Stream 读取任务
-            messages = r.xreadgroup(
-                CONSUMER_GROUP, CONSUMER_NAME,
-                {STREAM_KEY: ">"},
-                count=1,
-                block=BLOCK_TIME,
-            )
+            # 槽位已占住，现在去取任务
+            # 如果取不到任务，必须释放槽位
+            messages = None
+            try:
+                messages = r.xreadgroup(
+                    CONSUMER_GROUP, CONSUMER_NAME,
+                    {STREAM_KEY: ">"},
+                    count=1,
+                    block=BLOCK_TIME,
+                )
+            except Exception as e:
+                print(f"[ERROR] xreadgroup 失败: {e}")
+                atomic_release_slot()
+                time.sleep(POLL_INTERVAL)
+                continue
 
             if not messages:
+                # 没有任务，释放槽位
+                atomic_release_slot()
                 continue
 
             for stream_name, stream_messages in messages:
@@ -333,16 +397,19 @@ def main():
                     if not task_id:
                         r.xack(STREAM_KEY, CONSUMER_GROUP, msg_id)
                         r.xdel(STREAM_KEY, msg_id)
+                        atomic_release_slot()
                         continue
 
+                    active = get_active_count()
+                    threshold = get_current_threshold()
                     print(f"[INFO] 消费任务: {task_id} (活跃: {active}/{threshold})")
 
-                    # 处理任务
+                    # 处理任务（process_task 的 finally 中会释放槽位）
                     process_task(task_id)
 
                     # 确认消息
                     r.xack(STREAM_KEY, CONSUMER_GROUP, msg_id)
-                    r.xdel(STREAM_KEY, msg_id) 
+                    r.xdel(STREAM_KEY, msg_id)
 
         except redis.exceptions.ConnectionError as e:
             print(f"[ERROR] Redis 连接失败: {e}，{POLL_INTERVAL}秒后重试...")
