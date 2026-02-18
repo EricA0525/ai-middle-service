@@ -10,6 +10,7 @@ import json
 import os
 import signal
 import sys
+import threading
 import time
 from datetime import datetime
 from http.client import HTTPSConnection
@@ -324,8 +325,16 @@ def process_task(task_id: str):
         r.hset(task_key, "status", "failed")
         r.hset(task_key, "error", str(e))
 
+
+# ========== 线程包装函数 ==========
+
+def task_worker(task_id, msg_id):
+    """线程函数：处理任务 + 清理（先删消息再释放槽位）"""
+    try:
+        process_task(task_id)
     finally:
-        # 原子性释放槽位（不会变负数）
+        r.xack(STREAM_KEY, CONSUMER_GROUP, msg_id)
+        r.xdel(STREAM_KEY, msg_id)
         atomic_release_slot()
 
 
@@ -358,12 +367,17 @@ def main():
     if not r.exists(ACTIVE_COUNT_KEY):
         r.set(ACTIVE_COUNT_KEY, 0)
 
+    active_threads = []
+
     while running:
         try:
+            # 清理已完成的线程
+            active_threads = [t for t in active_threads if t.is_alive()]
+
             # 尝试恢复阈值
             try_recover_threshold()
 
-            # ====== 核心修复：原子性领取并发槽位 ======
+            # ====== 原子性领取并发槽位 ======
             claimed = atomic_claim_slot()
             if claimed == 0:
                 # 并发已满，等待
@@ -404,12 +418,12 @@ def main():
                     threshold = get_current_threshold()
                     print(f"[INFO] 消费任务: {task_id} (活跃: {active}/{threshold})")
 
-                    # 处理任务（process_task 的 finally 中会释放槽位）
-                    process_task(task_id)
-
-                    # 确认消息
-                    r.xack(STREAM_KEY, CONSUMER_GROUP, msg_id)
-                    r.xdel(STREAM_KEY, msg_id)
+                    # 启动线程处理（线程内会释放槽位）
+                    t = threading.Thread(
+                        target=task_worker, args=(task_id, msg_id), daemon=True,
+                    )
+                    t.start()
+                    active_threads.append(t)
 
         except redis.exceptions.ConnectionError as e:
             print(f"[ERROR] Redis 连接失败: {e}，{POLL_INTERVAL}秒后重试...")
@@ -419,6 +433,10 @@ def main():
             print(f"[ERROR] Worker 异常: {e}")
             time.sleep(POLL_INTERVAL)
 
+    # 优雅退出：等待所有活跃线程完成
+    print(f"[INFO] 等待 {len(active_threads)} 个任务完成...")
+    for t in active_threads:
+        t.join(timeout=60)
     print("[INFO] Worker 已停止")
 
 
