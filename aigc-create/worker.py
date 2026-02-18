@@ -364,8 +364,9 @@ def main():
     if not r.exists(THRESHOLD_KEY):
         r.set(THRESHOLD_KEY, DEFAULT_THRESHOLD)
 
-    if not r.exists(ACTIVE_COUNT_KEY):
-        r.set(ACTIVE_COUNT_KEY, 0)
+    # 启动时重置 active_count，防止上次异常退出导致计数残留
+    r.set(ACTIVE_COUNT_KEY, 0)
+    print("[INFO] active_count 已重置为 0")
 
     active_threads = []
 
