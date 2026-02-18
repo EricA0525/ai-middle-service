@@ -33,6 +33,7 @@ r = redis.from_url(REDIS_URL, decode_responses=True)
 CONSUMER_NAME = os.getenv("CONSUMER_NAME", "worker-1")
 POLL_INTERVAL = int(os.getenv("WORKER_POLL_INTERVAL", "2"))
 BLOCK_TIME = int(os.getenv("WORKER_BLOCK_TIME", "5000"))  # 毫秒
+TASK_POLL_INTERVAL = int(os.getenv("TASK_POLL_INTERVAL", "10"))  # 轮询腾讯云任务状态间隔（秒）
 
 # 优雅退出
 running = True
@@ -202,6 +203,68 @@ def call_tencent_create_aigc(task_params: dict) -> dict:
         return {"error": str(e)}
 
 
+def call_tencent_describe_task(tencent_task_id: str) -> dict:
+    """
+    调用腾讯云 DescribeTaskDetail 接口查询任务状态
+    返回腾讯云的原始响应
+    """
+    secret_id = TENCENTCLOUD_SECRET_ID
+    secret_key = TENCENTCLOUD_SECRET_KEY
+
+    if not secret_id or not secret_key:
+        return {"error": "Missing credentials"}
+
+    service = "vod"
+    host = "vod.tencentcloudapi.com"
+    version = "2018-07-17"
+    action = "DescribeTaskDetail"
+
+    payload = json.dumps({"TaskId": tencent_task_id, "SubAppId": VOD_SUBAPP_ID})
+
+    # TC3 签名
+    algorithm = "TC3-HMAC-SHA256"
+    timestamp = int(time.time())
+    date = datetime.utcfromtimestamp(timestamp).strftime("%Y-%m-%d")
+
+    ct = "application/json; charset=utf-8"
+    canonical_headers = f"content-type:{ct}\nhost:{host}\nx-tc-action:{action.lower()}\n"
+    signed_headers = "content-type;host;x-tc-action"
+    hashed_request_payload = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    canonical_request = f"POST\n/\n\n{canonical_headers}\n{signed_headers}\n{hashed_request_payload}"
+
+    credential_scope = f"{date}/{service}/tc3_request"
+    hashed_canonical_request = hashlib.sha256(canonical_request.encode("utf-8")).hexdigest()
+    string_to_sign = f"{algorithm}\n{timestamp}\n{credential_scope}\n{hashed_canonical_request}"
+
+    secret_date = tc3_sign(("TC3" + secret_key).encode("utf-8"), date)
+    secret_service = tc3_sign(secret_date, service)
+    secret_signing = tc3_sign(secret_service, "tc3_request")
+    signature = hmac.new(secret_signing, string_to_sign.encode("utf-8"), hashlib.sha256).hexdigest()
+
+    authorization = (
+        f"{algorithm} Credential={secret_id}/{credential_scope}, "
+        f"SignedHeaders={signed_headers}, Signature={signature}"
+    )
+
+    headers = {
+        "Authorization": authorization,
+        "Content-Type": ct,
+        "Host": host,
+        "X-TC-Action": action,
+        "X-TC-Timestamp": str(timestamp),
+        "X-TC-Version": version,
+    }
+
+    try:
+        conn = HTTPSConnection(host, timeout=30)
+        conn.request("POST", "/", headers=headers, body=payload.encode("utf-8"))
+        resp = conn.getresponse()
+        result = json.loads(resp.read().decode("utf-8"))
+        return result
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ========== 并发控制 ==========
 
 def get_active_count() -> int:
@@ -311,14 +374,50 @@ def process_task(task_id: str):
             r.hset(task_key, "error", result["error"])
             return
 
-        # 成功：提取腾讯云的 TaskId
+        # 成功：提取腾讯云的 TaskId，开始轮询等待完成
         tencent_task_id = response.get("TaskId", "")
         print(f"[INFO] 任务 {task_id} 提交成功，腾讯云TaskId: {tencent_task_id}")
         r.hset(task_key, mapping={
-            "status": "completed",
-            "result": json.dumps(result, ensure_ascii=False),
+            "status": "processing",
             "tencent_task_id": tencent_task_id,
         })
+
+        # 轮询腾讯云任务状态，直到完成或失败才释放槽位
+        while running:
+            time.sleep(TASK_POLL_INTERVAL)
+            detail = call_tencent_describe_task(tencent_task_id)
+
+            if "error" in detail:
+                print(f"[WARN] 任务 {task_id} 轮询失败: {detail['error']}，继续重试...")
+                continue
+
+            detail_resp = detail.get("Response", {})
+            detail_error = detail_resp.get("Error", {})
+            if detail_error:
+                print(f"[WARN] 任务 {task_id} 查询报错: {detail_error.get('Code')}，继续重试...")
+                continue
+
+            task_status = detail_resp.get("Status", "")
+            print(f"[INFO] 任务 {task_id} 腾讯云状态: {task_status}")
+
+            if task_status == "FINISH":
+                r.hset(task_key, mapping={
+                    "status": "completed",
+                    "result": json.dumps(detail, ensure_ascii=False),
+                })
+                print(f"[INFO] 任务 {task_id} 已完成")
+                return
+
+            elif task_status == "FAIL":
+                fail_reason = json.dumps(detail_resp, ensure_ascii=False)
+                r.hset(task_key, mapping={
+                    "status": "failed",
+                    "error": fail_reason,
+                })
+                print(f"[ERROR] 任务 {task_id} 腾讯云处理失败")
+                return
+
+            # WAITING / PROCESSING → 继续轮询
 
     except Exception as e:
         print(f"[ERROR] 任务 {task_id} 异常: {e}")
