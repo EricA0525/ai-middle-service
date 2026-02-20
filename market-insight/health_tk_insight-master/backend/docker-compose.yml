@@ -12,9 +12,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8100:8100"
     environment:
       - APP_ENV=development
+      - API_PORT=8100
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/2
@@ -25,7 +26,7 @@ services:
       - ./data:/app/data
     depends_on:
       - redis
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8100 --reload
     restart: unless-stopped
 
   # ========== Celery Worker ==========
