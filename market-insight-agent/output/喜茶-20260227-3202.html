@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>喜茶市场洞察深度报告 | Visualized Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+<body class="pb-32">
+<header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider mb-6 border border-orange-200 hover:scale-105 transition-transform cursor-default">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>喜茶果汁市场洞察｜中国市场｜2025年
+</div>
+<h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">喜茶果汁市场洞察</h1>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto">品牌：喜茶｜品类范围：果汁/鲜果茶（茶+果汁）｜时间范围：2025年1月-2026年1月。执行摘要：喜茶在2025年由规模扩张转向质量增长，门店侧以收缩优化与重装升级修复品牌一致性，产品侧以“茶特调+区域原料+多茶基底”强化果汁差异化并形成断货爆款，消费侧呈现“品质回归、健康感与社交传播并重”特征；在自我对照下，当前阶段核心命题已从开店速度转为同店效率、稳定复购与全球化本地创新能力。 <a class="source-link" href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</header>
+<main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+<section class="section relative" id="part1">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">宏观趋势与格局</h2>
+<div class="glass-card p-8 mb-8 reveal">
+<div class="grid md:grid-cols-2 gap-12">
+<div>
+<h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模预测（新式茶饮）</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span>2025年（估）</span>
+<span class="text-gray-500">约3,050亿元</span>
+</div>
+<div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+<div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">2025</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span class="text-orange-600">2028年（估）</span>
+<span class="text-orange-600 font-bold">约3,420亿元</span>
+</div>
+<div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+<div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">2028</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">定性：正向支撑</div>
+<p class="text-xs text-gray-500">行业由高速扩店转向稳增长，增量主要来自结构升级与高复购品类。 <a class="source-link" href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="border-l border-gray-200 md:pl-8">
+<h3 class="text-lg font-bold mb-4 text-gray-800">增速驱动拆解</h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">过去模式</div>
+<div>
+<div class="font-bold text-sm text-gray-800">产品创新驱动复购</div>
+<div class="text-xs text-gray-500 mt-1">茶基底差异化、季节果茶与“茶特调”提升客单与上新转化，爆品带动短周期流量。</div>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+<div>
+<div class="font-bold text-sm text-gray-800">门店质量替代门店数量</div>
+<div class="text-xs text-gray-500 mt-1">头部品牌进入“精算开店”，通过关低效店、重装高势能店和运营提效获取同店增长。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+<i class="text-orange-500" data-lucide="users"></i>消费行为迁移（对喜茶影响显著）
+</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">价格心智</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">低价优先</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">质价比优先</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">消费者仍敏感价格，但更重视“稳定好喝+真实原料”的综合价值。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">决策入口</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">门店近场</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">内容种草+即时转化</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">社媒“断货话题”与联名内容直接影响到店与外卖下单峰值。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">品类偏好</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">奶底同质化</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">茶底风味化</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">“茶+果+地域原料”成为差异化主战场，强化品牌识别与溢价空间。</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 竞争格局概览（喜茶自我对照）</h3>
+<div class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+<div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">2025</div>
+<h4 class="text-lg font-bold text-blue-900 mb-2">扩张导向</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">关键词：开店速度、规模竞争</p>
+<p class="text-xs text-gray-500 mb-4">通过加盟与下沉快速放量，但易带来出品一致性波动与品牌定位稀释。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+<div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">当前模式</div>
+<h4 class="text-lg font-bold text-orange-900 mb-2">质量导向</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">关键词：纠错收缩、精算开店</p>
+<p class="text-xs text-gray-500 mb-4">暂停粗放加盟、优化低效门店、强化“真品质”和门店体验，重建高端心智。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+<div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg"></div>
+<h4 class="text-lg font-bold text-green-900 mb-2">双曲线增长</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">关键词：同店效率+海外增量</p>
+<p class="text-xs text-gray-500 mb-4">国内靠复购与坪效提升，海外靠本地化产品与品牌事件拓展第二增长曲线。 <a class="source-link" href="https://caifuhao.eastmoney.com/news/20260125081308599425480" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+<div class="glass-card p-6">
+<h3 class="text-lg font-bold mb-4 text-gray-800">行业机会与风险</h3>
+<ul class="space-y-4">
+<li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+<div class="font-bold text-sm text-blue-800 mb-1">机会：供给侧出清后的头部集中</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>触发点：</strong>行业从“开店竞速”转向“运营竞效”</span>
+<span><strong>对喜茶：</strong>品牌、研发与内容能力更易转化为市场份额</span>
+</div>
+<a class="source-link" href="https://www.21jingji.com/article/20251223/herald/f1c79305417557866f49c0a39acc6661.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+<div class="font-bold text-sm text-orange-800 mb-1">风险：加盟盈利与高端定位张力</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>触发点：</strong>租金、人力、促销压力持续存在</span>
+<span><strong>对喜茶：</strong>若标准执行不稳，口碑与复购将受到连锁影响</span>
+</div>
+</li>
+</ul>
+</div>
+<div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+<h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+<i class="text-orange-500" data-lucide="shield"></i>关键判断
+</h3>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">核心结论</h4>
+<p class="text-sm font-light text-gray-200">新茶饮进入<span class="text-orange-400 font-bold">中速增长+高质量竞争</span>阶段，决定胜负的不是门店总量，而是单店模型、产品护城河与品牌一致性。 <a class="source-link" href="https://www.cbndata.com/information/294799" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">观察指标</h4>
+<div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+<div>
+<span class="block text-white font-bold">中速增长+高质量竞争</span><br/></div>
+<div>
+<span class="block text-white font-bold">经营侧</span><br/></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="text-orange-400" data-lucide="share-2"></i>1.3 全平台生态框架分析</h3>
+<div class="grid md:grid-cols-3 gap-8 text-sm">
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">产品与门店</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">产品结构升级</strong>
+<div class="text-gray-400 text-xs mt-1">围绕茶基底创新、区域风味与季节果茶，形成“爆品+常青款”组合。</div>
+</li>
+<li>
+<strong class="text-white">门店资产再配置</strong>
+<div class="text-gray-400 text-xs mt-1">通过重装与分层店型提升体验与效率，降低无效扩张带来的资产压力。</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">渠道与用户</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">内容驱动交易</strong>
+<div class="text-gray-400 text-xs mt-1">新品叙事、联名与社媒讨论度决定短期流量峰值与品牌温度。</div>
+</li>
+<li>
+<strong class="text-white">会员驱动复购</strong>
+<div class="text-gray-400 text-xs mt-1">数字化会员体系承接公域流量，提升复购频次与用户生命周期价值。</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">增长与防御</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">第二曲线：海外本地化</strong>
+<div class="text-gray-400 text-xs mt-1">国内效率优化<i class="inline w-3 h-3" data-lucide="arrow-right"></i>海外产品本地化<i class="inline w-3 h-3" data-lucide="arrow-right"></i>全球品牌势能沉淀。</div>
+</li>
+<li>
+<strong class="text-white">底线能力：供应链与标准化</strong>
+<div class="text-gray-400 text-xs mt-1">食安、交付稳定与出品一致性是应对价格战与需求波动的核心护城河。</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part2">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">全球化洞察</h2>
+<div class="glass-card p-0 overflow-hidden mb-8 reveal">
+<div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
+<h3 class="text-orange-800 font-bold m-0">2.1 区域市场心智矩阵</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs tracking-wider">
+<tr>
+<th class="p-4">区域市场</th>
+<th class="p-4">品牌角色定位</th>
+<th class="p-4">消费偏好与运营重点</th>
+<th class="p-4">阶段判断</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-orange-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">中国内地（一线/新一线）</td>
+<td class="p-4 text-orange-600 font-medium">“高品质茶饮引领者”心智修复</td>
+<td class="p-4">由规模扩张转向门店质量与复购效率；强调茶基底创新、空间重装与服务一致性，提升同店表现。</td>
+<td class="p-4"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">结构优化期</span></td>
+</tr>
+<tr class="hover:bg-pink-50/30 transition-colors bg-pink-50/10">
+<td class="p-4 font-bold text-gray-800">中国内地下沉市场</td>
+<td class="p-4 text-pink-600 font-medium">“可负担的品质升级”</td>
+<td class="p-4">价格敏感度更高，需平衡高端形象与经营模型；通过标准店型、稳定爆款和运营赋能降低波动。</td>
+<td class="p-4"><span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">谨慎渗透期</span></td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">港澳及东南亚华人圈</td>
+<td class="p-4 text-blue-600 font-medium">“中式茶饮文化名片”</td>
+<td class="p-4">接受度高、传播快，适合以经典产品建立认知，再叠加区域原生口味；强化排队势能与社媒打卡内容。</td>
+<td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">加速放量期</span></td>
+</tr>
+<tr class="hover:bg-green-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">日韩及成熟都市市场</td>
+<td class="p-4 text-green-600 font-medium">“精致茶生活方式品牌”</td>
+<td class="p-4">重视门店审美、低糖健康表达与季节限定；需提高供应链稳定性与高峰出杯效率，避免高期待下体验落差。</td>
+<td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">品牌深耕期</span></td>
+</tr>
+<tr class="hover:bg-cyan-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">欧美核心城市</td>
+<td class="p-4 text-cyan-600 font-medium">“亚洲新消费体验入口”</td>
+<td class="p-4">教育成本较高，需用“茶特调+低糖+场景社交”降低理解门槛；先做地标店与内容事件，再复制效率店。</td>
+<td class="p-4"><span class="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">认知培育期</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="glass-card p-8 mb-8 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800">2.4 全球典型人群深度画像</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">URBAN CREATIVE</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">都市内容创作者</h4>
+<p class="text-xs text-gray-500 mb-3">集中在一线城市与海外核心商圈，愿意为“可分享、可表达”的新品支付溢价。</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心诉求：</strong>新品速度、视觉辨识度、社交传播价值</p>
+<p><strong class="text-orange-500">打法建议：</strong>首发限定+联名周边+门店活动，形成“尝鲜—打卡—复购”闭环</p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">HEALTH SEEKER</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">健康轻负担通勤人群</h4>
+<p class="text-xs text-gray-500 mb-3">高频消费、时间敏感，关注糖度、热量和稳定口感，是长期复购主力。</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心诉求：</strong>低糖配方、清爽茶底、快速出杯</p>
+<p><strong class="text-green-600">打法建议：</strong>建立“日常可喝”产品线，强化营养信息与午后场景套餐</p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">CULTURE EXPLORER</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">跨文化尝鲜游客</h4>
+<p class="text-xs text-gray-500 mb-3">在海外市场增长明显，通过旅行与社媒接触品牌，偏好“东方风味+现代体验”。 <a class="source-link" href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心诉求：</strong>易理解菜单、地域故事、纪念性消费</p>
+<p><strong class="text-cyan-600">打法建议：</strong>双语菜单+风味解释卡+城市限定杯套，提升首次转化与纪念复购</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6 reveal">
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.5 跨市场策略重点</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>产品分层：</strong>“全球通用基础款 + 区域原生限定款”双轨并行，既保证规模效率又保持在地新鲜感。</li>
+<li><strong>门店分层：</strong>以形象店建立品牌势能，以标准店承接客流，以效率店优化回本周期，避免单一模型外溢风险。</li>
+<li><strong>组织分层：</strong>总部把控茶底标准与品牌资产，本地团队主导节庆营销与选址节奏，提升跨市场响应速度。 <a class="source-link" href="https://caifuhao.eastmoney.com/news/20260125081308599425480" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.6 国际化品牌打法与风险提示</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>品牌打法：</strong>从“门店数量叙事”转向“品牌体验叙事”，以高口碑门店与爆款产品做长期资产沉淀。</li>
+<li><strong>供应链关键：</strong>海外门店已超百家后，需优先保障原料一致性与冷链稳定，防止区域扩张导致口感分化。</li>
+<li><strong>核心风险：</strong>高端定位与加盟效率天然存在张力；应通过评分门槛、培训与补贴机制维持全球体验一致。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part3">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">人群洞察与画像</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+<span>性别结构（估计）</span>
+<span>女性 55% / 男性 45%</span>
+</div>
+<div class="flex h-6 rounded-full overflow-hidden">
+<div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">女性 55%</div>
+<div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">男性 45%</div>
+</div>
+<p class="text-xs text-gray-400 mt-2">以都市白领与高校人群为主，男性在茶特调与无奶轻负担产品中增长明显 <a class="source-link" href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">核心年龄</div>
+<p class="text-sm text-gray-800">18-34 岁为消费主体，其中 22-30 岁是复购与社媒扩散的核心人群 <a class="source-link" href="https://caifuhao.eastmoney.com/news/20260125081308599425480" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">城市层级</div>
+<div class="flex gap-2 text-sm mt-1">
+<span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">重体验/不强比价</span>
+<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">促销敏感/比价</span>
+</div>
+</div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-600 mb-3">消费驱动因子（相对权重）</div>
+<div class="space-y-1">
+<div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>口感与茶底品质 100</span></div>
+<div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>上新速度与新鲜感 85</span></div>
+<div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">门店体验与品牌感 70</div>
+<div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">价格与优惠敏感度 55</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://caifuhao.eastmoney.com/news/20260125081308599425480" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="text-lg font-bold mb-4">3.2 生活方式 &amp; 3.3 行为链路</h3>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i>高频消费场景</h4>
+<div class="flex flex-wrap gap-2 mb-2">
+<span class="tag-pill orange">工作学习间隙提神</span>
+<span class="tag-pill orange">逛街社交打卡</span>
+<span class="tag-pill orange">外卖代餐搭配</span>
+</div>
+<p class="text-sm text-gray-600 leading-snug">
+<strong>用户将喜茶视为“品质型日常犒赏”：</strong>既要稳定好喝，也要有可分享的新意，消费目标从“解渴”延展到“情绪价值+社交表达”。</p>
+</div>
+<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+<h4 class="text-sm font-bold text-blue-800 mb-1">典型决策路径</h4>
+<ul class="text-sm text-gray-700 space-y-1">
+<li><strong>触达：</strong>小红书/朋友圈种草 + App/外卖平台活动提醒</li>
+<li><strong>下单：</strong>先看新品与断货热度，再按甜度、茶感、热量标签做选择 <span class="text-blue-600 font-bold">（3-5 分钟内决策）</span> <a class="source-link" href="https://www.21jingji.com/article/20251223/herald/f1c79305417557866f49c0a39acc6661.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+<h4 class="text-sm font-bold text-red-800 mb-1">流失风险与关键拦截点</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">常见流失原因</div>
+<ol class="list-decimal list-inside text-gray-700 text-xs">
+<li>热门单品缺货或出品波动</li>
+<li>高峰期等待时间过长</li>
+<li>与同价位替代品相比“惊喜感不足”</li>
+</ol>
+</div>
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">拦截策略</div>
+<p class="text-xs text-gray-600">用“经典款稳定 + 季节限定”双轨供给，叠加会员权益与预点单提效，降低等待与失望成本。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+<div>
+<h4 class="font-bold text-lg">都市品质尝鲜族</h4>
+<p class="text-xs text-gray-500">22-30岁｜白领/研究生｜一二线城市 <a class="source-link" href="https://www.cbndata.com/information/294799" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">关注原料与茶底差异化，乐于尝试茶特调、抹茶与地域风味新品，消费频次高、社媒分享意愿强。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">对出品一致性和新品可得性敏感，若“想喝买不到”或体验不稳，容易转向替代品牌。</p>
+</div>
+<div>
+<strong class="text-green-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">强调“真茶真果真品质”与研发故事，配合限时上新、门店体验升级和会员优先购。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform"></div>
+<div>
+<h4 class="font-bold text-lg">理性复购效率族</h4>
+<p class="text-xs text-gray-500">18-28岁｜学生/职场新人｜通勤与外卖场景 <a class="source-link" href="https://m.thepaper.cn/newsDetail_forward_32368047" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">偏好固定口味与可控预算，重视热量、甜度与提神效率，购买更多发生在午后与晚间。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">价格波动、配送时效和门店排队对决策影响大，缺少明确权益时复购动力下降。 <a class="source-link" href="https://www.peopleapp.com/rmharticle/30051308899" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<strong class="text-blue-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">通过“经典爆款组合+积分券包+外卖准时达”强化确定性价值，提升周复购。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+<h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+<ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略一</span>以“品质稳定”作为复购底座，持续修复高端心智与口碑信任（参考：NPS与门店重装相关报道）。</li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略二</span>
+<strong>打造“爆款新品类+经典常驻款”双引擎</strong></li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略三</span>围绕“到店体验+外卖效率+会员权益”统一决策链路，减少缺货与等待造成的流失。</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="section relative" id="part4">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">竞品深度攻防</h2>
+<div class="mb-12">
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;">
+<div class="text-sm font-bold text-gray-400 uppercase mb-2">历史基线</div>
+<h4 class="text-xl font-bold text-gray-800 mb-2">扩张期喜茶（2023-2024）</h4>
+<p class="text-lg font-bold text-blue-800 mb-2">规模优先 / 速度优先</p>
+<p class="text-sm text-gray-600">以加盟加速下沉，追求门店总量与覆盖密度，短期放大声量与GMV，但带来门店质量与定位稀释风险。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;">
+<div class="text-sm font-bold text-orange-400 uppercase mb-2">当前主模型</div>
+<h4 class="text-xl font-bold text-gray-800 mb-2">调整期喜茶（2025）</h4>
+<p class="text-lg font-bold text-orange-600 mb-2">质量优先 / 精算开店</p>
+<p class="text-sm text-gray-600">暂停规模内卷，门店收缩与重装并行，强调“真品质+差异化”，用产品力与体验力修复高端心智。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;">
+<div class="text-sm font-bold text-purple-400 uppercase mb-2">增长新引擎</div>
+<h4 class="text-xl font-bold text-gray-800 mb-2">海外本地化喜茶（2025-2026）</h4>
+<p class="text-lg font-bold text-purple-800 mb-2">品牌势能 / 第二曲线</p>
+<p class="text-sm text-gray-600">海外门店破百，海外TOP销量中原生产品占比提升，验证“本地化产品+全球品牌资产”可复制路径。 <a class="source-link" href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-12">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">4.2 竞品话术拆解</h3>
+<div class="mb-6">
+<span class="text-xs font-bold text-gray-400 uppercase">核心叙事关键词</span>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="tag-pill red">真品质</span>
+<span class="tag-pill red">不卷规模</span>
+<span class="tag-pill red">差异化茶底</span>
+<span class="tag-pill blue">全球化</span>
+<span class="tag-pill blue">门店重装</span>
+<span class="tag-pill blue">长期主义</span>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-4">
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<span class="block font-bold text-green-600 mb-1">有效点</span>
+<ul class="list-disc pl-3 text-xs text-gray-600 space-y-1">
+<li><strong>价值观统一：</strong>“不参与数字游戏”与收缩动作一致，提升品牌可信度。</li>
+<li><strong>产品证据充分：</strong>茶特调、抹茶、藏茶等新品类形成持续讨论与复购理由。</li>
+</ul>
+</div>
+<div>
+<span class="block font-bold text-red-500 mb-1">脆弱点</span>
+<ul class="list-disc pl-3 text-xs text-gray-600 space-y-1">
+<li><strong>价格带压力：</strong>高品质叙事需持续支撑溢价，经济波动期易被性价比品牌分流。</li>
+<li><strong>加盟张力：</strong>高端定位与加盟盈利模型存在阶段性冲突，舆情易被放大。</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">4.3 用户流向与舆情</h3>
+<div class="mb-6">
+<span class="text-xs font-bold text-gray-400 uppercase">用户迁移路径（同品牌内部）</span>
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex items-center gap-3 text-sm text-gray-600">
+<span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+<span>搜“喜茶 音质”</span>
+</div>
+<div class="h-4 border-l-2 border-dashed border-gray-300 ml-3"></div>
+<div class="flex items-center gap-3 text-sm text-gray-600">
+<span class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+<span>看对比评测</span>
+</div>
+<div class="h-4 border-l-2 border-dashed border-gray-300 ml-3"></div>
+<div class="flex items-center gap-3 text-sm text-gray-600">
+<span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+<span>音质优先<i class="inline w-3 h-3" data-lucide="arrow-right"></i>转向喜茶</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 text-sm">
+<div class="bg-green-50 p-2 rounded border border-green-100">
+<span class="text-xs font-bold text-green-700 block">正向舆情</span>
+<p class="text-xs text-gray-600">“熟悉的喜茶回来了”：品质回归、门店重装、产品创新获认可。</p>
+</div>
+<div class="bg-red-50 p-2 rounded border border-red-100">
+<span class="text-xs font-bold text-red-700 block">风险舆情</span>
+<p class="text-xs text-gray-600">关店与加盟收益话题持续被讨论，易冲击外界对增长确定性的判断。 <a class="source-link" href="https://caifuhao.eastmoney.com/news/20260125081308599425480" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（决策路径为定性推演）。</p></div>
+</div>
+<div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12">
+<h3 class="font-bold text-orange-900 mb-4">4.4 竞品“反攻”路径</h3>
+<ul class="space-y-4">
+<li class="bg-white p-4 rounded-xl shadow-sm">
+<div class="font-bold text-gray-800 text-sm mb-1">路径A：产品与供应链反攻</div>
+<p class="text-sm text-gray-600">以“茶基底差异化+区域原料”提高新品成功率，减少同质化；通过经典款稳供降低断货型负反馈，提升复购与口碑稳定性。</p>
+</li>
+<li class="bg-white p-4 rounded-xl shadow-sm">
+<div class="font-bold text-gray-800 text-sm mb-1">路径B：渠道与门店反攻</div>
+<p class="text-sm text-gray-600">国内执行分层店型（形象店/标准店/效率店），海外执行本地化菜单+本地社媒种草，形成“高端心智+效率增长”双轮驱动。 <a class="source-link" href="https://www.cbndata.com/information/294799" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<a class="source-link" href="https://www.21jingji.com/article/20251223/herald/f1c79305417557866f49c0a39acc6661.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+<div class="space-y-12">
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900">小红书 / 微博图文阵地</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8">
+<div class="grid md:grid-cols-2 gap-8">
+<div>
+<h5 class="text-sm font-bold text-red-800 uppercase mb-3 flex items-center gap-2">
+<i data-lucide="search" size="14"></i>高频搜索词</h5>
+<div class="space-y-2 text-sm">
+<div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border border-red-50">
+<span class="text-gray-600">喜茶 茶特调 推荐</span>
+<span class="font-bold text-red-500">热度高</span>
+</div>
+<div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border border-red-50">
+<span class="text-gray-600">喜茶 新品 真实测评</span>
+<span class="font-bold text-red-500">转化高</span>
+</div>
+</div>
+</div>
+<div>
+<h5 class="text-sm font-bold text-red-800 uppercase mb-3 flex items-center gap-2">
+<i data-lucide="hash" size="14"></i>内容标签结构</h5>
+<div class="flex flex-wrap gap-2">
+<span class="tag-pill tag-pill-gray">#喜茶</span>
+<span class="tag-pill red">#茶特调</span>
+<span class="tag-pill orange">#断货王</span>
+<span class="tag-pill blue">#门店重装</span>
+<span class="tag-pill green">#新品测评</span>
+</div>
+</div>
+</div>
+</div>
+<h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-red-500 uppercase tracking-widest">钩子型爆文</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2">“断货王”同款实测：到底值不值得排队？</h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong>触发机制：</strong>稀缺感+从众心理，先引发点击。<br/>
+<strong>内容骨架：</strong>首口感受→甜度建议→替换点单方案，直接服务决策。</p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500">目标：收藏与到店转化</span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 grid grid-cols-2">
+<div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20"><br/></div>
+<div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold"><br/></div>
+</div>
+<div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-orange-500 uppercase tracking-widest">审美型爆文</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2">重装门店打卡：从“买饮料”到“逛空间”</h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong>触发机制：</strong>空间美学与生活方式表达，强化品牌高级感。<br/>
+<strong>内容骨架：</strong>门头/灯光/动线→拍照位→高出片饮品组合，拉动社交传播。</p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500">目标：品牌心智强化</span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="text-center p-4">
+<div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+<span class="text-[10px] text-orange-300"><br/></span>
+</div>
+<div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">审美即传播</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-xs font-bold text-yellow-600 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2">同价位横评：喜茶新品 vs 竞品爆款</h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong>触发机制：</strong>用户天然关注“值不值”，对比内容更易评论。<br/>
+<strong>内容骨架：</strong>口味层次/原料感/饱腹感三维打分，输出清晰购买建议。</p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500">目标：评论互动与口碑防守</span>
+</div>
+</div>
+<div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+</div>
+<div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 text-sm">
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1">图文结论1</div>
+<div class="text-gray-500 text-xs">爆款核心不是“低价”，而是“可解释的品质差异”。</div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1">图文结论2</div>
+<div class="text-gray-500 text-xs">“门店体验内容化”可持续拉高品牌好感与分享率。</div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1">图文结论3</div>
+<div class="text-gray-500 text-xs">测评与横评是抵御负面舆情扩散的高效内容武器。</div>
+</div>
+</div>
+</div>
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900">抖音 / 视频号短视频阵地</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2">新品首发48小时：口味记忆点直给</h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400">•</span>前3秒展示拉满杯面与原料细节，建立“真材实料”印象。 <a class="source-link" href="https://m.thepaper.cn/newsDetail_forward_32368047" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>中段给出甜度、冰量、加料建议，降低点单门槛。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>尾段挂同城门店与限时信息，承接到店需求。</li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2">“一天卖出多少杯？”幕后透明化叙事</h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400">•</span>展示高峰备料、出杯流程与卫生管理，增强信任。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>穿插员工推荐单，提升内容真实感与亲近感。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>评论区引导“你想看哪家店”，形成UGC接力。</li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2">海外原生产品：本地口味的喜茶表达</h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400">•</span>中英双语字幕与本地KOL共创，扩大可见度。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>突出本地食材与中国茶底融合，构建差异记忆点。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>以“城市限定”制造社交货币，驱动线下打卡。</li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 flex flex-col">
+<div class="h-1/2 bg-blue-900/40 w-full"></div>
+<div class="h-1/2 bg-red-900/40 w-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+<h5 class="text-sm font-bold text-gray-800 uppercase mb-4">短视频打法结论</h5>
+<div class="grid md:grid-cols-3 gap-4 text-sm">
+<div>
+<span class="block text-gray-400 text-xs mb-1">•</span>
+<p class="font-medium text-gray-800"><span class="text-blue-600">上新期高频，常态期稳定连更</span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1">•</span>
+<p class="font-medium text-gray-800"><span class="text-red-500">只追热点易透支品牌高级感</span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1">•</span>
+<p class="font-medium text-gray-800"><span class="text-blue-600">“产品证据+门店证据”双证据内容</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8">
+<h3 class="text-sm font-bold text-blue-800 mb-2">4.6 竞品国外社媒投放分析</h3>
+<div class="text-sm text-gray-700 space-y-2">
+<p><strong>投放重心：</strong>以Instagram/TikTok为核心，采用“城市开店事件+本地KOL测评+限时产品”组合，优先获取首店期高密度曝光与打卡内容。</p>
+<p><strong>攻防建议：</strong>继续强化海外原生菜单与双语内容资产沉淀，避免仅复制国内爆款；把“本地化产品销量占比、复购率、内容互动率”作为海外投放三项硬指标。 <a class="source-link" href="https://www.peopleapp.com/rmharticle/30051308899" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative pb-24" id="part5">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">战略总结与资源</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold mb-4">5.1 优先级行动建议（未来12个月）</h3>
+<div class="space-y-3">
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P1：单店质量优先，继续“精算开店”</div>
+<div class="text-xs text-orange-600 mt-1">以同店增长与门店健康度替代规模指标；新开店聚焦高势能商圈与海外核心城市，低效店执行重装/迁址/关停三选一，季度复盘ROI与回本周期。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P2：打造“茶+果汁”双引擎产品管线</div>
+<div class="text-xs text-orange-600 mt-1">保持高频创新（茶特调、抹茶、区域风味）同时提升经典果茶全年稳定供应；建立“新品爆发—复购留存—区域迭代”机制，降低只靠断货款拉动的波动风险。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P3：强化直营-加盟一致性与海外本地化复制</div>
+<div class="text-xs text-orange-600 mt-1">统一食安、出品、服务评分与培训认证，减轻加盟经营压力；海外坚持“本地原生产品+全球品牌事件”双轮驱动，沉淀跨市场供应链与组织能力。</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold mb-6">5.2 资源分配与里程碑</h3>
+<div class="grid grid-cols-2 gap-4 min-h-[16rem] h-auto auto-rows-min">
+<div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="star"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">核心投入 45%</span>
+<div>
+<div class="font-bold text-lg leading-tight">门店质量与运营效率</div>
+<div class="text-xs text-white/70 mt-1">Q2完成门店分层模型；Q3完成重点城市重装清单；Q4同店与评分双提升。</div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+<span class="text-xs font-bold uppercase tracking-wider text-white/50">稳健投入 20%</span>
+<div>
+<div class="font-bold text-sm">品牌内容与会员复购</div>
+<div class="text-xs text-white/50 mt-1">围绕“真品质+新鲜感”做季度主题传播，提升复购与NPS稳定性。</div>
+</div>
+</div>
+<div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="circle-dollar-sign"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">增长投入 35%</span>
+<div>
+<div class="font-bold text-lg">产品创新与海外扩张</div>
+<div class="text-xs text-white/70 mt-1">资源建议：产品研发与供应链22%，海外市场13%；里程碑：Q2形成年度爆款池，Q3海外重点市场完成本地菜单迭代，Q4沉淀可复制的出海开店SOP。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="nav-pill">
+<a class="nav-link" href="#part1">宏观</a>
+<a class="nav-link" href="#part2">全球</a>
+<a class="nav-link" href="#part3">人群</a>
+<a class="nav-link" href="#part4">竞品</a>
+<a class="nav-link" href="#part5">战略</a>
+</nav>
+<script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.linhuiba.com/industry/400" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶加盟急刹车：茶饮狂飙时代终结？2025迎来「精算开店」 - 邻汇吧</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://caifuhao.eastmoney.com/news/20260125081308599425480" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶发布2025总结：“断货王”是它！今年持续发力一个新品类</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.21jingji.com/article/20251223/herald/f1c79305417557866f49c0a39acc6661.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">一年关店超600家：重回高端的喜茶，艰难前行的加盟商 - 21财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.cbndata.com/information/294799" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">新茶饮不是倒在价格战 - CBNData</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://m.thepaper.cn/newsDetail_forward_32368047" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">复盘2025丨为错买单，喜茶纠错收缩、奈雪的茶仍在亏损 - 澎湃新闻</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.peopleapp.com/rmharticle/30051308899" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶2025年的“小事”，藏着2026新茶饮的大变局_红餐网 - 人民日报</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.foodtalks.cn/news/61193" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">茶饮年报丨喜茶盘点，突破“三大差异化” - FoodTalks</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.iimedia.cn/c880/106544.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">艾媒金榜| 2025年中国新式茶饮十大品牌NPS口碑指数</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.guancha.cn/economy/2026_01_27_805242.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶2025年批量重装130多家门店，海外门店已超百家-观察者网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pangjing.cn/6106491-2/" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶发布2025年度小事盘点，茶特调成为“年度断货王” - 胖鲸</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://zhuanlan.zhihu.com/p/1998039797000848772" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">刚刚喜茶发布2025总结：“断货王”是它！今年持续发力一个新品类- 知乎</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://food.cnr.cn/focus/20250102/t20250102_527028622.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶2024年度报告：以差异化产品和品牌体验引领新茶饮出海</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.btscsh.com/food/21545.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶发布2024年度报告，差异化战略初显成效 - 商业时报</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.yzwb.net/news/ch/202601/t20260123_314391.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶发布2025年度小事盘点茶特调成为“年度断货王” - 紫牛新闻</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://news.qq.com/rain/a/20241229A026IF00" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶2025战略曝光：提升空间体验，聚焦差异化策略 - 腾讯新闻</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.guandata.com/gy/post/jNDDOQMz.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">五大热门奶茶品牌对比评测，学生党的高性价比选择指南</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.digitaling.com/articles/1011464.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">新中式茶馆大赛，喜茶、奈雪、霸王茶姬、茶颜悦色谁能赢？ - 数英网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="http://www.news.cn/food/20251216/51d387d4ba6a4d7f9c888e9e7a4e3352/c.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">喜茶600多家店消失背后：加盟商陷盈利困局</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://zhuanlan.zhihu.com/p/1954133398177157366" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025茶饮品牌案例拆解| 从卷联名到卷口碑，喜茶如何破解新品上市难题</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/708643707_120289228" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2023中国十大最受欢迎茶饮品牌：喜茶、奈雪、霸王茶姬上榜 - 搜狐</a></li></ul></div></section></body>
+</html>

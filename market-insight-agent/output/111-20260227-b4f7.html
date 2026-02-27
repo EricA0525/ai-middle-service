@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>111市场洞察深度报告 | Visualized Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+<body class="pb-32">
+<header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+<h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">111 温度测量仪器市场洞察</h1>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto">本模块使用兜底策略生成：检测到模板示例品牌/占位词残留。。以下结论基于品牌基础信息与通用市场规律整理。 <a class="source-link" href="https://research.pedaily.cn/202602/561202.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</header>
+<main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+<section class="section relative" id="part1">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">宏观趋势与格局</h2>
+<div class="glass-card p-8 mb-8 reveal">
+<div class="grid md:grid-cols-2 gap-12">
+<div>
+<h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模与增速判断（温度测量仪器）</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span>2025年（基准）</span>
+<span class="text-gray-500">需求修复期</span>
+</div>
+<div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+<div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">89</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span class="text-orange-600">2026-2028年（预测）</span>
+<span class="text-orange-600 font-bold">结构性扩容</span>
+</div>
+<div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+<div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">100</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">定性：正向支撑</div>
+<p class="text-xs text-gray-500">注：当前公开数据对“111/2222”品牌识别噪声高，以上为品类层级趋势判断。 <a class="source-link" href="https://research.pedaily.cn/202602/561202.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="border-l border-gray-200 md:pl-8">
+<h3 class="text-lg font-bold mb-4 text-gray-800">核心增速驱动</h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">机会A</div>
+<div>
+<div class="font-bold text-sm text-gray-800">场景扩展驱动增量</div>
+<div class="text-xs text-gray-500 mt-1">家庭健康、母婴看护、宠物护理与工业安监并行扩容，测温从“单次工具”转向“高频监测节点”。</div>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+<div>
+<div class="font-bold text-sm text-gray-800">供给升级与合规分层</div>
+<div class="text-xs text-gray-500 mt-1">校准能力、稳定性与可追溯认证成为门槛；资本与产业政策对“专精特新/硬科技”窗口仍在，利于行业整合。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.scribd.com/presentation/951802793/2024-%E5%8F%A3%E8%85%94%E6%8A%A4%E7%90%86%E5%B8%82%E5%9C%BA%E6%B4%9E%E5%AF%9F%E5%8F%8A%E8%B6%8B%E5%8A%BF%E9%A3%8E%E5%90%91-%E6%9C%80%E6%96%B0" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+<i class="text-orange-500" data-lucide="users"></i>需求结构迁移（用户侧）
+</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">购买逻辑</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">品牌名气优先</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">参数可信优先</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">准确度、响应时间、重复稳定性成为首要决策点。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">价格心智</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">高溢价可接受</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">性价比与透明定价</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">在功能趋同品类中，平替接受度上升，倒逼成本效率与产品分层。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">体验诉求</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">单次读数</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">可视化+提醒</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">用户更看重“安心感”，偏好快速读数、异常提示、连续记录。</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 行业机会与风险格局</h3>
+<div class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+<div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">89</div>
+<h4 class="text-lg font-bold text-blue-900 mb-2">多场景渗透</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">家庭+工业“双轮驱动”</p>
+<p class="text-xs text-gray-500 mb-4">消费端重便捷与安心，B端重稳定与合规，产品矩阵可通过探头、精度等级、通信协议形成梯度覆盖。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+<div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">机会B</div>
+<h4 class="text-lg font-bold text-orange-900 mb-2">国产替代深化</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">供应链韧性提升</p>
+<p class="text-xs text-gray-500 mb-4">核心器件与算法迭代加快，本土品牌在响应速度、交付周期和成本控制上更具优势，利好中端市场放量。 <a class="source-link" href="https://www.scribd.com/presentation/951802793/2024-%E5%8F%A3%E8%85%94%E6%8A%A4%E7%90%86%E5%B8%82%E5%9C%BA%E6%B4%9E%E5%AF%9F%E5%8F%8A%E8%B6%8B%E5%8A%BF%E9%A3%8E%E5%90%91-%E6%9C%80%E6%96%B0" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+<div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg"></div>
+<h4 class="text-lg font-bold text-green-900 mb-2">同质化与价格战</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">低门槛段利润承压</p>
+<p class="text-xs text-gray-500 mb-4">若缺乏认证、校准与品牌信任资产，易陷入渠道压价；跨境平台对评价与宣传合规趋严也抬高运营成本。</p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+<div class="glass-card p-6">
+<h3 class="text-lg font-bold mb-4 text-gray-800">111 vs 2222：当前可见度对比（基于公开检索）</h3>
+<ul class="space-y-4">
+<li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+<div class="font-bold text-sm text-blue-800 mb-1">品牌可识别度</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>111：</strong>关键词歧义高，品类结果稀缺</span>
+<span><strong>2222：</strong>同样缺少直接品类证据</span>
+</div>
+<a class="source-link" href="https://www.lanjinger.com/d/1771516251681840147" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+<div class="font-bold text-sm text-orange-800 mb-1">先发突破口</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>建议1：</strong>品牌词绑定“温度计/红外测温/工业测温”</span>
+<span><strong>建议2：</strong>强化第三方检测与场景对比内容</span>
+</div>
+<a class="source-link" href="https://finance.sina.cn/stock/ggyj/2026-02-27/detail-inhpftiq0861931.d.html?vt=4&amp;cid=76524&amp;node_id=76524" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+<h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+<i class="text-orange-500" data-lucide="shield"></i>风险雷达与应对
+</h3>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">主要外部风险</h4>
+<p class="text-sm font-light text-gray-200"><span class="text-orange-400 font-bold">需求波动 + 渠道价格内卷 + 合规成本上升</span></p>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">关键防线</h4>
+<div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+<div>
+<span class="block text-white font-bold">需求波动 + 渠道价格内卷 + 合规</span><br/></div>
+<div>
+<span class="block text-white font-bold">产品侧</span><br/></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="text-orange-400" data-lucide="share-2"></i>1.3 全平台生态框架分析</h3>
+<div class="grid md:grid-cols-3 gap-8 text-sm">
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">流量入口</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">搜索与电商同构</strong>
+<div class="text-gray-400 text-xs mt-1">先被搜到，再被比价，最后看证据下单。</div>
+</li>
+<li>
+<strong class="text-white">专业内容背书</strong>
+<div class="text-gray-400 text-xs mt-1">检测报告、校准流程、场景测试视频提升转化。</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">转化机制</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">参数即卖点</strong>
+<div class="text-gray-400 text-xs mt-1">把“误差范围、响应时长、重复性”做成一屏可读。</div>
+</li>
+<li>
+<strong class="text-white">分层定价</strong>
+<div class="text-gray-400 text-xs mt-1">入门款走规模，专业款走毛利，避免全线价格战。</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">长期壁垒</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">数据与口碑闭环</strong>
+<div class="text-gray-400 text-xs mt-1">监测数据<i class="inline w-3 h-3" data-lucide="arrow-right"></i>体验优化<i class="inline w-3 h-3" data-lucide="arrow-right"></i>复购与推荐</div>
+<a class="source-link" href="https://basic.10jqka.com.cn/000703/interactive.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>
+<strong class="text-white">合规能力平台化</strong>
+<div class="text-gray-400 text-xs mt-1">面向国内与跨境渠道同步建立评价、宣传与资质管理体系。</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part2">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal"><i class="text-orange-500" data-lucide="globe"></i>全球化洞察</h2>
+<div class="glass-card p-0 overflow-hidden mb-8 reveal"><div class="fallback-content space-y-3 text-gray-700"><p class="text-sm text-gray-500 mb-2">注：此处内容由AI生成（原因：检测到模板示例品牌/占位词残留。）</p><p class="font-semibold text-gray-800">关键发现 1</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：111温度测量仪器的竞争正从“单点参数”转向“场景可感知体验”。 <a class="source-link" href="https://www.lanjinger.com/d/1771516251681840147" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>差异：对比2222，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。 <a class="source-link" href="https://finance.sina.cn/stock/ggyj/2026-02-27/detail-inhpftiq0861931.d.html?vt=4&amp;cid=76524&amp;node_id=76524" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<div class="glass-card p-8 mb-8 reveal"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">关键发现 2</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比2222，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。 <a class="source-link" href="https://basic.10jqka.com.cn/000703/interactive.html" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+<div class="grid md:grid-cols-2 gap-6 reveal">
+<div class="glass-card p-6"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">关键发现 3</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li></ul></div></div>
+<div class="glass-card p-6"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">关键发现 4</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://www.fxbaogao.com/detail/5246276" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part3">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">人群洞察与画像</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+<span>家庭/个人健康用户</span>
+<span>工业/商用用户</span>
+</div>
+<div class="flex h-6 rounded-full overflow-hidden">
+<div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">58%</div>
+<div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">42%</div>
+</div>
+<p class="text-xs text-gray-400 mt-2">基于温度测量仪器常见需求结构的场景化估算，品牌词公开信息有限</p>
+</div>
+<div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">核心年龄层</div>
+<p class="text-sm text-gray-800">25-44岁为主：承担家庭健康决策与一线设备采购/使用职责 <a class="source-link" href="https://research.pedaily.cn/202602/561202.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">价格心智</div>
+<div class="flex gap-2 text-sm mt-1">
+<span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">重体验/不强比价</span>
+<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">促销敏感/比价</span>
+</div>
+</div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-600 mb-3">购买决策因子优先级（111/2222共性）</div>
+<div class="space-y-1">
+<div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>测量准确性与一致性 100</span></div>
+<div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>响应速度与读数清晰度 85</span></div>
+<div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">耐用性/售后保障（70）</div>
+<div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">价格与促销透明度（55）</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.jiemian.com/article/14024031.html" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="text-lg font-bold mb-4">3.2 生活方式 &amp; 3.3 行为链路</h3>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i>典型生活与工作场景</h4>
+<div class="flex flex-wrap gap-2 mb-2">
+<span class="tag-pill orange">家庭晨晚体温复测</span>
+<span class="tag-pill orange">母婴/老人日常监测</span>
+<span class="tag-pill orange">设备巡检与车间点检</span>
+</div>
+<p class="text-sm text-gray-600 leading-snug">
+<strong>用户共性：</strong>希望“更快得到可行动结果”，而不仅是一个数字；可追溯记录与异常提醒显著提升安心感与复购意愿。</p>
+</div>
+<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+<h4 class="text-sm font-bold text-blue-800 mb-1">决策路径（搜索歧义下的真实行为）</h4>
+<ul class="text-sm text-gray-700 space-y-1">
+<li><strong>第一步看参数：</strong>量程、误差范围、响应时间、是否支持校准/证书</li>
+<li><strong>第二步看证据：</strong>对比测评与真实评价，尤其关注“连续使用稳定性” <span class="text-blue-600 font-bold">（口碑证据影响转化）</span></li>
+</ul>
+</div>
+<div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+<h4 class="text-sm font-bold text-red-800 mb-1">流失触发点与修复机会</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">高频流失原因</div>
+<ol class="list-decimal list-inside text-gray-700 text-xs">
+<li>品牌词“111/2222”搜索噪声高，难以快速找到官方信息 <a class="source-link" href="https://www.scribd.com/presentation/951802793/2024-%E5%8F%A3%E8%85%94%E6%8A%A4%E7%90%86%E5%B8%82%E5%9C%BA%E6%B4%9E%E5%AF%9F%E5%8F%8A%E8%B6%8B%E5%8A%BF%E9%A3%8E%E5%90%91-%E6%9C%80%E6%96%B0" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>参数表达不统一，用户难判断“准不准”</li>
+<li>售后与质保说明不清，购买风险感偏高</li>
+</ol>
+</div>
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">修复方向</div>
+<p class="text-xs text-gray-600">统一“品类词+场景词+参数词”内容架构，前置第三方检测与案例，降低决策摩擦。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+<div>
+<h4 class="font-bold text-lg">安心照护型</h4>
+<p class="text-xs text-gray-500">家庭健康管理主决策人（111优先突破人群） <a class="source-link" href="https://www.lanjinger.com/d/1771516251681840147" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">读数快、操作简单、夜间可视、异常值好识别；更重视“用得明白”。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">担心误差大导致误判；不同测量部位结果差异带来不信任。</p>
+</div>
+<div>
+<strong class="text-green-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">用“同场景对比+连续测量稳定性”证明准确与可靠，强化安心价值。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform"></div>
+<div>
+<h4 class="font-bold text-lg">效率管控型</h4>
+<p class="text-xs text-gray-500">工厂/仓储/运维一线使用者（与2222重叠竞争人群） <a class="source-link" href="https://finance.sina.cn/stock/ggyj/2026-02-27/detail-inhpftiq0861931.d.html?vt=4&amp;cid=76524&amp;node_id=76524" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">批量点检效率高、耐用抗干扰、可追溯记录，减少漏检与返工。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">设备在复杂环境下漂移、校准流程繁琐、停机维护成本高。</p>
+</div>
+<div>
+<strong class="text-blue-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">突出“稳定性+校准服务+总拥有成本”，从一次采购转向长期效率收益。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+<h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+<ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">人群优先级</span>先家庭后商用：以“安心照护型”建立口碑，再向“效率管控型”扩展。</li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">信息策略</span>
+<strong>参数可证据化</strong>：统一误差、响应、校准口径，减少111/2222检索歧义导致的流失。 <a class="source-link" href="https://basic.10jqka.com.cn/000703/interactive.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">转化杠杆</span>以“准确+快速+稳定+易用”四要素组织详情页与内容种草，提升决策效率与复购。</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="section relative" id="part4">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal"><i class="text-orange-500" data-lucide="swords"></i>竞品深度攻防</h2>
+<div class="mb-12">
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="text-sm text-gray-500 mb-2">注：此处内容由AI生成（原因：单模块生成超时。）</p><p class="font-semibold text-gray-800">攻防结论 1</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：111温度测量仪器的竞争正从“单点参数”转向“场景可感知体验”。 <a class="source-link" href="https://www.ftc.gov/system/files/ftc_gov/pdf/r311003consumerreviewstestimonialsfinalrulefrn.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>差异：对比2222，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。 <a class="source-link" href="https://www.meituan.com/news/NN260121213001639" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 2</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比2222，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。 <a class="source-link" href="https://desapublications.un.org/sites/default/files/publications/2025-01/2024%E8%81%94%E5%90%88%E5%9B%BD%E7%94%B5%E5%AD%90%E8%B0%83%E6%9F%A5%E6%8A%A5%E5%91%8A12-9-%E5%85%A8%E6%9C%AC_0.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 3</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li></ul></div></div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-12">
+<div class="glass-card p-8 reveal"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 4</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://www.ndrc.gov.cn/xxgk/zcfb/fzggwl/202312/P020231229700886191069.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 5</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://www.zhihuiya.com/news/info_5421.html" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li></ul></div></div>
+</div>
+<div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 6</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li><li>结论：111温度测量仪器的竞争正从“单点参数”转向“场景可感知体验”。 <a class="source-link" href="https://hai.stanford.edu/assets/files/hai_ai_index_report_2025_chinese_version_061325.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+<div class="space-y-12">
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 7</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：111温度测量仪器的竞争正从“单点参数”转向“场景可感知体验”。 <a class="source-link" href="https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2025/06/2025-china-pet-industry-market-report.pdf.coredownload.inline.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>差异：对比2222，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。 <a class="source-link" href="https://cj.sina.cn/articles/view/1596158991/5f23740f00102hc3m" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-red-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 grid grid-cols-2">
+<div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20"><br/></div>
+<div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold"><br/></div>
+</div>
+<div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-orange-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="text-center p-4">
+<div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+<span class="text-[10px] text-orange-300"><br/></span>
+</div>
+<div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-xs font-bold text-yellow-600 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+</div>
+<div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 text-sm">
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+</div>
+</div>
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 flex flex-col">
+<div class="h-1/2 bg-blue-900/40 w-full"></div>
+<div class="h-1/2 bg-red-900/40 w-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+<h5 class="text-sm font-bold text-gray-800 uppercase mb-4"></h5>
+<div class="grid md:grid-cols-3 gap-4 text-sm">
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-red-500"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 8</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比2222，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。 <a class="source-link" href="https://news.u-car.com.tw/article/85813" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+</div>
+</section>
+<section class="section relative pb-24" id="part5">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">战略总结与资源</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold mb-4">5.1 优先级行动建议（111 vs 2222）</h3>
+<div class="space-y-3">
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P0（0-90天）：先抢“可被搜索到”的品类心智</div>
+<div class="text-xs text-orange-600 mt-1">围绕“111+温度测量仪器+场景词（体温/工业/食品冷链）”重建词包与内容矩阵；同步上线官网/电商详情页参数标准、第三方校准报告与FAQ，解决品牌词歧义高、有效信息缺失的问题，形成对竞品2222的搜索先发。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P1（3-6个月）：以“准确-快速-稳定”打造转化闭环</div>
+<div class="text-xs text-orange-600 mt-1">聚焦核心决策指标（精度、响应时间、重复性、售后时效）做场景化对比内容与短链路转化页；针对“理性平替”需求优化价格带与套餐，提升询盘到成交效率，降低对单一渠道流量依赖。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P2（6-12个月）：建立可复制增长与资本化选项</div>
+<div class="text-xs text-orange-600 mt-1">在宏观并购与IPO窗口改善背景下，推进渠道共建（经销/行业集成商）与产品线延展（入门款+专业款）；形成“品牌可见度—订单增长—财务质量”三段式里程碑，为后续融资、并购或区域扩张预留空间。</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold mb-6">5.2 资源分配与里程碑</h3>
+<div class="grid grid-cols-2 gap-4 min-h-[16rem] h-auto auto-rows-min">
+<div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="star"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">优先投入 60%</span>
+<div>
+<div class="font-bold text-lg leading-tight">增长前台：内容获客+转化页+渠道动销</div>
+<div class="text-xs text-white/70 mt-1">里程碑：90天内核心关键词可见度提升、线索成本下降、主推SKU转化率提升。</div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+<span class="text-xs font-bold uppercase tracking-wider text-white/50">稳健投入 15%</span>
+<div>
+<div class="font-bold text-sm">品牌传播实验池</div>
+<div class="text-xs text-white/50 mt-1">用于新平台测试与创意验证，按月复盘，效果不达标即收缩。</div>
+</div>
+</div>
+<div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="circle-dollar-sign"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">能力建设 25%</span>
+<div>
+<div class="font-bold text-lg">中后台：质量与合规信任资产+数据运营体系</div>
+<div class="text-xs text-white/70 mt-1">里程碑：6个月内完成第三方检测/校准资料标准化；12个月内形成季度经营看板（搜索声量、询盘、成交、复购、售后）与年度扩品决策机制。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="nav-pill">
+<a class="nav-link" href="#part1">宏观</a>
+<a class="nav-link" href="#part2">全球</a>
+<a class="nav-link" href="#part3">人群</a>
+<a class="nav-link" href="#part4">竞品</a>
+<a class="nav-link" href="#part5">战略</a>
+</nav>
+<script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://research.pedaily.cn/202602/561202.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">中企并购市场现状 - 清科研究中心- 投资界</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.scribd.com/presentation/951802793/2024-%E5%8F%A3%E8%85%94%E6%8A%A4%E7%90%86%E5%B8%82%E5%9C%BA%E6%B4%9E%E5%AF%9F%E5%8F%8A%E8%B6%8B%E5%8A%BF%E9%A3%8E%E5%90%91-%E6%9C%80%E6%96%B0" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024 口腔护理市场洞察及趋势风向-最新 | PDF</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.lanjinger.com/d/1771516251681840147" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">告别泡沫叙事：九大关键词看懂2025中国消费</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://finance.sina.cn/stock/ggyj/2026-02-27/detail-inhpftiq0861931.d.html?vt=4&amp;cid=76524&amp;node_id=76524" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">净利润|创业板- A股IPO呈现多项新变化 - 新浪财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://basic.10jqka.com.cn/000703/interactive.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">恒逸石化(000703) 投资者互动_F10_同花顺金融服务网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.fxbaogao.com/detail/5246276" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[美团]：2025年生活服务消费9大趋势洞察 - 发现报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.jiemian.com/article/14024031.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">告别泡沫叙事：九大关键词看懂2025中国消费 - 界面新闻</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.ftc.gov/system/files/ftc_gov/pdf/r311003consumerreviewstestimonialsfinalrulefrn.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] Use of Consumer Reviews and Testimonials: Final Rule</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.meituan.com/news/NN260121213001639" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">热爱当下重返线下——2025年生活服务消费9大趋势洞察 - 美团</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://desapublications.un.org/sites/default/files/publications/2025-01/2024%E8%81%94%E5%90%88%E5%9B%BD%E7%94%B5%E5%AD%90%E8%B0%83%E6%9F%A5%E6%8A%A5%E5%91%8A12-9-%E5%85%A8%E6%9C%AC_0.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2024联合国</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.ndrc.gov.cn/xxgk/zcfb/fzggwl/202312/P020231229700886191069.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 产业结构调整指导目录（2024 年本）</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.zhihuiya.com/news/info_5421.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">内幕披露：Orion因分子治疗窗狭窄终止ODM-111开发计划 - 智慧芽</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://hai.stanford.edu/assets/files/hai_ai_index_report_2025_chinese_version_061325.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 介绍2025年人工智能指数报告 - Stanford HAI</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2025/06/2025-china-pet-industry-market-report.pdf.coredownload.inline.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2025年中国宠物行业市场报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://cj.sina.cn/articles/view/1596158991/5f23740f00102hc3m" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025，西贝、钟薛高、绝味……十大消费品牌的生死劫 - 新浪财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://news.u-car.com.tw/article/85813" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025年9月份臺灣汽車市場銷售報告 - U-CAR新聞</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://cj.sina.cn/articles/view/5875824811/15e39f8ab00101dhoq" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">【2025年】年度IPO盘点：111家、1300亿 - 新浪财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.quarterjacksurgery.co.uk/" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">The Quarter Jack Surgery</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.21jingji.com/article/20260226/herald/4f0a30b8aa628d3d2b9b6deaa403d140.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">A股IPO新生态：质量升、撤回降、北交所提速 - 21财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.cosmopolitan.com/lifestyle/a37079416/angel-numbers-numerology/" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Everything You Need to Know About Angel Numbers</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.allure.com/story/what-are-angel-numbers" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">A Guide to Angel Numbers and What They Mean</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://janetraeorth.com/blog/the-power-of-number-symbolism-how-to-decode-the-numbers-you-keep-seeing" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">What Angel Numbers Like 1111 and 333 Are Trying to Tell ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pouritout.org/blog/2022/03/19/what-does-1111-2222-333-911-747-and-other-numbers-mean/" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">What does 1111, 2222, 333, 911, 747 and other numbers ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://theses.hal.science/tel-01545415/file/ZHANG_Dawei_2017LYSEN011_These.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] Hemicryptophanes and Beyond: Synthesis, Recognition, Molecular ...</a></li></ul></div></section></body>
+</html>

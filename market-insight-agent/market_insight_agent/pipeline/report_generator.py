@@ -1199,8 +1199,8 @@ class ReportGenerator:
             filled_search_tag = 0
             filled_stepper = 0
             queries = [
-                (f"{brand} {category or ''} 对比 {competitor_hint} 降噪", "对比测评"),
-                (f"{brand} 耳机 佩戴 舒适 体验", "用户口碑"),
+                (f"{brand} {category or ''} 对比 {competitor_hint}", "对比测评"),
+                (f"{brand} {category or ''} 使用体验", "用户口碑"),
             ]
             search_rows: List[Any] = []
             for row in section_root.find_all("div"):
@@ -1220,7 +1220,7 @@ class ReportGenerator:
                 search_rows.append(spans)
 
             for idx, spans in enumerate(search_rows[:2]):
-                q, hint = queries[idx] if idx < len(queries) else (f"{brand} 耳机 评测", "测评")
+                q, hint = queries[idx] if idx < len(queries) else (f"{brand} {category or ''} 评测", "测评")
                 if _set_if_empty(spans[0], q, max_chars=18):
                     filled_search_tag += 1
                 if _set_if_empty(spans[1], hint, max_chars=10):
@@ -1229,9 +1229,9 @@ class ReportGenerator:
             tag_defaults = {
                 "tag-pill-gray": f"品牌：{brand}",
                 "red": f"对比：{brand} vs {competitor_hint}",
-                "orange": "场景：通勤降噪",
-                "blue": "痛点：舒适/通透",
-                "green": "卖点：音质/多点",
+                "orange": f"场景：{category or '日常'}使用",
+                "blue": "痛点：效果/体验",
+                "green": "卖点：功效/价值",
             }
             tag_pills = [
                 span
@@ -1327,8 +1327,8 @@ class ReportGenerator:
                 competitor_short = _resolve_competitor_short(card)
                 competitor_short = self._truncate_micro_text(competitor_short, 10) or "竞品"
                 step_texts = [
-                    f"搜“{competitor_short} 音质”",
-                    "看对比评测",
+                    f"搜“{competitor_short}评测”",
+                    "看对比内容",
                 ]
 
                 step_rows = [
@@ -1388,7 +1388,7 @@ class ReportGenerator:
                         icon["data-lucide"] = "arrow-right"
                         icon["class"] = ["inline", "w-3", "h-3"]
 
-                    prefix = self._truncate_micro_text("音质优先", 18)
+                    prefix = self._truncate_micro_text(f"{category or '功效'}优先", 18)
                     suffix = self._truncate_micro_text(f"转向{competitor_short}", 18)
                     text_span.clear()
                     if prefix:
@@ -1414,6 +1414,219 @@ class ReportGenerator:
                     section_root,
                     reason="检索来源不足，部分关键词/标签为定性建议",
                 ) or note_added
+
+            # 4.5 社媒爆款深度拆解：对小红书（instagram 图标）和抖音（video 图标）
+            # 区域内仍为空的卡片槽位进行最小兜底填充，避免纯空白内容展示给用户。
+            _xhs_platform_labels = ["竞品占位分析", "关键词矩阵"]
+            _dy_platform_labels = ["创意帧拆解", "卖点可视化"]
+            _xhs_video_types = ["Type 1: 场景种草", "Type 2: 对比评测", "Type 3: 成分解析"]
+            _dy_video_types = ["Type 1: 视觉呈现", "Type 2: 剧情反转", "Type 3: 专业背书"]
+            _kol_tier_titles = ["头部KOL", "KOC", "专家人设"]
+            _kol_tier_descs = [
+                f"以{brand}品牌为主，推动声量扩散",
+                f"建立{brand}{category or '品类'}真实口碑",
+                f"专业背书，强化{brand}功效可信度",
+            ]
+            _stat_labels = ["内容策略", "竞品动向", "执行建议"]
+            _stat_values = [f"{brand}主动占位", "竞品场景拦截", "优先真实评测"]
+
+            for icon_name, platform_labels, video_types, h4_title, h4_suffix in [
+                (
+                    "instagram",
+                    _xhs_platform_labels,
+                    _xhs_video_types,
+                    f"A. 小红书：{brand}品牌传播拆解",
+                    "bg-red-100",
+                ),
+                (
+                    "video",
+                    _dy_platform_labels,
+                    _dy_video_types,
+                    f"B. 抖音：{brand}内容营销拆解",
+                    "bg-gray-100",
+                ),
+            ]:
+                icon_node = section_root.find("i", attrs={"data-lucide": icon_name})
+                if icon_node is None:
+                    continue
+                scope = icon_node.find_parent("div", class_="reveal") or icon_node.find_parent("div")
+                if scope is None:
+                    continue
+
+                # h4 平台标题
+                for h4 in scope.find_all("h4"):
+                    _set_if_empty(h4, h4_title, max_chars=30)
+
+                # 平台分析类型标签 span（紧跟 h4 旁）
+                label_idx = 0
+                for span in scope.find_all("span"):
+                    if span.get_text(" ", strip=True):
+                        continue
+                    cls = [c for c in (span.get("class") or []) if isinstance(c, str)]
+                    if h4_suffix in cls and ("px-2" in cls or "py-0.5" in cls):
+                        if label_idx < len(platform_labels):
+                            _set_if_empty(span, platform_labels[label_idx], max_chars=12)
+                            label_idx += 1
+
+                # 爆文卡片：竞品品牌 span（uppercase tracking-widest）
+                brand_idx = 0
+                fallback_brands = competitors[:3] if competitors else [competitor_hint]
+                for span in scope.find_all("span"):
+                    if span.get_text(" ", strip=True):
+                        continue
+                    cls = [c for c in (span.get("class") or []) if isinstance(c, str)]
+                    if "uppercase" in cls and "tracking-widest" in cls:
+                        label = fallback_brands[brand_idx % len(fallback_brands)]
+                        _set_if_empty(span, label, max_chars=14)
+                        brand_idx += 1
+
+                # 视频卡片类型 badge（bg-gray-900 text-white 或 bg-blue-600 text-white）
+                type_idx = 0
+                for span in scope.find_all("span"):
+                    if span.get_text(" ", strip=True):
+                        continue
+                    cls = [c for c in (span.get("class") or []) if isinstance(c, str)]
+                    if "text-white" in cls and "px-2" in cls and "py-1" in cls and "rounded" in cls:
+                        if type_idx < len(video_types):
+                            _set_if_empty(span, video_types[type_idx], max_chars=14)
+                            type_idx += 1
+
+                # 爆文卡片 h3 标题
+                h3_idx = 0
+                for h3 in scope.find_all("h3"):
+                    if h3.get_text(" ", strip=True):
+                        continue
+                    brand_label = fallback_brands[h3_idx % len(fallback_brands)] if fallback_brands else brand
+                    _set_if_empty(
+                        h3,
+                        f"“{brand_label}{category or ''}爆款内容”拆解",
+                        max_chars=24,
+                    )
+                    h3_idx += 1
+
+                # 爆文卡片 p 内的 strong 标签（场景诱引/文案风格标注）
+                _strong_labels = ["场景诱引：", "文案风格："]
+                for p in scope.find_all("p"):
+                    if p.get_text(" ", strip=True):
+                        continue
+                    for sidx, strong in enumerate(p.find_all("strong")):
+                        if not strong.get_text(" ", strip=True):
+                            label = _strong_labels[sidx] if sidx < len(_strong_labels) else "要点："
+                            _set_if_empty(strong, label, max_chars=8)
+
+                # 爆文卡片 footer：策略标签 span（bg-gray-100 text-gray-600 py-1 rounded）
+                for span in scope.find_all("span"):
+                    if span.get_text(" ", strip=True):
+                        continue
+                    cls = [c for c in (span.get("class") or []) if isinstance(c, str)]
+                    if "bg-gray-100" in cls and "text-gray-600" in cls and "py-1" in cls and "rounded" in cls:
+                        _set_if_empty(span, "策略标注", max_chars=6)
+
+                # 爆文卡片 footer：说明文字 span（text-gray-500，无其他 bg 类）
+                for span in scope.find_all("span"):
+                    if span.get_text(" ", strip=True):
+                        continue
+                    cls = [c for c in (span.get("class") or []) if isinstance(c, str)]
+                    if "text-gray-500" in cls and not any(c.startswith("bg-") for c in cls):
+                        parent = span.find_parent("div")
+                        if parent is not None:
+                            parent_cls = [c for c in (parent.get("class") or []) if isinstance(c, str)]
+                            if "border-t" in parent_cls:
+                                _set_if_empty(
+                                    span,
+                                    f"竞品此处占位 → {brand}可反制",
+                                    max_chars=20,
+                                )
+
+                # 视觉对比区 before/after 文字（grid grid-cols-2 内的 div 文字为空）
+                _before_after = [f"Before\n使用前", f"After\n使用{brand}后"]
+                ba_idx = 0
+                for inner in scope.find_all("div"):
+                    cls = [c for c in (inner.get("class") or []) if isinstance(c, str)]
+                    if "grid" in cls and "grid-cols-2" in cls:
+                        for cell in inner.find_all("div", recursive=False):
+                            if not cell.get_text(" ", strip=True):
+                                label = _before_after[ba_idx % 2]
+                                cell.clear()
+                                cell.append(NavigableString(label))
+                                filled += 1
+                                ba_idx += 1
+
+                # 视觉公式底部角标（absolute bottom-4 bg-red/orange/yellow/gray text-white text-[10px]）
+                for badge in scope.find_all("div"):
+                    if badge.get_text(" ", strip=True):
+                        continue
+                    cls = [c for c in (badge.get("class") or []) if isinstance(c, str)]
+                    if "absolute" in cls and "bottom-4" in cls and "text-white" in cls:
+                        _set_if_empty(badge, "视觉公式：场景对比", max_chars=12)
+
+                # 底部 KOL 分层卡片（font-bold text-gray-900 mb-1 + text-gray-500 text-xs 配对）
+                tier_idx = 0
+                for box in scope.find_all("div"):
+                    cls = [c for c in (box.get("class") or []) if isinstance(c, str)]
+                    if not (
+                        "bg-white" in cls
+                        and "border" in cls
+                        and "border-gray-200" in cls
+                        and "rounded-xl" in cls
+                        and "p-4" in cls
+                    ):
+                        continue
+                    title_div = box.find("div", class_=lambda c: c and "font-bold" in c and "text-gray-900" in c)
+                    desc_div = box.find("div", class_=lambda c: c and "text-gray-500" in c and "text-xs" in c)
+                    if title_div is not None and not title_div.get_text(" ", strip=True):
+                        _set_if_empty(
+                            title_div,
+                            _kol_tier_titles[tier_idx % len(_kol_tier_titles)],
+                            max_chars=8,
+                        )
+                    if desc_div is not None and not desc_div.get_text(" ", strip=True):
+                        _set_if_empty(
+                            desc_div,
+                            _kol_tier_descs[tier_idx % len(_kol_tier_descs)],
+                            max_chars=28,
+                        )
+                    tier_idx += 1
+
+                # 抖音底部汇总行（block text-gray-400 text-xs mb-1 标签 + font-medium text-gray-800 值）
+                stat_idx = 0
+                for container in scope.find_all("div"):
+                    cls = [c for c in (container.get("class") or []) if isinstance(c, str)]
+                    if "grid" not in cls or "md:grid-cols-3" not in cls:
+                        continue
+                    for cell in container.find_all("div", recursive=False):
+                        label_span = cell.find("span", class_=lambda c: c and "text-gray-400" in c and "text-xs" in c)
+                        val_p = cell.find("p", class_=lambda c: c and "font-medium" in c)
+                        if label_span is not None and not label_span.get_text(" ", strip=True):
+                            _set_if_empty(
+                                label_span,
+                                _stat_labels[stat_idx % len(_stat_labels)],
+                                max_chars=8,
+                            )
+                        if val_p is not None:
+                            val_span = val_p.find("span")
+                            if val_span is not None and not val_span.get_text(" ", strip=True):
+                                _set_if_empty(
+                                    val_span,
+                                    _stat_values[stat_idx % len(_stat_values)],
+                                    max_chars=12,
+                                )
+                        stat_idx += 1
+
+                # 视频卡片 li 内的要点 span（text-gray-400，前缀标签）
+                point_labels = ["前3秒：", "可视化：", "痛点："]
+                li_idx = 0
+                for li in scope.find_all("li"):
+                    if li.get_text(" ", strip=True):
+                        continue
+                    prefix_span = li.find("span", class_=lambda c: c and "text-gray-400" in c)
+                    if prefix_span is not None and not prefix_span.get_text(" ", strip=True):
+                        _set_if_empty(
+                            prefix_span,
+                            point_labels[li_idx % len(point_labels)],
+                            max_chars=6,
+                        )
+                        li_idx += 1
 
         return {"micro_fallback_filled": filled, "qualitative_note_added": note_added}
 
@@ -1720,7 +1933,7 @@ class ReportGenerator:
         # 兜底模式：只给“可读结论/建议”，不拼接搜索片段（避免呈现为过程记录/证据碎片）。
         generic_lines = [
             f"• 结论：{brand}{category_text}的竞争正从“单点参数”转向“场景可感知体验”。",
-            f"• 差异：对比{competitors_text}，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。",
+            f"• 差异：对比{competitors_text}，优先突出“功效可证、场景适配、用户体验”等可感知卖点。",
             "• 内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。",
             "• 渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。",
             "• 动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。",

@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>索尼市场洞察深度报告 | Visualized Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+<body class="pb-32">
+<header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider mb-6 border border-orange-200 hover:scale-105 transition-transform cursor-default">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>索尼耳机市场洞察</div>
+<h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">索尼耳机市场洞察：对标 Bose 与 Apple AirPods 的高端竞争格局</h1>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto">品类范围：消费级耳机（头戴式降噪耳机、真无线降噪耳机）｜时间范围：2024财年全年至2025财年前三季度。执行摘要：索尼在“音质+降噪+跨平台兼容”上保持高端优势，集团利润能力持续改善并为音频创新提供支撑；与 Bose 相比，索尼在可调性和功能完整度更强，但佩戴舒适口碑仍有分化；与 AirPods 相比，索尼在声学素质与编解码支持更具吸引力，但在 iOS 生态联动与便捷体验上承压。建议优先强化舒适度工程与试戴标准化，并结合游戏、影视、音乐内容生态打造差异化体验以提升转化与复购。 <a class="source-link" href="https://m.36kr.com/p/3658773774545670" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</header>
+<main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+<section class="section relative" id="part1">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">宏观趋势与格局</h2>
+<div class="glass-card p-8 mb-8 reveal">
+<div class="grid md:grid-cols-2 gap-12">
+<div>
+<h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模与增速驱动（耳机）</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span>全球TWS/降噪耳机市场（2024）</span>
+<span class="text-gray-500">成熟期稳增</span>
+</div>
+<div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+<div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">需求基盘</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span class="text-orange-600">高端ANC细分（索尼/Bose/Ai</span>
+<span class="text-orange-600 font-bold">结构性快于大盘</span>
+</div>
+<div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+<div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">高溢价带</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">定性：正向支撑</div>
+<p class="text-xs text-gray-500">通勤办公、移动会议、空间音频与多设备协同持续抬升人均耳机价值。</p>
+</div>
+</div>
+<div class="border-l border-gray-200 md:pl-8">
+<h3 class="text-lg font-bold mb-4 text-gray-800">索尼所处行业信号</h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">索尼</div>
+<div>
+<div class="font-bold text-sm text-gray-800">利润中心向高毛利技术与内容迁移</div>
+<div class="text-xs text-gray-500 mt-1">索尼集团利润率提升，消费电子中的高附加值品类更强调品牌与算法能力，而非单纯硬件出货。</div>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+<div>
+<div class="font-bold text-sm text-gray-800">高端耳机竞争进入“体验复合体”阶段</div>
+<div class="text-xs text-gray-500 mt-1">音质、降噪、舒适度、生态联动共同决定份额，单点领先已难形成长期壁垒。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://m.36kr.com/p/3658773774545670" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+<i class="text-orange-500" data-lucide="users"></i>用户需求迁移：从“参数购买”到“场景购买”
+</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">通勤降噪</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">只看降噪深度</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">降噪稳定+风噪控制+语音清晰</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">Bose与索尼在该场景粘性高，AirPods依赖生态便捷性转化。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">移动办公</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">单设备听歌</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">多设备切换+会议拾音</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">苹果生态切换体验强，索尼需强化跨平台连接一致性。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">沉浸娱乐</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">基础立体声</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">空间音频+低延迟+高解析</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">索尼可结合音乐、影视、游戏资产构建差异化体验链路。</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 竞争格局概览</h3>
+<div class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+<div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">需求基盘</div>
+<h4 class="text-lg font-bold text-blue-900 mb-2">全能型高端阵地</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">优势：音质细节、可调能力、跨平台兼容</p>
+<p class="text-xs text-gray-500 mb-4">风险：佩戴舒适评价分化，影响口碑一致性与复购效率。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+<div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Bose</div>
+<h4 class="text-lg font-bold text-orange-900 mb-2">降噪与舒适心智强</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">优势：开箱即用、稳定ANC、佩戴口碑</p>
+<p class="text-xs text-gray-500 mb-4">风险：生态延展和功能丰富度相对保守，年轻用户增量承压。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+<div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg"></div>
+<h4 class="text-lg font-bold text-green-900 mb-2">生态闭环领跑</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">优势：iOS协同、交互流畅、轻量便携</p>
+<p class="text-xs text-gray-500 mb-4">风险：跨平台价值弱于索尼，音频参数党渗透有限。</p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+<div class="glass-card p-6">
+<h3 class="text-lg font-bold mb-4 text-gray-800">行业机会与风险</h3>
+<ul class="space-y-4">
+<li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+<div class="font-bold text-sm text-blue-800 mb-1">机会：高端化与场景细分并行</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>机会点：</strong>会议耳机化、旅行耳机化、游戏低延迟化</span>
+<span><strong>受益方：</strong>具备算法+声学+生态整合能力的品牌</span>
+</div>
+</li>
+<li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+<div class="font-bold text-sm text-orange-800 mb-1">风险：价格竞争与供应链波动</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>压力源：</strong>中端产品内卷、促销常态化</span>
+<span><strong>外部变量：</strong>汇率、核心器件成本、渠道库存周期</span>
+</div>
+</li>
+</ul>
+</div>
+<div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+<h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+<i class="text-orange-500" data-lucide="shield"></i>索尼宏观判断
+</h3>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">中期主线</h4>
+<p class="text-sm font-light text-gray-200">以<span class="text-orange-400 font-bold">高端耳机盈利能力</span>承接集团“技术+内容”战略，在硬件承压周期中保持品牌势能。</p>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">关键抓手</h4>
+<div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+<div>
+<span class="block text-white font-bold">高端耳机盈利能力</span><br/></div>
+<div>
+<span class="block text-white font-bold">舒适度工程化</span><br/></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="text-orange-400" data-lucide="share-2"></i>1.3 全平台生态框架分析</h3>
+<div class="grid md:grid-cols-3 gap-8 text-sm">
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">硬件层</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">索尼</strong>
+<div class="text-gray-400 text-xs mt-1">头戴+真无线双旗舰，多编解码与可调参数覆盖深度用户。</div>
+</li>
+<li>
+<strong class="text-white">Bose / AirPods</strong>
+<div class="text-gray-400 text-xs mt-1">分别强化舒适降噪与系统协同，形成差异化硬件心智。</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">系统层</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">连接与切换体验</strong>
+<div class="text-gray-400 text-xs mt-1">AirPods在Apple设备中优势明显，索尼在跨OS环境具备更强适配价值。</div>
+</li>
+<li>
+<strong class="text-white">算法与个性化</strong>
+<div class="text-gray-400 text-xs mt-1">ANC自适应、环境声、语音增强成为高端产品留存关键。</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">内容层</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">索尼可放大的护城河</strong>
+<div class="text-gray-400 text-xs mt-1">音乐<i class="inline w-3 h-3" data-lucide="arrow-right"></i>影视<i class="inline w-3 h-3" data-lucide="arrow-right"></i>游戏场景联动，提升耳机溢价与黏性。</div>
+</li>
+<li>
+<strong class="text-white">行业趋势</strong>
+<div class="text-gray-400 text-xs mt-1">未来竞争将从单品参数升级为“设备+系统+内容服务”整体体验之争。</div>
+<a class="source-link" href="https://m.36kr.com/p/3658773774545670" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part2">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">全球化洞察</h2>
+<div class="glass-card p-0 overflow-hidden mb-8 reveal">
+<div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
+<h3 class="text-orange-800 font-bold m-0">2.1 区域市场心智矩阵</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs tracking-wider">
+<tr>
+<th class="p-4">区域市场</th>
+<th class="p-4">索尼耳机心智定位</th>
+<th class="p-4">竞争态势（对 Bose / AirPods）</th>
+<th class="p-4">策略优先级</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-orange-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">北美（美国/加拿大）</td>
+<td class="p-4 text-orange-600 font-medium">“音质+降噪双强”的高端选择，适合跨平台用户</td>
+<td class="p-4">Bose在舒适与ANC口碑稳固，AirPods依托iOS生态转化强；索尼需强化佩戴一致性与通话体验认知</td>
+<td class="p-4"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">高</span></td>
+</tr>
+<tr class="hover:bg-pink-50/30 transition-colors bg-pink-50/10">
+<td class="p-4 font-bold text-gray-800">西欧（英德法意）</td>
+<td class="p-4 text-pink-600 font-medium">“技术感与品质感并重”的主流高端品牌</td>
+<td class="p-4">Bose在商务通勤场景强势，AirPods在苹果用户中粘性高；索尼可用Hi-Res、多设备连接与长续航形成差异</td>
+<td class="p-4"><span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">高</span></td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">中国大陆</td>
+<td class="p-4 text-blue-600 font-medium">“旗舰参数完整、可玩性高”的发烧与通勤两栖品牌</td>
+<td class="p-4">AirPods在苹果用户中天然优势明显，国产品牌价格竞争激烈；索尼需通过线下试听和内容生态联动提升溢价解释力</td>
+<td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">最高</span></td>
+</tr>
+<tr class="hover:bg-green-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">日本/韩国</td>
+<td class="p-4 text-green-600 font-medium">“本土技术信任+轻量高性能”代表品牌</td>
+<td class="p-4">AirPods在年轻用户和轻量场景渗透高，Bose偏成熟商务群体；索尼可借本土品牌资产扩大高端份额</td>
+<td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">中高</span></td>
+</tr>
+<tr class="hover:bg-cyan-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">东南亚/中东拉美</td>
+<td class="p-4 text-cyan-600 font-medium">“国际大牌可靠性”与“旗舰形象”并存</td>
+<td class="p-4">AirPods由苹果渠道带动增长，Bose覆盖更聚焦高端；索尼应以中高端梯度产品和本地电商大促节奏提升转化</td>
+<td class="p-4"><span class="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">中</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="glass-card p-8 mb-8 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800">2.4 全球典型人群深度画像</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">跨平台效率人群</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">商务通勤专业用户</h4>
+<p class="text-xs text-gray-500 mb-3">高频会议、差旅和多设备切换，关注降噪、麦克风与稳定连接</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：</strong>佩戴时长舒适度与嘈杂环境通话清晰度</p>
+<p><strong class="text-orange-500">索尼机会：</strong>强化“全天候佩戴+多点连接+通话AI降噪”一体化卖点</p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">内容体验人群</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">影音游戏沉浸用户</h4>
+<p class="text-xs text-gray-500 mb-3">重视音质层次、空间感与低延迟，愿意为沉浸式体验支付溢价</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：</strong>不同平台间体验割裂，设置复杂</p>
+<p><strong class="text-green-600">索尼机会：</strong>联动PlayStation、影视与音乐资产，打造“内容即硬件增值”路径</p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">都市轻便人群</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">手机生态依赖用户</h4>
+<p class="text-xs text-gray-500 mb-3">看重便携、开盖即连和操作直觉，决策受手机品牌影响显著</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：</strong>非苹果生态下的体验不确定、学习成本高</p>
+<p><strong class="text-cyan-600">索尼机会：</strong>以“跨生态无门槛”与简化App引导，争夺非iOS和双机用户</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6 reveal">
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.2 跨市场策略：索尼相对 Bose 与 AirPods 的打法</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>产品组合分层：</strong>以头戴旗舰+真无线主力+入门中高端形成价格梯度，覆盖成熟市场换机与新兴市场首购。 <a class="source-link" href="https://m.36kr.com/p/3658773774545670" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>统一技术叙事：</strong>全球主打降噪、音质、续航与多设备连接，区域层面再叠加本地场景（通勤/办公/飞行/游戏）。</li>
+<li><strong>渠道协同优化：</strong>北美欧强化运营商与零售体验店，中国与东南亚侧重电商节点与达人测评，提升触达效率。</li>
+</ul>
+</div>
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.3 国际化品牌打法：从“硬件品牌”到“体验品牌”</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>生态联动增值：</strong>结合索尼游戏、音乐、影视资源，将耳机从单品升级为内容入口，提升溢价与复购。</li>
+<li><strong>舒适度工程全球标准化：</strong>围绕耳型数据、配件规格与试戴流程建立统一体验，修复历史口碑分化点。 <a class="source-link" href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2026/20260205.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>财务与品牌双目标：</strong>在消费电子承压背景下，耳机业务承担品牌触点角色，以高端化与效率化支撑集团利润质量提升。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part3">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">人群洞察与画像</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+<span>性别结构（索尼耳机核心购买人群）</span>
+<span>男 58% / 女 42%</span>
+</div>
+<div class="flex h-6 rounded-full overflow-hidden">
+<div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">女性 42%</div>
+<div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">男性 58%</div>
+</div>
+<p class="text-xs text-gray-400 mt-2">偏科技与影音爱好者，男性略高；但通勤与办公用户中女性占比持续提升。 <a class="source-link" href="https://m.36kr.com/p/3658773774545670" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">年龄与城市</div>
+<p class="text-sm text-gray-800">主力为 22-39 岁一二线城市白领/学生，追求“降噪+音质+品牌质感”平衡。 <a class="source-link" href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2026/20260205.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">典型价格带</div>
+<div class="flex gap-2 text-sm mt-1">
+<span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">重体验/不强比价</span>
+<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">促销敏感/比价</span>
+</div>
+</div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-600 mb-3">购买决策因子权重（索尼用户）</div>
+<div class="space-y-1">
+<div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>主动降噪与环境适应 100</span></div>
+<div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>音质解析与声场 85</span></div>
+<div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">佩戴舒适与稳固性 70</div>
+<div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">生态兼容与连接体验 55</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2026/20260205.html" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="text-lg font-bold mb-4">3.2 生活方式 &amp; 3.3 行为链路</h3>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i>高频使用场景</h4>
+<div class="flex flex-wrap gap-2 mb-2">
+<span class="tag-pill orange">地铁/通勤降噪</span>
+<span class="tag-pill orange">办公室专注</span>
+<span class="tag-pill orange">旅行与飞行</span>
+</div>
+<p class="text-sm text-gray-600 leading-snug">
+<strong>核心诉求：</strong>在噪声环境下保持清晰听感与语音沟通，同时兼顾长时间佩戴与多设备切换效率。</p>
+</div>
+<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+<h4 class="text-sm font-bold text-blue-800 mb-1">典型决策路径（索尼 vs Bose/AirPods）</h4>
+<ul class="text-sm text-gray-700 space-y-1">
+<li><strong>第一步：</strong>先按手机生态分流（iPhone 用户优先看 AirPods，跨平台用户优先看索尼/Bose）</li>
+<li><strong>第二步：</strong>对比 ANC、音质与舒适度，最终在“综合性能”上给索尼更高权重 <span class="text-blue-600 font-bold">（尤其影音重度用户）</span></li>
+</ul>
+</div>
+<div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+<h4 class="text-sm font-bold text-red-800 mb-1">关键流失点与触发器</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">流失原因 Top3</div>
+<ol class="list-decimal list-inside text-gray-700 text-xs">
+<li>试戴后夹头或耳道压迫感明显</li>
+<li>与苹果生态的无缝体验感知弱于 AirPods</li>
+<li>对“参数多但上手复杂”存在顾虑</li>
+</ol>
+</div>
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">转化触发</div>
+<p class="text-xs text-gray-600">线下 A/B 试听+降噪实测、明确的佩戴解决方案（耳套尺寸/头梁调节）、与竞品同价位权益对比可显著提升成交。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+<div>
+<h4 class="font-bold text-lg">人群画像 A：跨平台音质党</h4>
+<p class="text-xs text-gray-500">25-35岁 | 城市白领/创意工作者 | Android+iOS混用 <a class="source-link" href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2025/20251111-01.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">希望一副耳机同时满足通勤降噪、办公会议、夜间高质量听歌，对音色细节和可调性敏感。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">担心长时间佩戴疲劳，以及参数复杂导致“买了不会调”。</p>
+</div>
+<div>
+<strong class="text-green-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">ANC强度稳定、音质上限高、支持跨生态连接，是其选择索尼而非AirPods的核心理由。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform"></div>
+<div>
+<h4 class="font-bold text-lg">人群画像 B：效率通勤派</h4>
+<p class="text-xs text-gray-500">22-32岁 | 高频移动办公 | 关注轻便与稳定 <a class="source-link" href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2025/20250514-1.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">在地铁、办公室和差旅场景中快速进入“安静模式”，通话清晰、续航可靠、操作直观。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">与 Bose 比较时担心舒适度；与 AirPods 比较时担心连接便捷度和切换速度。</p>
+</div>
+<div>
+<strong class="text-blue-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">当门店演示能证明“降噪+通话”领先且佩戴问题可解，索尼的品牌信任与综合性能会促成下单。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+<h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+<ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略1</span>主叙事聚焦“降噪与音质双优”，用通勤/办公真实噪声场景做可感知对比。 <a class="source-link" href="https://www.sony.com/en/SonyInfo/IR/news/2025.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略2</span>
+<strong>针对痛点补位：把舒适度工程前置为卖点（耳套/头梁/试戴指引），降低试戴流失。</strong> <a class="source-link" href="https://www.audionet.com.tw/thread-17897-1-1.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略3</span>对 iPhone 用户强调低迁移成本体验，对跨平台用户强化“全设备兼容+高音质上限”。 <a class="source-link" href="https://sensor.ofweek.com/2024-07/ART-81012-8500-30641058.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+</div>
+</section>
+<section class="section relative" id="part4">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">竞品深度攻防</h2>
+<div class="mb-12">
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;">
+<div class="text-sm font-bold text-gray-400 uppercase mb-2">基础盘</div>
+<h4 class="text-xl font-bold text-gray-800 mb-2">Bose</h4>
+<p class="text-lg font-bold text-blue-800 mb-2">舒适降噪心智最强</p>
+<p class="text-sm text-gray-600">长期占据“通勤/飞行降噪首选”认知，卖点集中在佩戴舒适、开箱即稳，内容表达偏保守但转化效率高。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;">
+<div class="text-sm font-bold text-orange-400 uppercase mb-2">目标品牌</div>
+<h4 class="text-xl font-bold text-gray-800 mb-2">索尼</h4>
+<p class="text-lg font-bold text-orange-600 mb-2">音质+功能全能型</p>
+<p class="text-sm text-gray-600">以高端声学、参数可调与跨设备兼容构建壁垒，受益于集团技术与娱乐生态协同，但需持续修复佩戴体验分化。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;">
+<div class="text-sm font-bold text-purple-400 uppercase mb-2">生态盘</div>
+<h4 class="text-xl font-bold text-gray-800 mb-2">Apple AirPods</h4>
+<p class="text-lg font-bold text-purple-800 mb-2">iOS生态统治者</p>
+<p class="text-sm text-gray-600">凭借系统协同、设备无缝切换与轻交互优势形成高粘性闭环，在苹果用户中具有天然优先级。</p>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-12">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">4.2 竞品话术拆解</h3>
+<div class="mb-6">
+<span class="text-xs font-bold text-gray-400 uppercase">高频传播关键词（竞品 vs 索尼）</span>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="tag-pill red">舒适即战力</span>
+<span class="tag-pill red">降噪稳定</span>
+<span class="tag-pill red">苹果无缝</span>
+<span class="tag-pill blue">Hi-Res音质</span>
+<span class="tag-pill blue">可调降噪</span>
+<span class="tag-pill blue">跨平台兼容</span>
+</div>
+</div>
+<div class="bg-gray-50 rounded-xl p-4">
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<span class="block font-bold text-green-600 mb-1">索尼可借力点</span>
+<ul class="list-disc pl-3 text-xs text-gray-600 space-y-1">
+<li><strong>把“音质参数”翻译为场景收益：</strong>地铁人声更清晰、办公室电话更干净。</li>
+<li><strong>强化内容生态联动：</strong>游戏低延迟、影视空间音频、音乐高码率权益组合。</li>
+</ul>
+</div>
+<div>
+<span class="block font-bold text-red-500 mb-1">索尼需防守点</span>
+<ul class="list-disc pl-3 text-xs text-gray-600 space-y-1">
+<li><strong>佩戴体验争议：</strong>长时佩戴压头、耳道贴合差会直接拉低复购与推荐。</li>
+<li><strong>苹果生态迁移门槛：</strong>iPhone用户对“无感连接”容忍度极低。</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">4.3 用户流向与舆情</h3>
+<div class="mb-6">
+<span class="text-xs font-bold text-gray-400 uppercase">典型决策路径</span>
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex items-center gap-3 text-sm text-gray-600">
+<span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+<span>搜“Apple AirP 音质”</span>
+</div>
+<div class="h-4 border-l-2 border-dashed border-gray-300 ml-3"></div>
+<div class="flex items-center gap-3 text-sm text-gray-600">
+<span class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+<span>看对比评测</span>
+</div>
+<div class="h-4 border-l-2 border-dashed border-gray-300 ml-3"></div>
+<div class="flex items-center gap-3 text-sm text-gray-600">
+<span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+<span>音质优先<i class="inline w-3 h-3" data-lucide="arrow-right"></i>转向Apple AirP</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 text-sm">
+<div class="bg-green-50 p-2 rounded border border-green-100">
+<span class="text-xs font-bold text-green-700 block">正向舆情</span>
+<p class="text-xs text-gray-600">索尼在“音质细节、降噪综合能力、可玩性”上仍被视为高端首选之一。</p>
+</div>
+<div class="bg-red-50 p-2 rounded border border-red-100">
+<span class="text-xs font-bold text-red-700 block">风险舆情</span>
+<p class="text-xs text-gray-600">“佩戴不适/耳塞不贴合”与“苹果生态体验不如原生”是主要流失触点。</p>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（决策路径为定性推演）。</p></div>
+</div>
+<div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12">
+<h3 class="font-bold text-orange-900 mb-4">4.4 竞品“反攻”路径</h3>
+<ul class="space-y-4">
+<li class="bg-white p-4 rounded-xl shadow-sm">
+<div class="font-bold text-gray-800 text-sm mb-1">路径A：先守再攻——“舒适度工程化”抢回Bose用户</div>
+<p class="text-sm text-gray-600">建立耳型分层与试戴标准，门店/电商同步标注“佩戴建议人群+耳塞方案”；把舒适度从主观评价变成可验证指标。</p>
+</li>
+<li class="bg-white p-4 rounded-xl shadow-sm">
+<div class="font-bold text-gray-800 text-sm mb-1">路径B：低迁移成本——从AirPods生态缝隙切入</div>
+<p class="text-sm text-gray-600">突出“iOS也能稳定好用”的连接与控制体验，叠加Hi-Res、多设备跨平台、游戏低延迟等非苹果优势，承接追求音质升级人群。</p>
+</li>
+</ul>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+<div class="space-y-12">
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900">图文平台（小红书/Instagram风格）</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8">
+<div class="grid md:grid-cols-2 gap-8">
+<div>
+<h5 class="text-sm font-bold text-red-800 uppercase mb-3 flex items-center gap-2">
+<i data-lucide="search" size="14"></i>热搜意图词</h5>
+<div class="space-y-2 text-sm">
+<div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border border-red-50">
+<span class="text-gray-600">索尼 bose airpods 降噪</span>
+<span class="font-bold text-red-500">高转化</span>
+</div>
+<div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border border-red-50">
+<span class="text-gray-600">通勤耳机 佩戴舒服 不压耳</span>
+<span class="font-bold text-red-500">高讨论</span>
+</div>
+</div>
+</div>
+<div>
+<h5 class="text-sm font-bold text-red-800 uppercase mb-3 flex items-center gap-2">
+<i data-lucide="hash" size="14"></i>内容标签组合</h5>
+<div class="flex flex-wrap gap-2">
+<span class="tag-pill tag-pill-gray">#降噪耳机</span>
+<span class="tag-pill red">#通勤必备</span>
+<span class="tag-pill orange">#音质党</span>
+<span class="tag-pill blue">#苹果平替升级</span>
+<span class="tag-pill green">#长时间佩戴</span>
+</div>
+</div>
+</div>
+</div>
+<h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-red-500 uppercase tracking-widest">痛点对比</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2">“同路段实测”三机降噪盲测</h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong>结构：</strong>地铁/咖啡馆/办公室三场景AB对照，先听后看品牌。<br/>
+<strong>触发：</strong>把“玄学音质”变成可感知差异，推动收藏与私信咨询。</p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500">适合新品首发与大促前预热</span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 grid grid-cols-2">
+<div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20"><br/></div>
+<div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold"><br/></div>
+</div>
+<div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-orange-500 uppercase tracking-widest">场景化种草</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2">“8小时办公佩戴挑战”内容模版</h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong>结构：</strong>上午会议、午休白噪音、下午通话，记录耳压与续航。<br/>
+<strong>触发：</strong>直接回应“索尼佩戴争议”，用真实时长测试建立信任。</p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500">适合KOC与店播联动</span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="text-center p-4">
+<div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+<span class="text-[10px] text-orange-300"><br/></span>
+</div>
+<div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">舒适是转化临门一脚</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-xs font-bold text-yellow-600 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2">“iPhone用户升级指南”</h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong>结构：</strong>先认可AirPods便捷，再给出索尼音质与跨平台优势清单。<br/>
+<strong>触发：</strong>降低品牌对立情绪，提高苹果用户试错意愿。</p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500">佩戴曲线</span>
+</div>
+</div>
+<div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+</div>
+<div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 text-sm">
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1">爆点1：强对比</div>
+<div class="text-gray-500 text-xs">用同场景同素材做A/B，减少“主观吹捧”质疑。</div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1">爆点2：强证据</div>
+<div class="text-gray-500 text-xs">分贝、通话收音、续航时长三类硬证据最易转化。</div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1">爆点3：强场景</div>
+<div class="text-gray-500 text-xs">通勤、会议、飞行是高频购买触发场景。</div>
+</div>
+</div>
+</div>
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900">视频平台（B站/YouTube/TikTok风格）</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2">“真实通勤一天”叙事</h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400">•</span>强调舒适与稳定，弱化复杂参数解释。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>高频出现飞行、通勤、办公三场景。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>KOL口径统一，评论区争议相对少。</li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2">“生态无缝体验”展示</h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400">•</span>手机、平板、电脑无缝切换一镜到底。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>突出轻便与低学习成本，降低决策疲劳。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>依托苹果生态内容资产持续放大。</li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2">“声学硬实力 + 娱乐生态”双线内容</h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400">•</span>上半段做硬核对比，下半段做游戏/影视沉浸体验。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>针对iPhone用户给出一步到位连接教程。</li>
+<li class="flex gap-2"><span class="text-gray-400">•</span>引导到线下试戴与电商参数页闭环转化。</li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 flex flex-col">
+<div class="h-1/2 bg-blue-900/40 w-full"></div>
+<div class="h-1/2 bg-red-900/40 w-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+<h5 class="text-sm font-bold text-gray-800 uppercase mb-4">渠道配比建议</h5>
+<div class="grid md:grid-cols-3 gap-4 text-sm">
+<div>
+<span class="block text-gray-400 text-xs mb-1">适合知乎/B站长内容承接</span>
+<p class="font-medium text-gray-800"><span class="text-blue-600">图文平台与短视频：高频场景种草</span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1">•</span>
+<p class="font-medium text-gray-800"><span class="text-red-500">B站/YouTube长评测：参数与体验解释</span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1">•</span>
+<p class="font-medium text-gray-800"><span class="text-blue-600">电商直播与门店试戴：即时答疑成交</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8">
+<h3 class="text-sm font-bold text-blue-800 mb-2">4.6 竞品国外社媒投放分析</h3>
+<div class="text-sm text-gray-700 space-y-2">
+<p><strong>观察：</strong>Bose在海外更强调“日常舒适+安静效率”，AirPods则持续放大“生态无缝+轻交互”；索尼内容通常在测评圈口碑强，但大众心智触达仍可提升。</p>
+<p><strong>建议：</strong>索尼海外投放应从“技术参数主导”转向“场景结果主导”，以通勤、远程办公、长途飞行三大刚需场景为核心，统一KOL脚本与素材模板，提升可复制爆款率。</p>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative pb-24" id="part5">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">战略总结与资源</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold mb-4">5.1 优先级行动建议（战略空白区）</h3>
+<div class="space-y-3">
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P1：舒适度工程化，补齐与 Bose 的口碑短板</div>
+<div class="text-xs text-orange-600 mt-1">建立耳型数据库与标准化试戴流程，推出更多耳塞/头梁配件与佩戴指引；目标是在“降噪-音质-舒适”三角中把短板变为可传播卖点，提升转化率与复购率。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P2：打造“内容生态音频体验”，对冲 AirPods 生态粘性</div>
+<div class="text-xs text-orange-600 mt-1">围绕 PlayStation、音乐与影视内容做低延迟/空间音频/Hi-Res联动权益；同时优化跨平台连接与切换，降低 Apple 用户迁移门槛，强化“非 iOS 也有高品质体验”的认知。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P3：中高端双层产品与场景化营销并行</div>
+<div class="text-xs text-orange-600 mt-1">以头戴旗舰守住技术心智、真无线次旗舰扩大人群覆盖，重点打通通勤/办公/飞行/游戏四大场景；通过语音清晰度与ANC稳定性指标化对比，提升溢价解释力。</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold mb-6">5.2 资源分配矩阵与里程碑</h3>
+<div class="grid grid-cols-2 gap-4 min-h-[16rem] h-auto auto-rows-min">
+<div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="star"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">核心投入 45%</span>
+<div>
+<div class="font-bold text-lg leading-tight">产品与体验研发</div>
+<div class="text-xs text-white/70 mt-1">舒适度工程、ANC算法、通话降噪与跨设备连接；6个月完成重点机型迭代验证。</div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+<span class="text-xs font-bold uppercase tracking-wider text-white/50">品牌投入 20%</span>
+<div>
+<div class="font-bold text-sm">场景化内容营销</div>
+<div class="text-xs text-white/50 mt-1">聚焦通勤/办公/飞行与游戏人群，强化“音质+降噪+舒适”统一心智。</div>
+</div>
+</div>
+<div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="circle-dollar-sign"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">支撑投入 35%</span>
+<div>
+<div class="font-bold text-lg">生态合作与渠道执行（里程碑）</div>
+<div class="text-xs text-white/70 mt-1">Q1完成内容权益与跨端功能规划，Q2上线生态联动版本并推进门店试戴标准化，Q3完成核心市场渠道铺货与口碑复盘；以NPS、退货率、复购率为主KPI。参考来源：索尼2024财年业绩与2025财年季度业绩公告、IR News 2025、36氪行业观察。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="nav-pill">
+<a class="nav-link" href="#part1">宏观</a>
+<a class="nav-link" href="#part2">全球</a>
+<a class="nav-link" href="#part3">人群</a>
+<a class="nav-link" href="#part4">竞品</a>
+<a class="nav-link" href="#part5">战略</a>
+</nav>
+<script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://m.36kr.com/p/3658773774545670" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">日企想在消费电子赛道继续挣扎，但意义不大了 - 36氪</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2026/20260205.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼集团发布2025财年第三季度业绩</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2025/20251111-01.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼集团发布2025财年第二季度业绩</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2025/20250514-1.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼集团发布2024财年全年业绩</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com/en/SonyInfo/IR/news/2025.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">IR News 2025 - Sony</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.audionet.com.tw/thread-17897-1-1.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Sony發表2025年BRAVIA新品 - 普洛影音網</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://sensor.ofweek.com/2024-07/ART-81012-8500-30641058.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">最近大火的索尼相机，情况有些“不妙” - OFweek传感器网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.eet-china.com/mp/a404855.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼2024财年净利润1.14万亿日元 - 电子工程专辑</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://shuma.taobao.com/topic/suoni_1355/02c8b9bc919f195b20a5888942700ad0.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼新相机怎么选？2025年最火型号全解析！ - 淘宝数码网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/product/2025.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025 - 索尼</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/product/2024.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024 - 索尼中国</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/product/2024/240820-1.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">拍摄、直播一体化提升效能新利器 - 索尼</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/product/2025/20250415-2.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">把影院带回家，2025索尼BRAVIA新一代家庭影院系列产品发布</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony-semicon.com/cn/news/2024/2024092401.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼推出兼具领先的窄像素间距与高亮度的0.44英寸全高清OLED微型 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/product.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">产品新闻- 索尼（Sony）中国网站</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2024.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024 - 索尼</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com/en/SonyInfo/News/Press/" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">News Releases - Sony Group Portal</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal_csr/news/20241107.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">科技赋能创意和可持续索尼携多元创新成果亮相2024中国国际进口 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sony.com.cn/content/sonyportal/zh-cn/cms/newscenter/corporate/2025.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025 - 索尼</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/958490408_122471764" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">索尼、Bose、Apple耳机对比测评：降噪效果谁更胜一筹？</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.reddit.com/r/bose/comments/j9gs4j/comparing_bose_qc_earbuds_to_airpods_pro_and_sony/?tl=zh-hans" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">对比Bose QC 耳机、AirPods Pro 和索尼WF1000XM3</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.reddit.com/r/headphones/comments/rbavtf/apple_airpods_max_review_comparison_to_sony_bose/?tl=zh-hans" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">苹果AirPods Max 评测（+ 与索尼、Bose、B&amp;W、森海塞尔的对比）</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://finance.sina.cn/tech/2021-06-22/detail-ikqciyzk1142225.d.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">热门降噪耳机横评：Bose降噪效果最佳索尼佩戴感最差</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.reddit.com/r/headphones/comments/7hpym1/owned_both_the_bose_qc35_ii_and_the_sony/?tl=zh-hans" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">同时拥有过Bose QC35 II 和Sony WH-1000XM2。 这是我的对比评测</a></li></ul></div></section></body>
+</html>

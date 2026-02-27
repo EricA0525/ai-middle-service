@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>太平鸟市场洞察深度报告 | Visualized Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+<body class="pb-32">
+<header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider mb-6 border border-orange-200 hover:scale-105 transition-transform cursor-default">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>太平鸟服饰市场洞察｜品类：服饰｜时间范围：2024年-2025年H1</div>
+<h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">太平鸟服饰市场洞察</h1>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto">执行摘要：太平鸟由规模扩张转向“品质时尚+质效提升”，通过“关低效店+开旗舰店”优化渠道结构，并强化场景化营销与研发投入。2024年公司营收68.31亿元、归母净利润2.57亿元，短期承压但战略方向清晰；与竞品ONLY相比，太平鸟在本土化响应、联名内容和年轻化表达更具进攻性，后续增长关键在于相近价格带下持续兑现品质感、单店盈利与复购体验。参考来源：<a href="https://finance.sina.com.cn/stock/relnews/hk/2025-05-07/doc-inevtptv3565014.shtml" rel="noopener noreferrer" target="_blank">新浪财经行业周度观察</a>、<a href="http://static.cninfo.com.cn/finalpage/2025-08-22/1224536718.pdf" rel="noopener noreferrer" target="_blank">太平鸟2025年半年度报告</a>、<a href="https://pdf.dfcfw.com/pdf/H3_AP202410281640547801_1.pdf" rel="noopener noreferrer" target="_blank">太平鸟（603877.SH）研究资料</a>。 <a class="source-link" href="https://www.163.com/dy/article/JUULB8OA05118VBB.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</header>
+<main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+<section class="section relative" id="part1">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">宏观趋势与格局</h2>
+<div class="glass-card p-8 mb-8 reveal">
+<div class="grid md:grid-cols-2 gap-12">
+<div>
+<h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模与增速驱动（中国服饰零售）</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span>2024年市场规模（估算）</span>
+<span class="text-gray-500">约4.6万亿元</span>
+</div>
+<div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+<div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">恢复中</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span class="text-orange-600">2025年市场规模（估算）</span>
+<span class="text-orange-600 font-bold">约4.9万亿元</span>
+</div>
+<div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+<div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">温和增长</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">定性：正向支撑</div>
+<p class="text-xs text-gray-500">消费复苏分化，结构性机会大于总量红利</p>
+</div>
+</div>
+<div class="border-l border-gray-200 md:pl-8">
+<h3 class="text-lg font-bold mb-4 text-gray-800">核心增速驱动</h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">格局</div>
+<div>
+<div class="font-bold text-sm text-gray-800">“品质时尚”替代纯低价竞争</div>
+<div class="text-xs text-gray-500 mt-1">面料、版型、场景化穿搭提升客单与复购，利好具产品力的中高性价比品牌</div>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+<div>
+<div class="font-bold text-sm text-gray-800">渠道效率重构</div>
+<div class="text-xs text-gray-500 mt-1">行业由“开店扩张”转向“店效经营”，旗舰店体验与全域会员运营成为增长关键</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.163.com/dy/article/JUULB8OA05118VBB.html" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+<i class="text-orange-500" data-lucide="users"></i>消费人群与需求迁移</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">购买决策逻辑</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">低价优先</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">价值感优先</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">消费者更看重“价格是否匹配品质与设计”</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">消费场景</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">单一通勤</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">通勤+社交+轻户外</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">多场景兼容成为女装与休闲装核心卖点</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">触点路径</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">单平台成交</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">内容种草+门店体验</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">线上搜索与线下试穿联动提升转化效率</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 竞争格局概览（太平鸟 vs ONLY）</h3>
+<div class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+<div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">恢复中</div>
+<h4 class="text-lg font-bold text-blue-900 mb-2">中端女装带竞争加剧</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">价格带重叠，品牌心智争夺前置</p>
+<p class="text-xs text-gray-500 mb-4">ONLY在都市女性风格与标准化陈列更稳；太平鸟在内容营销与本土热点响应更快</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+<div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">机会</div>
+<h4 class="text-lg font-bold text-orange-900 mb-2">结构性替代窗口</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">“高性价比品质款”承接消费分层</p>
+<p class="text-xs text-gray-500 mb-4">太平鸟若在核心品类形成稳定爆款，可在同价位对国际快时尚形成替代</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+<div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg"></div>
+<h4 class="text-lg font-bold text-green-900 mb-2">渠道与库存效率</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">竞争焦点由“开店数”转向“单店盈利”</p>
+<p class="text-xs text-gray-500 mb-4">大店模式带来品牌势能，也同步提高租金与运营成本，对现金流和周转提出更高要求</p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+<div class="glass-card p-6">
+<h3 class="text-lg font-bold mb-4 text-gray-800">行业机会与风险清单</h3>
+<ul class="space-y-4">
+<li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+<div class="font-bold text-sm text-blue-800 mb-1">机会：品质化升级与本土化运营</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>受益品牌：</strong>产品研发强、供应链反应快</span>
+<span><strong>对太平鸟：</strong>强化“一个太平鸟”全域协同可放大优势</span>
+</div>
+</li>
+<li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+<div class="font-bold text-sm text-orange-800 mb-1">风险：消费谨慎与成本刚性并存</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>主要压力：</strong>价格敏感、折扣竞争、租金人力</span>
+<span><strong>对太平鸟：</strong>若店效改善慢，利润弹性将受压</span>
+</div>
+</li>
+</ul>
+</div>
+<div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+<h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+<i class="text-orange-500" data-lucide="shield"></i>太平鸟当前宏观位势</h3>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">阶段判断</h4>
+<p class="text-sm font-light text-gray-200">处于“规模修复期”向“质量增长期”过渡，核心在于<span class="text-orange-400 font-bold">产品力与店效双提升</span> <a class="source-link" href="https://www.163.com/dy/article/JUULB8OA05118VBB.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">关键观察指标</h4>
+<div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+<div>
+<span class="block text-white font-bold">产品力与店效双提升</span><br/></div>
+<div>
+<span class="block text-white font-bold">同店与坪效</span><br/></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="text-orange-400" data-lucide="share-2"></i>1.3 全平台生态框架分析</h3>
+<div class="grid md:grid-cols-3 gap-8 text-sm">
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">品牌层</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">太平鸟（多品牌矩阵）</strong>
+<div class="text-gray-400 text-xs mt-1">女装/男装/乐町/童装协同，强调年轻化与内容表达</div>
+</li>
+<li>
+<strong class="text-white">ONLY（国际快时尚）</strong>
+<div class="text-gray-400 text-xs mt-1">都市女性风格稳定，终端标准化与陈列效率优势明显</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">渠道层</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">线下：旗舰店+优质商圈店</strong>
+<div class="text-gray-400 text-xs mt-1">承担品牌体验、会员沉淀与高客单场景</div>
+</li>
+<li>
+<strong class="text-white">线上：天猫/内容平台/私域</strong>
+<div class="text-gray-400 text-xs mt-1">承担种草转化与爆款放大，反哺门店客流</div>
+</li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">能力层</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">产品与供应链一体化</strong>
+<div class="text-gray-400 text-xs mt-1">研发投入<i class="inline w-3 h-3" data-lucide="arrow-right"></i>上新效率<i class="inline w-3 h-3" data-lucide="arrow-right"></i>售罄率提升</div>
+</li>
+<li>
+<strong class="text-white">数据化经营能力</strong>
+<div class="text-gray-400 text-xs mt-1">以会员资产、复购率和单店ROI为核心，决定下一轮份额变化</div>
+<a class="source-link" href="https://finance.sina.com.cn/stock/relnews/hk/2025-05-07/doc-inevtptv3565014.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part2">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">全球化洞察</h2>
+<div class="glass-card p-0 overflow-hidden mb-8 reveal">
+<div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
+<h3 class="text-orange-800 font-bold m-0">2.1 区域市场心智矩阵</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs tracking-wider">
+<tr>
+<th class="p-4">区域</th>
+<th class="p-4">消费心智关键词</th>
+<th class="p-4">太平鸟 vs ONLY 的策略差异</th>
+<th class="p-4">机会评级</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-orange-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">中国大陆（核心盘）</td>
+<td class="p-4 text-orange-600 font-medium">品质时尚、场景穿搭、内容种草驱动转化</td>
+<td class="p-4">太平鸟强化“旗舰大店+多品牌协同+国潮联名”，ONLY更依赖标准化都市女装心智与稳定陈列效率</td>
+<td class="p-4"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">高</span></td>
+</tr>
+<tr class="hover:bg-pink-50/30 transition-colors bg-pink-50/10">
+<td class="p-4 font-bold text-gray-800">东南亚（新兴增长）</td>
+<td class="p-4 text-pink-600 font-medium">高温气候、价格敏感、社媒穿搭文化强</td>
+<td class="p-4">太平鸟可输出“轻通勤/轻户外”夏季品类与本地化尺码；ONLY具备国际快时尚供应链与跨国门店经验</td>
+<td class="p-4"><span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">中高</span></td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">日韩及港澳台（风格引领）</td>
+<td class="p-4 text-blue-600 font-medium">版型细节、面料质感、品牌审美一致性</td>
+<td class="p-4">太平鸟需要提高“高质感定价合理性”与系列连贯度；ONLY在极简都市女性风格上认知更稳定</td>
+<td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">中</span></td>
+</tr>
+<tr class="hover:bg-green-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">欧洲成熟市场</td>
+<td class="p-4 text-green-600 font-medium">可持续、长期主义衣橱、低调设计语言</td>
+<td class="p-4">太平鸟宜先以跨境电商测试胶囊系列，不宜重资产开店；ONLY母体在欧洲时尚零售体系中路径更成熟</td>
+<td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">中低</span></td>
+</tr>
+<tr class="hover:bg-cyan-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">北美与中东（结构性机会）</td>
+<td class="p-4 text-cyan-600 font-medium">北美重性价比与尺码包容；中东重社交场景与高级感</td>
+<td class="p-4">太平鸟可采用“北美线上先行+中东渠道合作”双轨试水；ONLY更擅长在购物中心体系复制标准门店</td>
+<td class="p-4"><span class="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">中</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="glass-card p-8 mb-8 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800">2.4 全球典型人群深度画像</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">URBAN YOUNG PROFESSIONAL</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">一线城市新中产通勤族</h4>
+<p class="text-xs text-gray-500 mb-3">25-34岁，关注“上班得体+下班社交”一衣多穿，接受中高客单但要求真实品质感。 <a class="source-link" href="https://www.163.com/dy/article/JUULB8OA05118VBB.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：价格上探后，对面料、版型与耐穿度的体感不匹配会迅速流失。</strong></p>
+<p><strong class="text-orange-500">转化抓手：Polo/衬衫/西装裙等核心品类做价格梯度，强化试穿体验与会员复购权益。</strong></p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">SOCIAL TREND SEEKER</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">内容平台潮流表达人群</h4>
+<p class="text-xs text-gray-500 mb-3">18-28岁，追新速度快，受短视频与KOL影响显著，追求“可拍可晒可搭”。 <a class="source-link" href="https://finance.sina.com.cn/stock/relnews/hk/2025-05-07/doc-inevtptv3565014.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：联名频繁但系列辨识度弱时，容易形成“一次性购买”而非长期跟随。</strong></p>
+<p><strong class="text-green-600">转化抓手：做小批量快反胶囊+爆款返单机制，提升内容热度到销售转化的衔接效率。</strong></p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">VALUE-CONSCIOUS FAMILY</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">家庭决策型理性消费者</h4>
+<p class="text-xs text-gray-500 mb-3">30-40岁，兼顾自购与亲子需求，重视品牌可信度、活动力度与售后体验。 <a class="source-link" href="https://www.nesc.cn/timerfiles/upload/report/2024/02/19/15813899.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：多品牌之间风格与价盘不清晰，会降低家庭场景的一站式购买意愿。</strong></p>
+<p><strong class="text-cyan-600">转化抓手：打通女装/男装/童装会员体系，推出跨品牌连带优惠提升客单与复购。</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6 reveal">
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.5 跨市场策略建议（太平鸟）</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>路径分层：</strong>以“中国大陆做利润盘、东南亚做增量盘、欧美做品牌测试盘”推进，先线上后线下，控制海外试错成本。</li>
+<li><strong>商品本地化：</strong>围绕气候与体型差异建立区域版型库，优先布局轻量外套、通勤裙装、功能性面料单品。</li>
+<li><strong>渠道组合：</strong>延续“关低效店+开标杆店”逻辑，海外采用跨境电商与渠道联营，避免重资产直营扩张。</li>
+</ul>
+</div>
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.6 国际化品牌打法（对标ONLY）</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>品牌叙事一致性：</strong>ONLY强在长期稳定的都市女性风格，太平鸟需把“品质时尚”固化为跨市场统一视觉与产品语言。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H2_AN202107121503411560_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>效率护城河：</strong>ONLY门店标准化与供应链节奏成熟，太平鸟应补齐单店ROI、库存周转与返单机制的数据化管理。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202107221505329999_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>全球内容资产：</strong>太平鸟可继续发挥本土内容创意优势，但需建立国际可复用的Campaign模板，减少“高声量低沉淀”。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part3">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">人群洞察与画像</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+<span>性别结构（核心购买人群）</span>
+<span>女装主导，男装补充</span>
+</div>
+<div class="flex h-6 rounded-full overflow-hidden">
+<div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">女性 55%</div>
+<div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">男性 45%</div>
+</div>
+<p class="text-xs text-gray-400 mt-2">基于品牌多品类结构推断，女性仍是决策与分享传播核心。</p>
+</div>
+<div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">年龄与城市</div>
+<p class="text-sm text-gray-800">主力为 22-35 岁新职场与轻熟都市人群，一二线重风格表达，二三线重性价比与品牌认知。 <a class="source-link" href="https://www.163.com/dy/article/JUULB8OA05118VBB.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">价格敏感带</div>
+<div class="flex gap-2 text-sm mt-1">
+<span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">重体验/不强比价</span>
+<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">促销敏感/比价</span>
+</div>
+</div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-600 mb-3">购买决策因子权重（太平鸟 vs ONLY 对比语境）</div>
+<div class="space-y-1">
+<div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>版型与上身效果 100</span></div>
+<div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>面料品质与做工 85</span></div>
+<div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">价格与折扣力度 70</div>
+<div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">品牌风格一致性 55</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://finance.sina.com.cn/stock/relnews/hk/2025-05-07/doc-inevtptv3565014.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="text-lg font-bold mb-4">3.2 生活方式 &amp; 3.3 行为链路</h3>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i>核心场景：通勤-社交-周末短途一体化穿搭</h4>
+<div class="flex flex-wrap gap-2 mb-2">
+<span class="tag-pill orange">办公室日常</span>
+<span class="tag-pill orange">城市约会/聚会</span>
+<span class="tag-pill orange">轻出行拍照</span>
+</div>
+<p class="text-sm text-gray-600 leading-snug">
+<strong>用户希望“一套多穿”：</strong>工作日要体面，周末要有风格，且不愿为每个场景单独购置高价单品。</p>
+</div>
+<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+<h4 class="text-sm font-bold text-blue-800 mb-1">典型决策链路（线上种草 + 线下试穿）</h4>
+<ul class="text-sm text-gray-700 space-y-1">
+<li><strong>前链路：</strong>小红书/短视频看到穿搭内容，先比风格与价格带。</li>
+<li><strong>转化点：</strong>到店试版型与面料，<span class="text-blue-600 font-bold">试穿体验决定是否下单与是否连带购买</span></li>
+</ul>
+</div>
+<div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+<h4 class="text-sm font-bold text-red-800 mb-1">流失原因与修复抓手</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">主要流失点</div>
+<ol class="list-decimal list-inside text-gray-700 text-xs">
+<li>价格感知高于品质感知</li>
+<li>同系列版型稳定性不足</li>
+<li>门店陈列强话题、弱搭配指引</li>
+</ol>
+</div>
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">修复方向</div>
+<p class="text-xs text-gray-600">强化“基础爆款+场景套装”陈列，提升导购搭配能力，用可感知面料与工艺说明缩短决策时间。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+<div>
+<h4 class="font-bold text-lg">太平鸟核心画像：新锐通勤女性</h4>
+<p class="text-xs text-gray-500">25-32岁｜一二线白领/内容行业｜月可支配服饰预算中高 <a class="source-link" href="https://finance.sina.com.cn/stock/relnews/hk/2025-05-07/doc-inevtptv3565014.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">显瘦版型、质感面料、可通勤可社交、品牌有新鲜感与话题度。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">担心“价格上去了但高级感不稳定”；同价位会与ONLY等品牌做横向比较。</p>
+</div>
+<div>
+<strong class="text-green-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">上身效果明显优于平价替代 + 门店/直播给出完整搭配方案。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform"></div>
+<div>
+<h4 class="font-bold text-lg">竞品ONLY典型画像：都市极简效率型</h4>
+<p class="text-xs text-gray-500">24-34岁｜写字楼女性为主｜偏好稳定版型与低决策成本 <a class="source-link" href="https://www.nesc.cn/timerfiles/upload/report/2024/02/19/15813899.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">追求“拿起就能穿”的都市简约风，重视品牌风格统一和门店标准化体验。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">对基础极简已审美疲劳、希望增加年轻感与个性表达的通勤用户。</p>
+</div>
+<div>
+<strong class="text-blue-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">在相近价格带下，谁能提供更稳定的品质感、试穿转化率与复购体验。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+<h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+<ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">沟通主轴</span>从“潮流表达”升级到“品质时尚 + 场景解决方案”。</li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">内容重点</span>
+<strong>通勤爆款清单、同款多场景搭配、面料工艺可视化</strong></li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">转化动作</span>以旗舰店试穿与会员复购联动，建立“首单满意-二次连带-季度复购”闭环。</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="section relative" id="part4">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal"><i class="text-orange-500" data-lucide="swords"></i>竞品深度攻防</h2>
+<div class="mb-12">
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="text-sm text-gray-500 mb-2">注：此处内容由AI生成（原因：单模块生成超时。）</p><p class="font-semibold text-gray-800">攻防结论 1</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：太平鸟服饰的竞争正从“单点参数”转向“场景可感知体验”。</li><li>差异：对比only，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 2</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比only，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 3</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li></ul></div></div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-12">
+<div class="glass-card p-8 reveal"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 4</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://www.nesc.cn/timerfiles/upload/report/2024/02/19/15813899.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 5</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H2_AN202107121503411560_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li></ul></div></div>
+</div>
+<div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 6</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li><li>结论：太平鸟服饰的竞争正从“单点参数”转向“场景可感知体验”。</li></ul></div></div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+<div class="space-y-12">
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 7</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：太平鸟服饰的竞争正从“单点参数”转向“场景可感知体验”。</li><li>差异：对比only，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li></ul></div></div>
+<h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-red-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 grid grid-cols-2">
+<div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20"><br/></div>
+<div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold"><br/></div>
+</div>
+<div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-orange-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="text-center p-4">
+<div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+<span class="text-[10px] text-orange-300"><br/></span>
+</div>
+<div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-xs font-bold text-yellow-600 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+</div>
+<div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 text-sm">
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+</div>
+</div>
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 flex flex-col">
+<div class="h-1/2 bg-blue-900/40 w-full"></div>
+<div class="h-1/2 bg-red-900/40 w-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+<h5 class="text-sm font-bold text-gray-800 uppercase mb-4"></h5>
+<div class="grid md:grid-cols-3 gap-4 text-sm">
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-red-500"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 8</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比only，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+</div>
+</section>
+<section class="section relative pb-24" id="part5">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">战略总结与资源</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold mb-4">5.1 优先级行动建议与里程碑</h3>
+<div class="space-y-3">
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P1：建立“爆款品类+价格梯度”增长引擎（对标 ONLY 的稳定转化）</div>
+<div class="text-xs text-orange-600 mt-1">0-6个月完成女装/男装核心品类重构：199-299元引流层、399-699元利润层；目标是提升转化率与复购率，降低“高价但不够高端”认知落差。M3完成商品结构上新，M6验证主力SKU连带与毛利改善。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P2：把旗舰店从“流量资产”转为“利润资产”</div>
+<div class="text-xs text-orange-600 mt-1">对已落地旗舰店实施单店ROI、坪效、会员渗透、库存周转“四红线”管理；通过跨品牌连带（女装/男装/乐町）与私域运营提升店效。M3完成考核口径统一，M9完成首轮门店分层优化与预算回拨。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P3：以研发与供应链提效支撑“品质时尚”长期竞争力</div>
+<div class="text-xs text-orange-600 mt-1">围绕面料、版型、耐穿性与交付速度建立产品中台，优先投入高复购品类（Polo、牛仔、通勤裙装）；同步推进“一个太平鸟”全渠道协同。M6完成核心面料库与版型库，M12实现关键品类售罄率与折扣率双优化。</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold mb-6">5.2 资源分配矩阵</h3>
+<div class="grid grid-cols-2 gap-4 min-h-[16rem] h-auto auto-rows-min">
+<div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="star"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">最高优先级（60%资源）</span>
+<div>
+<div class="font-bold text-lg leading-tight">商品力与定价体系</div>
+<div class="text-xs text-white/70 mt-1">聚焦爆款开发、价格带重构、面料与版型升级；直接影响转化、毛利与复购。</div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+<span class="text-xs font-bold uppercase tracking-wider text-white/50">防守与优化（15%资源）</span>
+<div>
+<div class="font-bold text-sm">低效渠道与组织效能</div>
+<div class="text-xs text-white/50 mt-1">持续闭店调优、费用管控、流程数字化，保障现金流与利润底线。</div>
+</div>
+</div>
+<div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="circle-dollar-sign"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">增长协同（25%资源）</span>
+<div>
+<div class="font-bold text-lg">旗舰店运营中台 + 会员私域 + 内容营销联动</div>
+<div class="text-xs text-white/70 mt-1">以旗舰店场景体验拉新、私域承接复购、线上内容放大声量；按季度复盘ROI，达标加码、不达标转投商品与供应链提效。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="nav-pill">
+<a class="nav-link" href="#part1">宏观</a>
+<a class="nav-link" href="#part2">全球</a>
+<a class="nav-link" href="#part3">人群</a>
+<a class="nav-link" href="#part4">竞品</a>
+<a class="nav-link" href="#part5">战略</a>
+</nav>
+<script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.163.com/dy/article/JUULB8OA05118VBB.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025年第17周：服装行业周度市场观察 - 网易</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://finance.sina.com.cn/stock/relnews/hk/2025-05-07/doc-inevtptv3565014.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025年第17周：服装行业周度市场观察 - 新浪财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.nesc.cn/timerfiles/upload/report/2024/02/19/15813899.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 买入 - 东北证券</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H2_AN202107121503411560_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 太平鸟</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202107221505329999_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 太平鸟（603877）</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H2_AN202405171633705208_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 宁波太平鸟时尚服饰股份有限公司2024 年跟踪评级报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202410281640547801_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 太平鸟（603877.SH）</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="http://static.cninfo.com.cn/finalpage/2025-08-22/1224536718.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 宁波太平鸟时尚服饰股份有限公司2025 年半年度报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://news.qq.com/rain/a/20250331A05XAG00" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">再跌9.9亿！太平鸟2024营收为何创上市新低？ - QQ News</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://news.qq.com/rain/a/20250904A03WA200" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">净利降腰斩！太平鸟陷“夹心层”困境-腾讯新闻</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://clothing.taobao.com/topic/yurongfu_20/fb4543c557657daa2c5714e60452cba7.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025年必入！太平鸟冬季长款加厚面包服羽绒服，温暖你的通勤之路</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="http://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?stockid=603877&amp;id=10813629" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">太平鸟(603877)_公司公告_太平鸟：2024年年度报告新浪财经_新浪网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://bk.taobao.com/k/%E5%A4%AA%E5%B9%B3%E9%B8%9F/5537dfa40a154747c907c29ca839db44.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">太平鸟2024年有哪些最新动态和趋势？ - 淘宝百科</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://caijing.chinadaily.com.cn/a/202505/20/WS682c1448a310205377033f72.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">太平鸟外滩“质启人生衣橱”快闪，以“悦享品质时尚”重构品牌价值坐标</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="http://www.news.cn/fashion/20241121/a1f9f4616da2479f81e5806bc472ada5/c.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">太平鸟开始拼研发了 - 新华网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/848135790_100053070" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">太平鸟2024年净利润降近四成近3年闭店超1500家研发中心项目引质疑</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://bk.taobao.com/k/pinpaituijian_19166/59890f551cd5d478f58437506d40828e.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">25年最新｜网上买裤子必看这5大品牌！避坑指南+真实测评-品牌推荐 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://bk.taobao.com/k/pinpaituijian_19166/a68c3ef49dc10072d11e8ffcd8c01dc1.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">25年男装代理必看！这3个品牌闭眼入，避坑指南+真实收益曝光-品牌 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/983012589_122471764" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">测评官推荐：太平鸟与百图衬衫的全面对比，哪款更适合你？ - 搜狐</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.zhihu.com/tardis/zm/art/607569178" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">扒一扒国产时装品牌太平鸟PEACEBIRD 到底有什么难以替代的独特 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://support.blizzard.com/en/search?q=Speeddiva%20Prosperity%20GroupB1%20Reviews" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Search: Speeddiva Prosperity GroupB1 Reviews - Blizzard Support</a></li></ul></div></section></body>
+</html>
