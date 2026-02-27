@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>品牌洞察报告（示例）- 运行日期 2026-01-07</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #111522;
+      --panel2:#0f1320;
+      --text: #e9ecf3;
+      --muted: #aab3c5;
+      --border: rgba(255,255,255,.10);
+      --accent: #7aa2ff;
+      --good:#5ee38f;
+      --warn:#ffd36b;
+      --bad:#ff6b6b;
+      --chip:#1a2140;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 30% -10%, rgba(122,162,255,.25), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(94,227,143,.12), transparent 50%),
+                  linear-gradient(180deg, #07080c, var(--bg));
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 36px 18px 80px; }
+    .hero {
+      padding: 28px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero:before {
+      content:"";
+      position:absolute; inset:-80px -120px auto auto;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle at 30% 30%, rgba(122,162,255,.35), transparent 60%);
+      filter: blur(8px);
+      transform: rotate(12deg);
+    }
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      letter-spacing: .4px;
+    }
+    .meta {
+      display:flex; flex-wrap: wrap; gap: 10px 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .chip {
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      background: rgba(122,162,255,.10);
+      border: 1px solid rgba(122,162,255,.20);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #d7e2ff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (min-width: 900px) {
+      .grid.cols2 { grid-template-columns: 1fr 1fr; }
+      .grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 16px 14px;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      display:flex; align-items:center; justify-content: space-between;
+      gap: 10px;
+    }
+    .kpis {
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (min-width: 900px) {
+      .kpis { grid-template-columns: repeat(4, 1fr); }
+    }
+    .kpi {
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .kpi .label { color: var(--muted); font-size: 12px; }
+    .kpi .value { font-size: 20px; margin-top: 4px; font-weight: 700; }
+    .kpi .note { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .pill {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .section-title {
+      margin: 26px 4px 12px;
+      font-size: 22px;
+      letter-spacing: .2px;
+      color: #f2f4fb;
+    }
+    .subtle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .list {
+      margin: 10px 0 0;
+      padding-left: 16px;
+      color: #dfe5f6;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .table th, .table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      vertical-align: top;
+    }
+    .table th {
+      text-align: left;
+      color: #dfe5f6;
+      background: rgba(255,255,255,.04);
+      font-weight: 700;
+    }
+    .table tr:hover td {
+      background: rgba(122,162,255,.06);
+    }
+    .badge {
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: #dfe5f6;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      display:inline-block;
+    }
+    .dot.good { background: var(--good); }
+    .dot.warn { background: var(--warn); }
+    .dot.bad { background: var(--bad); }
+    .two-col {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .two-col { grid-template-columns: 1.2fr .8fr; }
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .hr {
+      height: 1px;
+      background: rgba(255,255,255,.10);
+      margin: 14px 0;
+    }
+    .code {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #d7e2ff;
+      background: rgba(122,162,255,.08);
+      border: 1px solid rgba(122,162,255,.18);
+      padding: 10px 12px;
+      border-radius: 12px;
+      overflow:auto;
+      white-space: pre;
+    }
+    .foot {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>品牌洞察报告（示例 / Fake Data）</h1>
+      <div class="meta">
+        <span class="chip">Run ID: <span style="font-family:var(--mono)">run_20260107_123000</span></span>
+        <span class="chip">品牌：AOS（示例）</span>
+        <span class="chip">竞品：BrandX / BrandY / BrandZ</span>
+        <span class="chip">店铺：TikTok @example_shop</span>
+        <span class="chip">时间范围：近 90 天</span>
+      </div>
+      <div class="grid cols2" style="margin-top:16px;">
+        <div class="card">
+          <h2>Executive Summary <span class="pill">A. 一页总结</span></h2>
+          <ul class="list">
+            <li><b>行业热度回升</b>：近 12 周搜索热度指数由 58 → 74（+28%）。<span class="small">证据：趋势抓取（News/Trend Search）</span></li>
+            <li><b>竞品内容投放更“短剧化”</b>：BrandX 短剧内容占比 8% → 23%。<span class="small">证据：竞品内容结构抽样</span></li>
+            <li><b>SEO 可见度存在结构性缺口</b>：Top1-3 关键词数落后竞品约 35%，且 4-10 桶位“堆积”。<span class="small">证据：SEO Dashboard</span></li>
+            <li><b>社媒合规风险可控但需标注</b>：近 10 条内容出现 2 条“夸大/功效暗示”风险用语。<span class="small">证据：Compliance Tagger</span></li>
+            <li><b>优先动作</b>：先修“可见度→流量”的断层（4-10 关键词提权 + 1000+ 页面均衡化），同步改造内容脚本模板。</li>
+          </ul>
+          <div class="hr"></div>
+          <div class="grid cols3">
+            <div class="kpi">
+              <div class="label">SEO 可见度（估）</div>
+              <div class="value">62</div>
+              <div class="note">竞品均值 78</div>
+            </div>
+            <div class="kpi">
+              <div class="label">社媒互动率</div>
+              <div class="value">3.4%</div>
+              <div class="note">近 10 条均值</div>
+            </div>
+            <div class="kpi">
+              <div class="label">舆情净情绪</div>
+              <div class="value">+0.18</div>
+              <div class="note">[-1,1] 标准化</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>风险红线 <span class="pill">Redlines</span></h2>
+          <table class="table">
+            <thead><tr><th>风险项</th><th>等级</th><th>触发信号（示例）</th><th>建议</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>社媒合规（功效/极限词）</td>
+                <td><span class="badge"><span class="dot warn"></span>中</span></td>
+                <td>“100%解决”“最强”“治疗/治愈”等暗示词</td>
+                <td>替代措辞模板 + 发布前审查清单</td>
+              </tr>
+              <tr>
+                <td>SEO 下滑（结构性）</td>
+                <td><span class="badge"><span class="dot bad"></span>高</span></td>
+                <td>Top1-3 关键词占比下降、Top页面集中度过高</td>
+                <td>提权计划（4-10→Top3）+ 1000+ 页面均衡化</td>
+              </tr>
+              <tr>
+                <td>舆情（负面点扩散）</td>
+                <td><span class="badge"><span class="dot warn"></span>中</span></td>
+                <td>“漏水/异味/售后慢”频次上升</td>
+                <td>FAQ + 评论区统一回复话术</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="hr"></div>
+          <div class="small">说明：以上为演示数据。真实运行时由 n8n 每周自动生成，并在异常时触发提醒。</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">1. 市场洞察（Market Insights）</h2>
+    <div class="grid cols2">
+      <div class="card">
+        <h2>行业热度趋势（示例）<span class="pill">折线图</span></h2>
+        <!-- Simple SVG Line Chart -->
+        <svg viewBox="0 0 760 260" width="100%" height="260" role="img" aria-label="行业热度趋势">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(122,162,255,.55)"/>
+              <stop offset="100%" stop-color="rgba(122,162,255,0)"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="760" height="260" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+          <!-- axes -->
+          <line x1="54" y1="210" x2="730" y2="210" stroke="rgba(255,255,255,.14)"/>
+          <line x1="54" y1="30" x2="54" y2="210" stroke="rgba(255,255,255,.14)"/>
+          <!-- area -->
+          <path d="M54,180 L110,175 L166,168 L222,155 L278,160 L334,148 L390,142 L446,135 L502,140 L558,128 L614,118 L670,110 L730,102
+                   L730,210 L54,210 Z" fill="url(#g1)"/>
+          <!-- line -->
+          <path d="M54,180 L110,175 L166,168 L222,155 L278,160 L334,148 L390,142 L446,135 L502,140 L558,128 L614,118 L670,110 L730,102"
+                fill="none" stroke="rgba(122,162,255,.95)" stroke-width="3"/>
+          <!-- dots -->
+          <circle cx="54" cy="180" r="4" fill="rgba(94,227,143,.85)" /><circle cx="110" cy="175" r="4" fill="rgba(94,227,143,.85)" /><circle cx="166" cy="168" r="4" fill="rgba(94,227,143,.85)" /><circle cx="222" cy="155" r="4" fill="rgba(94,227,143,.85)" /><circle cx="278" cy="160" r="4" fill="rgba(94,227,143,.85)" /><circle cx="334" cy="148" r="4" fill="rgba(94,227,143,.85)" /><circle cx="390" cy="142" r="4" fill="rgba(94,227,143,.85)" /><circle cx="446" cy="135" r="4" fill="rgba(94,227,143,.85)" /><circle cx="502" cy="140" r="4" fill="rgba(94,227,143,.85)" /><circle cx="558" cy="128" r="4" fill="rgba(94,227,143,.85)" /><circle cx="614" cy="118" r="4" fill="rgba(94,227,143,.85)" /><circle cx="670" cy="110" r="4" fill="rgba(94,227,143,.85)" /><circle cx="730" cy="102" r="4" fill="rgba(94,227,143,.85)" />
+          <text x="54" y="232" fill="rgba(255,255,255,.45)" font-size="12">Week 1</text>
+          <text x="680" y="232" fill="rgba(255,255,255,.45)" font-size="12">Week 12</text>
+          <text x="20" y="38" fill="rgba(255,255,255,.45)" font-size="12">Index</text>
+        </svg>
+        <div class="subtle">数据来源（示例）：News/Trend Search 节点（搜索指数/新闻数量/热词）→ 归一化到 0–100。</div>
+      </div>
+
+      <div class="card">
+        <h2>竞品对比雷达图（示例）<span class="pill">雷达图</span></h2>
+        <!-- Simple SVG Radar -->
+        <svg viewBox="0 0 760 260" width="100%" height="260" role="img" aria-label="竞品对比雷达图">
+          <rect x="0" y="0" width="760" height="260" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+          <g transform="translate(200,130)">
+            <!-- grid -->
+            <polygon points="25,0 7.725,-23.775 -20.225,-14.7 -20.225,14.7 7.725,23.775" fill="none" stroke="rgba(255,255,255,.10)" /><polygon points="50,0 15.45,-47.55 -40.45,-29.4 -40.45,29.4 15.45,47.55" fill="none" stroke="rgba(255,255,255,.10)" /><polygon points="75,0 23.175,-71.325 -60.675000000000004,-44.099999999999994 -60.675000000000004,44.099999999999994 23.175,71.325" fill="none" stroke="rgba(255,255,255,.10)" /><polygon points="100,0 30.9,-95.1 -80.9,-58.8 -80.9,58.8 30.9,95.1" fill="none" stroke="rgba(255,255,255,.10)" />
+            <!-- axes -->
+            <line x1="0" y1="0" x2="110" y2="0" stroke="rgba(255,255,255,.14)"/>
+            <line x1="0" y1="0" x2="34" y2="-105" stroke="rgba(255,255,255,.14)"/>
+            <line x1="0" y1="0" x2="-89" y2="-65" stroke="rgba(255,255,255,.14)"/>
+            <line x1="0" y1="0" x2="-89" y2="65" stroke="rgba(255,255,255,.14)"/>
+            <line x1="0" y1="0" x2="34" y2="105" stroke="rgba(255,255,255,.14)"/>
+            <!-- Brand A polygon (ours) -->
+            <polygon points="90,0 28,-86 -65,-48 -55,40 26,80" fill="rgba(122,162,255,.22)" stroke="rgba(122,162,255,.85)" stroke-width="2"/>
+            <!-- Competitor polygon -->
+            <polygon points="105,0 20,-60 -82,-60 -70,55 20,95" fill="rgba(255,211,107,.16)" stroke="rgba(255,211,107,.85)" stroke-width="2"/>
+            <!-- labels -->
+            <text x="118" y="4" fill="rgba(255,255,255,.65)" font-size="12">声量</text>
+            <text x="40" y="-112" fill="rgba(255,255,255,.65)" font-size="12">内容活跃</text>
+            <text x="-132" y="-72" fill="rgba(255,255,255,.65)" font-size="12">渠道覆盖</text>
+            <text x="-132" y="76" fill="rgba(255,255,255,.65)" font-size="12">价格带</text>
+            <text x="38" y="122" fill="rgba(255,255,255,.65)" font-size="12">SEO可见度</text>
+          </g>
+          <g transform="translate(470,70)">
+            <rect x="0" y="0" width="250" height="120" rx="12" fill="rgba(0,0,0,.18)" stroke="rgba(255,255,255,.10)"/>
+            <g transform="translate(16,18)" font-size="12" fill="rgba(255,255,255,.70)">
+              <rect x="0" y="0" width="14" height="8" fill="rgba(122,162,255,.85)"/><text x="22" y="8">本品牌（示例）</text>
+              <rect x="0" y="26" width="14" height="8" fill="rgba(255,211,107,.85)"/><text x="22" y="34">竞品均值（示例）</text>
+              <text x="0" y="66" fill="rgba(255,255,255,.55)">维度：声量 / 内容活跃 / 渠道覆盖 /</text>
+              <text x="0" y="84" fill="rgba(255,255,255,.55)">价格带 / SEO可见度</text>
+            </g>
+          </g>
+        </svg>
+        <div class="subtle">数据来源（示例）：竞品内容抽样 + 站点可见度估计 + 社媒活跃度统计。</div>
+      </div>
+
+      <div class="card">
+        <h2>竞品打法对比表（示例）<span class="pill">表格</span></h2>
+        <table class="table">
+          <thead><tr><th>品牌</th><th>主阵地</th><th>内容类型</th><th>转化路径</th><th>核心卖点（示例）</th></tr></thead>
+          <tbody>
+            <tr><td>本品牌 AOS</td><td>TikTok + DTC 站</td><td>功能讲解 + UGC</td><td>短视频 → 落地页 → 购买</td><td>静音 / 易清洗 / 省心</td></tr>
+            <tr><td>BrandX</td><td>TikTok + Amazon</td><td>短剧 + 对比测评</td><td>短剧引流 → 直播 → 成交</td><td>颜值 / 情绪价值 / 礼物属性</td></tr>
+            <tr><td>BrandY</td><td>小红书 + 抖音</td><td>种草图文 + 场景</td><td>种草 → 搜索品牌词 → 店铺</td><td>设计感 / 家居融合</td></tr>
+          </tbody>
+        </table>
+        <div class="subtle">来源（示例）：Competitor Footprint 节点输出（渠道、内容结构、CTA 链路）。</div>
+      </div>
+
+      <div class="card">
+        <h2>市场洞察结论（示例）<span class="pill">可执行</span></h2>
+        <ul class="list">
+          <li>内容趋势从“功能说明”转向“场景+情绪价值+对比验证”；竞品短剧化拉升完播与分享。</li>
+          <li>节点规律：大促前 2 周种草上升；大促周转向强 CTA（优惠/赠品/限时）。</li>
+          <li>建议：本品牌建立 3 条内容线：<b>功能验证线</b>（对比/测评）+ <b>情绪价值线</b>（陪伴/治愈）+ <b>场景线</b>（家居融合）。</li>
+        </ul>
+        <div class="hr"></div>
+        <div class="small">对应 n8n：Market Data 分支 → Cross-Insights Builder 统一时间线 → Action Plan 生成节奏。</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">2. 消费者洞察（Consumer Insights）</h2>
+    <div class="grid cols2">
+      <div class="card">
+        <h2>人群画像分布（示例）<span class="pill">柱状/饼图</span></h2>
+        <div class="two-col">
+          <svg viewBox="0 0 520 220" width="100%" height="220" role="img" aria-label="年龄分布柱状图">
+            <rect x="0" y="0" width="520" height="220" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+            <line x1="60" y1="190" x2="500" y2="190" stroke="rgba(255,255,255,.14)"/>
+            <line x1="60" y1="30" x2="60" y2="190" stroke="rgba(255,255,255,.14)"/>
+            <!-- bars -->
+            <g fill="rgba(94,227,143,.75)">
+              <rect x="90" y="120" width="60" height="70" rx="8"/>
+              <rect x="180" y="80" width="60" height="110" rx="8"/>
+              <rect x="270" y="60" width="60" height="130" rx="8"/>
+              <rect x="360" y="105" width="60" height="85" rx="8"/>
+            </g>
+            <g fill="rgba(255,255,255,.55)" font-size="12">
+              <text x="92" y="210">18-24</text>
+              <text x="182" y="210">25-30</text>
+              <text x="272" y="210">31-40</text>
+              <text x="362" y="210">40+</text>
+            </g>
+            <g fill="rgba(255,255,255,.45)" font-size="12">
+              <text x="12" y="38">%</text>
+            </g>
+          </svg>
+
+          <svg viewBox="0 0 240 220" width="100%" height="220" role="img" aria-label="城市线分布环图">
+            <rect x="0" y="0" width="240" height="220" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+            <g transform="translate(120,112)">
+              <circle r="70" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="18"/>
+              <!-- ring segments (approx) -->
+              <circle r="70" fill="none" stroke="rgba(122,162,255,.90)" stroke-width="18"
+                      stroke-dasharray="220 220" stroke-dashoffset="0" transform="rotate(-90)"/>
+              <circle r="70" fill="none" stroke="rgba(255,211,107,.85)" stroke-width="18"
+                      stroke-dasharray="120 320" stroke-dashoffset="-220" transform="rotate(-90)"/>
+              <circle r="70" fill="none" stroke="rgba(94,227,143,.80)" stroke-width="18"
+                      stroke-dasharray="80 360" stroke-dashoffset="-340" transform="rotate(-90)"/>
+              <text y="6" text-anchor="middle" font-size="16" fill="rgba(255,255,255,.80)">城市线</text>
+              <text y="28" text-anchor="middle" font-size="12" fill="rgba(255,255,255,.55)">一线/新一线占比更高</text>
+            </g>
+          </svg>
+        </div>
+        <div class="subtle">来源（示例）：评论/问答/UGC 抽样 → 画像模型推断（仅示例）。真实场景建议接电商/CRM 或调研数据。</div>
+      </div>
+
+      <div class="card">
+        <h2>需求词云 & 痛点→机会矩阵（示例）<span class="pill">2x2</span></h2>
+        <div class="grid cols2">
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <div class="small" style="margin-bottom:8px;">需求词云（从评论/标题抽取）</div>
+            <div style="line-height:1.9; font-size:14px;">
+              <span class="chip">静音</span>
+              <span class="chip">易清洗</span>
+              <span class="chip">不漏水</span>
+              <span class="chip">滤芯</span>
+              <span class="chip">水质</span>
+              <span class="chip">颜值</span>
+              <span class="chip">省心</span>
+              <span class="chip">猫咪爱喝</span>
+              <span class="chip">容量大</span>
+              <span class="chip">售后</span>
+            </div>
+          </div>
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <div class="small" style="margin-bottom:8px;">痛点→机会（高频×高价值）</div>
+            <svg viewBox="0 0 360 220" width="100%" height="200" role="img" aria-label="2x2矩阵">
+              <rect x="0" y="0" width="360" height="220" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+              <line x1="180" y1="30" x2="180" y2="200" stroke="rgba(255,255,255,.12)"/>
+              <line x1="40" y1="115" x2="330" y2="115" stroke="rgba(255,255,255,.12)"/>
+              <text x="46" y="28" fill="rgba(255,255,255,.55)" font-size="12">价值↑</text>
+              <text x="284" y="214" fill="rgba(255,255,255,.55)" font-size="12">频次→</text>
+
+              <g>
+                <circle cx="250" cy="70" r="8" fill="rgba(94,227,143,.85)"/>
+                <text x="262" y="74" fill="rgba(255,255,255,.70)" font-size="12">易清洗</text>
+
+                <circle cx="270" cy="95" r="8" fill="rgba(94,227,143,.85)"/>
+                <text x="282" y="99" fill="rgba(255,255,255,.70)" font-size="12">不漏水</text>
+
+                <circle cx="120" cy="75" r="8" fill="rgba(255,211,107,.85)"/>
+                <text x="132" y="79" fill="rgba(255,255,255,.70)" font-size="12">颜值</text>
+
+                <circle cx="110" cy="150" r="8" fill="rgba(255,211,107,.75)"/>
+                <text x="122" y="154" fill="rgba(255,255,255,.70)" font-size="12">容量</text>
+
+                <circle cx="240" cy="160" r="8" fill="rgba(255,107,107,.78)"/>
+                <text x="252" y="164" fill="rgba(255,255,255,.70)" font-size="12">售后慢</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="subtle">输出用于：内容选题池（功能/对比/情绪价值）+ 产品卖点优先级 + 客服话术 FAQ。</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">3. 健康度洞察（Brand Health）</h2>
+    <div class="grid cols2">
+      <div class="card">
+        <h2>SEO 诊断面板（示例）<span class="pill">Dashboard</span></h2>
+        <div class="kpis">
+          <div class="kpi"><div class="label">Top1-3 关键词数</div><div class="value">128</div><div class="note">竞品均值 196</div></div>
+          <div class="kpi"><div class="label">4-10 关键词数</div><div class="value">412</div><div class="note">堆积需提权</div></div>
+          <div class="kpi"><div class="label">品牌词占比</div><div class="value">41%</div><div class="note">需提升非品牌</div></div>
+          <div class="kpi"><div class="label">1000+ 页面</div><div class="value">14</div><div class="note">集中度偏高</div></div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="two-col">
+          <div>
+            <div class="small">Top1-3 vs 4-10（按关键词簇示例）</div>
+            <svg viewBox="0 0 520 220" width="100%" height="220" role="img" aria-label="堆叠柱状图">
+              <rect x="0" y="0" width="520" height="220" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+              <line x1="60" y1="190" x2="500" y2="190" stroke="rgba(255,255,255,.14)"/>
+              <line x1="60" y1="30" x2="60" y2="190" stroke="rgba(255,255,255,.14)"/>
+              <!-- stacked bars -->
+              <g>
+                <rect x="90" y="120" width="70" height="70" rx="10" fill="rgba(122,162,255,.85)"/>
+                <rect x="90" y="70" width="70" height="50" rx="10" fill="rgba(255,211,107,.85)"/>
+
+                <rect x="200" y="135" width="70" height="55" rx="10" fill="rgba(122,162,255,.85)"/>
+                <rect x="200" y="85" width="70" height="50" rx="10" fill="rgba(255,211,107,.85)"/>
+
+                <rect x="310" y="150" width="70" height="40" rx="10" fill="rgba(122,162,255,.85)"/>
+                <rect x="310" y="95" width="70" height="55" rx="10" fill="rgba(255,211,107,.85)"/>
+
+                <rect x="420" y="145" width="70" height="45" rx="10" fill="rgba(122,162,255,.85)"/>
+                <rect x="420" y="105" width="70" height="40" rx="10" fill="rgba(255,211,107,.85)"/>
+              </g>
+              <g fill="rgba(255,255,255,.55)" font-size="12">
+                <text x="98" y="210">品类核心</text>
+                <text x="206" y="210">对比测评</text>
+                <text x="320" y="210">清洗维护</text>
+                <text x="428" y="210">场景情绪</text>
+              </g>
+              <g transform="translate(74,40)" font-size="12">
+                <rect x="0" y="0" width="12" height="8" fill="rgba(255,211,107,.85)"/><text x="18" y="8" fill="rgba(255,255,255,.65)">Top1-3</text>
+                <rect x="90" y="0" width="12" height="8" fill="rgba(122,162,255,.85)"/><text x="108" y="8" fill="rgba(255,255,255,.65)">4-10</text>
+              </g>
+            </svg>
+          </div>
+          <div>
+            <div class="small">品牌词 vs 非品牌词（示例）</div>
+            <svg viewBox="0 0 320 220" width="100%" height="220" role="img" aria-label="双线趋势">
+              <rect x="0" y="0" width="320" height="220" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.08)"/>
+              <line x1="46" y1="190" x2="300" y2="190" stroke="rgba(255,255,255,.14)"/>
+              <line x1="46" y1="30" x2="46" y2="190" stroke="rgba(255,255,255,.14)"/>
+              <path d="M46,130 L90,125 L134,118 L178,120 L222,112 L266,108 L300,100" fill="none" stroke="rgba(122,162,255,.9)" stroke-width="3"/>
+              <path d="M46,150 L90,145 L134,150 L178,142 L222,140 L266,135 L300,132" fill="none" stroke="rgba(94,227,143,.85)" stroke-width="3"/>
+              <g font-size="12" fill="rgba(255,255,255,.60)">
+                <text x="56" y="44">流量</text>
+                <text x="210" y="44">蓝=品牌词</text>
+                <text x="210" y="62">绿=非品牌词</text>
+              </g>
+            </svg>
+            <div class="subtle">归因提示（示例）：若非品牌词下降且行业热度同步下行 → 行业波动；若单个 Top 页面突然消失 → 误删/改版。</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="small">SEO 诊断 7 点（结构化输出）：友商对比 / 词结构 / Top1-3 vs 4-10 / 1000+页面 / 品牌vs非品牌 / 地区 / 趋势归因。</div>
+      </div>
+
+      <div class="card">
+        <h2>社媒内容势能 & 合规审计（示例）<span class="pill">最近 10 条</span></h2>
+        <table class="table">
+          <thead><tr><th>内容</th><th>互动</th><th>洞察类型</th><th>合规风险</th><th>建议</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>“猫咪不爱喝水怎么办？”</b><div class="small">2026-01-02 · TikTok</div></td>
+              <td>12.4k 👍 · 380 💬</td>
+              <td>功能/痛点</td>
+              <td><span class="badge"><span class="dot good"></span>低</span></td>
+              <td>补充对比镜头：饮水量提升“呈现”为观察，不用绝对化词</td>
+            </tr>
+            <tr>
+              <td><b>“一天省心：自动循环过滤”</b><div class="small">2025-12-28 · TikTok</div></td>
+              <td>8.1k 👍 · 210 💬</td>
+              <td>功能/效率</td>
+              <td><span class="badge"><span class="dot warn"></span>中</span></td>
+              <td>避免“最强过滤/100%洁净”，改为“多层过滤设计”</td>
+            </tr>
+            <tr>
+              <td><b>“家居风格搭配：放哪都好看”</b><div class="small">2025-12-24 · TikTok</div></td>
+              <td>6.7k 👍 · 95 💬</td>
+              <td>情绪价值/审美</td>
+              <td><span class="badge"><span class="dot good"></span>低</span></td>
+              <td>建议加入 UGC 拼贴提升信任</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="hr"></div>
+        <div class="grid cols2">
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <div class="small" style="margin-bottom:8px;">洞察类型占比（示例）</div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <span class="chip">种草 30%</span>
+              <span class="chip">功能 40%</span>
+              <span class="chip">价格 10%</span>
+              <span class="chip">对比 12%</span>
+              <span class="chip">情绪价值 8%</span>
+            </div>
+          </div>
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <div class="small" style="margin-bottom:8px;">可复用脚本模板（示例）</div>
+            <div class="code">Hook（3秒）: “你家猫也这样吗？”  
+Pain（痛点）: “不爱喝 / 水容易脏 / 你没空洗”  
+Proof（证据）: 真实场景 + 对比镜头 + 不用绝对化表述  
+CTA（引导）: “评论区告诉我你家猫的情况” + 店铺链接</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">4. 策略转化与落地（Strategy → Execution）</h2>
+    <div class="grid cols2">
+      <div class="card">
+        <h2>SWOT（示例）<span class="pill">矩阵</span></h2>
+        <div class="grid cols2">
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <b>Strengths（优势）</b>
+            <ul class="list">
+              <li>功能卖点清晰：易清洗/静音/滤芯结构</li>
+              <li>内容素材可复用：UGC 易获得</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <b>Weaknesses（劣势）</b>
+            <ul class="list">
+              <li>SEO Top1-3 桶位偏弱，4-10 堆积</li>
+              <li>非品牌词覆盖不足</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <b>Opportunities（机会）</b>
+            <ul class="list">
+              <li>行业热度上升，内容短剧化窗口</li>
+              <li>清洗维护场景可做系列化</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:12px; background: rgba(0,0,0,.14); border-radius:12px;">
+            <b>Threats（威胁）</b>
+            <ul class="list">
+              <li>竞品强投放抢占关键词心智</li>
+              <li>合规风险导致内容限流</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Action Plan（示例）<span class="pill">下周/下月/季度</span></h2>
+        <table class="table">
+          <thead><tr><th>周期</th><th>SEO</th><th>社媒</th><th>数据监控</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>下周</b></td>
+              <td>挑 20 个 4-10 关键词做提权：标题/内链/FAQ/结构化数据</td>
+              <td>上线 2 条“对比验证”短视频模板 + 合规替代词库</td>
+              <td>n8n 每周跑：SEO 桶位变化、异常（页面消失）提醒</td>
+            </tr>
+            <tr>
+              <td><b>下月</b></td>
+              <td>1000+ 页面均衡：扩展长尾、建立内容集群（topic cluster）</td>
+              <td>选题池 30 条：功能/情绪/场景三条线配比 4:3:3</td>
+              <td>趋势下滑归因：热点/行业波动/误删 → 形成 SOP</td>
+            </tr>
+            <tr>
+              <td><b>季度</b></td>
+              <td>竞品对标：C端站/B端站/内容站结构化差距修复</td>
+              <td>提升自传播：UGC 征集活动 + 视觉统一（封面/字幕规范）</td>
+              <td>Dashboard 固化：固定字段输出 + 飞书文档自动归档</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="hr"></div>
+        <div class="subtle">说明：真实版本由 n8n 的 Score & Priority 节点自动打分排序，并输出 owner/deadline。</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h2>数据来源与可追溯性（示例）<span class="pill">Sources</span></h2>
+      <ul class="list">
+        <li><b>Trend/News</b>：搜索 API / RSS / 新闻站点抓取（记录 URL、标题、时间戳）</li>
+        <li><b>SEO</b>：关键词排名工具（如 Semrush/Ahrefs/自研）+ SERP 抽样（记录关键词、排名、URL、地区、日期）</li>
+        <li><b>Social</b>：店铺最近 10 条内容抓取（标题、发布时间、互动、链接、caption/字幕摘要）</li>
+        <li><b>UGC/评论</b>：抽样抓取（平台、链接、原文），情绪/主题提取可复算</li>
+      </ul>
+      <div class="hr"></div>
+      <div class="code">n8n 运行产物建议存档字段（示例）
+- run_id
+- context_json
+- raw_sources (news_urls, seo_rows, post_rows, ugc_rows)
+- intermediate (timeline, attribution_candidates, scores)
+- final (report_markdown, report_html)</div>
+    </div>
+
+    <div class="foot">
+      <div><b>注意：</b>此 HTML 为演示用 Fake Data，用于验证你在 n8n 的“结构/字段/合并逻辑”。</div>
+      <div>当你接入真实数据源后，保持字段不变即可自动生成真实报告。</div>
+    </div>
+  </div>
+</body>
+</html>

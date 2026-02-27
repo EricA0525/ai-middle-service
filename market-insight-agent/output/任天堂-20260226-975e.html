@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>任天堂市场洞察深度报告 | Visualized Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+<body class="pb-32">
+<header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider mb-6 border border-orange-200 hover:scale-105 transition-transform cursor-default">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>任天堂耳机市场洞察</div>
+<h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">任天堂耳机市场洞察</h1>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto">品牌：任天堂｜品类范围：游戏耳机（含有线/无线、低延迟、语音联机与IP联名配件）｜时间范围：2024财年至2026展望。执行摘要：Switch 2开启新一轮硬件换代，主机装机与在线联机活跃提升，为耳机场景带来新增需求；相较网易的内容运营模式与微软XBOX的高性能外设生态，任天堂在便携与家庭共玩场景、第一方IP号召力方面更具转化潜力。短期建议以“主机+游戏+耳机”组合和Nintendo Switch Online语音权益绑定拉动销量，中期通过马力欧/塞尔达/宝可梦联名与分层产品矩阵提升溢价与复购。数据与判断参考Nintendo Annual Report 2024及行业公开研报/媒体信息。 <a class="source-link" href="https://www.kgi.com.hk/zh-cn/-/media/files/kgishk/research-reports/tw-reports/2024/01/it-hardware_20122024.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</header>
+<main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+<section class="section relative" id="part1">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">宏观趋势与格局</h2>
+<div class="glass-card p-8 mb-8 reveal">
+<div class="grid md:grid-cols-2 gap-12">
+<div>
+<h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模预测（主机生态带动耳机场景）</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span>2024（换代前）</span>
+<span class="text-gray-500">需求承压期</span>
+</div>
+<div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+<div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">基准</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span class="text-orange-600">2025E（Switch 2拉动）</span>
+<span class="text-orange-600 font-bold">需求修复+配件放量</span>
+</div>
+<div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+<div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">高景气</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">定性：正向支撑</div>
+<p class="text-xs text-gray-500">依据公开报道，Switch 2首发销售强劲，主机增量将外溢至耳机、麦克风与低延迟无线外设。 <a class="source-link" href="https://www.kgi.com.hk/zh-cn/-/media/files/kgishk/research-reports/tw-reports/2024/01/it-hardware_20122024.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="border-l border-gray-200 md:pl-8">
+<h3 class="text-lg font-bold mb-4 text-gray-800">增速驱动拆解</h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">竞品A</div>
+<div>
+<div class="font-bold text-sm text-gray-800">硬件代际更替带来“新增用户+老用户换机”</div>
+<div class="text-xs text-gray-500 mt-1">Switch进入新周期后，主机装机扩张直接扩大耳机可服务人群，尤其是便携和多人联机场景。</div>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+<div>
+<div class="font-bold text-sm text-gray-800">数字内容与订阅增长提升配件复购</div>
+<div class="text-xs text-gray-500 mt-1">任天堂年报显示数字销售与IP业务增长，在线联机与语音协同需求提升，推动中高端耳机渗透率上行。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.kgi.com.hk/zh-cn/-/media/files/kgishk/research-reports/tw-reports/2024/01/it-hardware_20122024.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+<i class="text-orange-500" data-lucide="users"></i>行业机会与风险总览</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">需求结构</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">单一听音</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">低延迟+语音协作</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">从“能听见”转向“能沟通、能协同、能沉浸”，带动产品带宽和麦克风能力升级。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">渠道结构</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">零散配件购买</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">主机套装捆绑</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">以“主机+游戏+耳机”组合提升转化效率，首发窗口期尤为关键。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">盈利结构</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">低价走量</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">IP联名溢价</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">马力欧、塞尔达、宝可梦等IP可提升客单价，但需平衡授权成本与库存风险。</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 竞争格局概览</h3>
+<div class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+<div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">基准</div>
+<h4 class="text-lg font-bold text-blue-900 mb-2">网易</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">内容发行强、硬件生态弱</p>
+<p class="text-xs text-gray-500 mb-4">优势在手游/PC运营与流量分发，对耳机更多是“内容侧拉动”，缺少主机硬件入口与原生外设闭环。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+<div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">目标品牌</div>
+<h4 class="text-lg font-bold text-orange-900 mb-2">任天堂</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">便携主机+第一方IP+平台服务</p>
+<p class="text-xs text-gray-500 mb-4">通过Switch 2新周期重启增长，具备家庭共玩与移动娱乐场景优势，是耳机品类最直接的需求发生器之一。 <a class="source-link" href="https://www.nintendo.co.jp/ir/pdf/2024/annual2403e.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+<div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg"></div>
+<h4 class="text-lg font-bold text-green-900 mb-2">微软 Xbox</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">性能与订阅生态强、外设体系成熟</p>
+<p class="text-xs text-gray-500 mb-4">在高性能主机与电竞音频配件上经验深厚，对任天堂在中高端耳机市场形成价格与规格双重压力。 <a class="source-link" href="https://wnhub.io/zh/news/finance/item-49848" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+<div class="glass-card p-6">
+<h3 class="text-lg font-bold mb-4 text-gray-800">行业机会窗口（2025-2026）</h3>
+<ul class="space-y-4">
+<li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+<div class="font-bold text-sm text-blue-800 mb-1">换代首发红利期</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>机会：</strong>随主机首批用户同步渗透耳机</span>
+<span><strong>打法：</strong>首发联名款+套装销售</span>
+</div>
+</li>
+<li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+<div class="font-bold text-sm text-orange-800 mb-1">在线联机与内容活动常态化</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>机会：</strong>语音沟通与低延迟刚需提升</span>
+<span><strong>打法：</strong>分层产品覆盖入门到竞技</span>
+</div>
+</li>
+</ul>
+</div>
+<div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+<h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+<i class="text-orange-500" data-lucide="shield"></i>关键风险提示</h3>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">短期波动</h4>
+<p class="text-sm font-light text-gray-200"><span class="text-orange-400 font-bold">硬件供给、区域定价与汇率波动</span>可能压缩利润空间，影响配件促销节奏。</p>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">中长期压力</h4>
+<div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+<div>
+<span class="block text-white font-bold">硬件供给、区域定价与汇率波动</span><br/></div>
+<div>
+<span class="block text-white font-bold">竞争替代</span><br/></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="text-orange-400" data-lucide="share-2"></i>1.3 全平台生态框架分析</h3>
+<div class="grid md:grid-cols-3 gap-8 text-sm">
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">任天堂生态</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">核心链路：主机→第一方游戏→在线服务→配件复购</strong>
+<div class="text-gray-400 text-xs mt-1">优势在家庭娱乐与便携场景，耳机需求覆盖通勤、客厅、多人联机。</div>
+</li>
+<li>
+<strong class="text-white">增长抓手：IP联名与套装策略</strong>
+<div class="text-gray-400 text-xs mt-1">可通过角色主题设计提升品牌粘性和溢价能力。</div>
+<a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506251697206435_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">Xbox生态</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">核心链路：高性能主机/PC→Game Pass→外设矩阵</strong>
+<div class="text-gray-400 text-xs mt-1">对高端耳机规格（空间音频、低延迟、麦克风）形成标杆压力。</div>
+</li>
+<li>
+<strong class="text-white">增长抓手：订阅内容深度与跨端联动</strong>
+<div class="text-gray-400 text-xs mt-1">用户停留时长高，利于中高价位外设稳定出货。</div>
+<a class="source-link" href="https://www.21jingji.com/article/20240509/herald/1b8dcd58f77dfb9d9c796121172041e6.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">网易内容生态</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">核心链路：手游/PC发行→社区运营→周边延展</strong>
+<div class="text-gray-400 text-xs mt-1"><i class="inline w-3 h-3" data-lucide="arrow-right"></i><i class="inline w-3 h-3" data-lucide="arrow-right"></i>在硬件入口不足的情况下，更依赖渠道活动与内容热度转化配件消费。</div>
+</li>
+<li>
+<strong class="text-white">对任天堂启示：强化“硬件在手”的即时转化能力</strong>
+<div class="text-gray-400 text-xs mt-1">把主机激活、会员拉新、耳机购买放在同一漏斗中提升效率。</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part2">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">全球化洞察</h2>
+<div class="glass-card p-0 overflow-hidden mb-8 reveal">
+<div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
+<h3 class="text-orange-800 font-bold m-0">2.1 区域市场心智矩阵</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs tracking-wider">
+<tr>
+<th class="p-4">区域市场</th>
+<th class="p-4">任天堂主导心智</th>
+<th class="p-4">与网易 / 微软XBOX对比</th>
+<th class="p-4">策略优先级</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-orange-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">日本</td>
+<td class="p-4 text-orange-600 font-medium">国民级家庭娱乐与便携主机首选，首发换机意愿强</td>
+<td class="p-4">任天堂以第一方IP和本土渠道密度领先；XBOX偏核心玩家；网易以手游触达为主</td>
+<td class="p-4"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">高：守住基本盘</span></td>
+</tr>
+<tr class="hover:bg-pink-50/30 transition-colors bg-pink-50/10">
+<td class="p-4 font-bold text-gray-800">北美</td>
+<td class="p-4 text-pink-600 font-medium">“第二主机”与家庭共玩场景强，节日季拉动明显</td>
+<td class="p-4">XBOX在订阅与性能叙事更强；任天堂靠独占内容和亲子社交形成差异</td>
+<td class="p-4"><span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">高：份额攻坚</span></td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">欧洲</td>
+<td class="p-4 text-blue-600 font-medium">价格敏感与多语种并存，重视“主机+游戏”整体价值</td>
+<td class="p-4">XBOX在西欧数字服务渗透较深；任天堂需强化本地化营销与套装策略</td>
+<td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">中高：利润平衡</span></td>
+</tr>
+<tr class="hover:bg-green-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">中国及亚洲新兴市场</td>
+<td class="p-4 text-green-600 font-medium">主机仍属成长赛道，便携与IP认知提升快</td>
+<td class="p-4">网易在本地发行与社区运营更强；任天堂需借内容合作和硬件体验店提升转化</td>
+<td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">中：生态培育</span></td>
+</tr>
+<tr class="hover:bg-cyan-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">拉美/中东</td>
+<td class="p-4 text-cyan-600 font-medium">需求在增长，但对价格、支付方式和渠道可得性更敏感</td>
+<td class="p-4">XBOX借订阅与本地支付扩张更快；任天堂机会在轻度用户与线下家庭场景</td>
+<td class="p-4"><span class="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">中低：选择性进入</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="glass-card p-8 mb-8 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800">2.4 全球典型人群深度画像</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">Persona A</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">家庭共玩决策者</h4>
+<p class="text-xs text-gray-500 mb-3">集中在日本/北美，关注全年龄内容、安全体验与客厅互动，偏好“一机多人”价值。</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心诉求：低学习成本、亲子同乐、耐玩IP</strong></p>
+<p><strong class="text-orange-500">转化抓手：节日同捆、家庭会员、马力欧/宝可梦联动配件</strong></p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">Persona B</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">通勤便携玩家</h4>
+<p class="text-xs text-gray-500 mb-3">集中在亚洲城市与欧洲通勤人群，偏好碎片时间游玩，对续航、重量和即开即玩敏感。</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心诉求：便携、快速连接、低延迟音频体验</strong></p>
+<p><strong class="text-green-600">转化抓手：轻量无线耳机、地铁/旅途场景内容营销、短周期促销</strong></p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">Persona C</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">跨平台核心玩家</h4>
+<p class="text-xs text-gray-500 mb-3">北美和欧洲占比更高，常同时拥有PC/PS/XBOX，对性能、社交联机和内容深度要求高。 <a class="source-link" href="https://www.kgi.com.hk/zh-cn/-/media/files/kgishk/research-reports/tw-reports/2024/01/it-hardware_20122024.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心诉求：独占内容差异化与稳定联机语音</strong></p>
+<p><strong class="text-cyan-600">转化抓手：第一方大作档期绑定、在线订阅权益、竞技向耳机套装</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6 reveal">
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.2 跨市场策略重点（任天堂视角）</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>“硬件换代+IP内容+订阅服务”三位一体：</strong>以Switch 2拉新，再用第一方内容与Nintendo Switch Online提升长期ARPU。 <a class="source-link" href="https://www.nintendo.co.jp/ir/pdf/2024/annual2403e.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>区域差异化定价与供给：</strong>成熟市场重首发和同捆，新兴市场重入门SKU与分期/本地支付，缓解价格门槛。 <a class="source-link" href="https://wnhub.io/zh/news/finance/item-49848" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>本地化传播从“功能卖点”转向“场景卖点”：</strong>日本强调家庭共玩，欧美强调社交与派对，亚洲强调通勤便携与IP情感。</li>
+</ul>
+</div>
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">2.3 国际化品牌打法（对网易/XBOX竞争应对）</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>对XBOX：</strong>避开纯性能战，强化“独占IP+便携形态+家庭场景”的不可替代性，持续做高内容壁垒。</li>
+<li><strong>对网易：</strong>借其擅长的本地化运营逻辑反向升级主机生态，在中国及亚洲市场加强社区、活动与联运合作。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506251697206435_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>品类延展到耳机：</strong>围绕低延迟语音、掌机便携、IP联名三条产品线布局，推动“主机-游戏-外设”一体化出海。</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part3">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">人群洞察与画像</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+<span>核心客群性别结构</span>
+<span>女性向娱乐消费提升</span>
+</div>
+<div class="flex h-6 rounded-full overflow-hidden">
+<div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">女性 55%</div>
+<div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">男性 45%</div>
+</div>
+<p class="text-xs text-gray-400 mt-2">以轻度至中度玩家、家庭共玩人群为主，性别分布较传统硬核主机更均衡</p>
+</div>
+<div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">年龄主力</div>
+<p class="text-sm text-gray-800">18-34岁为购买与活跃主力，同时覆盖亲子家庭中的儿童与家长双决策人群 <a class="source-link" href="https://www.kgi.com.hk/zh-cn/-/media/files/kgishk/research-reports/tw-reports/2024/01/it-hardware_20122024.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">消费倾向</div>
+<div class="flex gap-2 text-sm mt-1">
+<span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">重体验/不强比价</span>
+<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">促销敏感/比价</span>
+</div>
+</div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-600 mb-3">耳机购买决策权重（任天堂场景）</div>
+<div class="space-y-1">
+<div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>低延迟与连接稳定 100</span></div>
+<div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>佩戴舒适与便携 85</span></div>
+<div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">IP外观与配色适配 70</div>
+<div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">品牌与价格信任 55</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.nintendo.co.jp/ir/pdf/2024/annual2403e.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="text-lg font-bold mb-4">3.2 生活方式 &amp; 3.3 行为链路</h3>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i>高频使用场景</h4>
+<div class="flex flex-wrap gap-2 mb-2">
+<span class="tag-pill orange">通勤与差旅碎片时间</span>
+<span class="tag-pill orange">客厅家庭共玩/聚会</span>
+<span class="tag-pill orange">夜间宿舍与卧室静音娱乐</span>
+</div>
+<p class="text-sm text-gray-600 leading-snug">
+<strong>任天堂用户更强调“随时可玩+一起玩”，耳机需求集中在便携、快速连接、语音协同与不打扰他人。</strong></p>
+</div>
+<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+<h4 class="text-sm font-bold text-blue-800 mb-1">典型决策链路</h4>
+<ul class="text-sm text-gray-700 space-y-1">
+<li><strong>触发：</strong>新主机/新作发售、多人联机活动、宿舍/家庭降噪需求</li>
+<li><strong>比较：</strong>先看兼容性与延迟，再看舒适度与外观，最后看价格与套装权益 <span class="text-blue-600 font-bold">“主机+游戏+耳机”组合最易转化</span></li>
+</ul>
+</div>
+<div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+<h4 class="text-sm font-bold text-red-800 mb-1">竞品分流与转化阻力</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">流失原因TOP3</div>
+<ol class="list-decimal list-inside text-gray-700 text-xs">
+<li>低价耳机替代，用户先满足“能用”</li>
+<li>Xbox/PC玩家偏好高性能音频品牌</li>
+<li>对语音与联机稳定性存在担忧</li>
+</ol>
+</div>
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">应对策略</div>
+<p class="text-xs text-gray-600">突出“任天堂生态适配+IP情感价值+低延迟体验”，通过联名与会员权益降低首次决策门槛。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+<div>
+<h4 class="font-bold text-lg">画像一：社交轻玩家</h4>
+<p class="text-xs text-gray-500">18-28岁 / 学生-初入职场 / 一二线城市 <a class="source-link" href="https://www.nintendo.co.jp/ir/pdf/2024/annual2403e.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">希望在通勤、午休、宿舍快速开玩，重视便携与“即连即玩”，偏好马力欧、宝可梦等IP氛围。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">蓝牙延迟、麦克风收音一般、长时间佩戴压耳；预算有限但希望外观有辨识度。</p>
+</div>
+<div>
+<strong class="text-green-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">通过首发游戏内容、主播实测、校园社群种草与IP联名款驱动下单。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform"></div>
+<div>
+<h4 class="font-bold text-lg">画像二：家庭决策者</h4>
+<p class="text-xs text-gray-500">30-45岁 / 亲子家庭 / 客厅娱乐核心人群 <a class="source-link" href="https://wnhub.io/zh/news/finance/item-49848" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">兼顾孩子与成人使用，要求耐用、舒适、安全音量与多人场景的语音清晰度。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">担心产品寿命短、兼容复杂、售后不便；对“是否值这个价”更谨慎。</p>
+</div>
+<div>
+<strong class="text-blue-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">以“家庭共玩不扰民+官方适配保障+套装优惠”强化信任并缩短决策周期。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+<h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+<ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">人群抓手</span>以“年轻社交玩家+亲子家庭”双核心客群分层沟通，覆盖首发冲动与长期复购。</li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">场景转化</span>
+<strong>围绕通勤、夜间静音、家庭共玩三大场景设计卖点与套餐，提高耳机连带率。</strong></li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">决策因子</span>优先传达低延迟、兼容稳定、舒适佩戴，再叠加IP联名与会员权益提升溢价接受度。</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="section relative" id="part4">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal"><i class="text-orange-500" data-lucide="swords"></i>竞品深度攻防</h2>
+<div class="mb-12">
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="text-sm text-gray-500 mb-2">注：此处内容由AI生成（原因：单模块生成超时。）</p><p class="font-semibold text-gray-800">攻防结论 1</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：任天堂耳机的竞争正从“单点参数”转向“场景可感知体验”。</li><li>差异：对比网易、微软XBOX，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 2</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比网易、微软XBOX，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 3</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li></ul></div></div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-12">
+<div class="glass-card p-8 reveal"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 4</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://wnhub.io/zh/news/finance/item-49848" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 5</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506251697206435_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li></ul></div></div>
+</div>
+<div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 6</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li><li>结论：任天堂耳机的竞争正从“单点参数”转向“场景可感知体验”。</li></ul></div></div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+<div class="space-y-12">
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 7</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：任天堂耳机的竞争正从“单点参数”转向“场景可感知体验”。</li><li>差异：对比网易、微软XBOX，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li></ul></div></div>
+<h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-red-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 grid grid-cols-2">
+<div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20"><br/></div>
+<div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold"><br/></div>
+</div>
+<div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-orange-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="text-center p-4">
+<div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+<span class="text-[10px] text-orange-300"><br/></span>
+</div>
+<div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-xs font-bold text-yellow-600 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+</div>
+<div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 text-sm">
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+</div>
+</div>
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 flex flex-col">
+<div class="h-1/2 bg-blue-900/40 w-full"></div>
+<div class="h-1/2 bg-red-900/40 w-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+<h5 class="text-sm font-bold text-gray-800 uppercase mb-4"></h5>
+<div class="grid md:grid-cols-3 gap-4 text-sm">
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-red-500"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 8</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比网易、微软XBOX，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+</div>
+</section>
+<section class="section relative pb-24" id="part5">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">战略总结与资源</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold mb-4">5.1 优先级行动建议（蓝海机会）</h3>
+<div class="space-y-3">
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P1：Switch 2 音频专属生态先行</div>
+<div class="text-xs text-orange-600 mt-1">围绕“低延迟无线 + 掌机便携 + TV模式语音”推出官方耳机分层线（入门/竞技/家庭），并与《马力欧》《塞尔达》《宝可梦》联名，借新主机高装机窗口快速建立品类心智。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P2：内容捆绑提升转化与复购</div>
+<div class="text-xs text-orange-600 mt-1">以“主机+热门游戏+耳机+NSO权益”组合包承接首发流量，重点覆盖家庭共玩与联机语音场景；通过限定皮肤、游戏内音效权益提升耳机溢价与生命周期价值。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P3：利润防线与区域化运营并行</div>
+<div class="text-xs text-orange-600 mt-1">针对首发期硬件利润压力，耳机业务采用“标准款走量 + IP款提毛利”双轮策略；分区域优化定价与渠道，避免与Xbox高性能叙事正面对抗，强化任天堂“轻社交+高可及”差异。</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold mb-6">5.2 资源分配与里程碑</h3>
+<div class="grid grid-cols-2 gap-4 min-h-[16rem] h-auto auto-rows-min">
+<div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="star"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">核心投入 45%</span>
+<div>
+<div class="font-bold text-lg leading-tight">产品与技术</div>
+<div class="text-xs text-white/70 mt-1">里程碑：0-6个月完成三档耳机定义与认证；6-12个月上线低延迟协议优化与跨场景语音体验。</div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+<span class="text-xs font-bold uppercase tracking-wider text-white/50">支撑投入 20%</span>
+<div>
+<div class="font-bold text-sm">渠道与供应链</div>
+<div class="text-xs text-white/50 mt-1">里程碑：首年覆盖核心主机零售与电商旗舰，建立节假日补货与联名款柔性生产机制。</div>
+</div>
+</div>
+<div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="circle-dollar-sign"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">增长投入 35%</span>
+<div>
+<div class="font-bold text-lg">品牌/内容协同与数据运营</div>
+<div class="text-xs text-white/70 mt-1">里程碑：Q1完成首发捆绑方案；Q2-Q3推进两档IP联名；Q4复盘目标为耳机附加率提升、套装转化率提升与数字服务联动收入增长。参考：Nintendo Annual Report 2024（https://www.nintendo.co.jp/ir/pdf/2024/annual2403e.pdf），Switch 2销量报道（https://wnhub.io/zh/news/finance/item-49848）。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="nav-pill">
+<a class="nav-link" href="#part1">宏观</a>
+<a class="nav-link" href="#part2">全球</a>
+<a class="nav-link" href="#part3">人群</a>
+<a class="nav-link" href="#part4">竞品</a>
+<a class="nav-link" href="#part5">战略</a>
+</nav>
+<script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.kgi.com.hk/zh-cn/-/media/files/kgishk/research-reports/tw-reports/2024/01/it-hardware_20122024.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 電子硬體產業 - One KGI | 凱基</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.nintendo.co.jp/ir/pdf/2024/annual2403e.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] Annual Report 2024 | Nintendo</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://wnhub.io/zh/news/finance/item-49848" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025年，任天堂Switch 2在日本的销量达到370万台</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202506251697206435_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Switch 2 开启新一轮成长周期</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.21jingji.com/article/20240509/herald/1b8dcd58f77dfb9d9c796121172041e6.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">7岁的Switch，还能为任天堂燃烧多久？｜游戏年报观察⑨ - 21财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://wap.eastmoney.com/a/202408073150546214.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Switch单季全球销量接近腰斩2024超级马力欧 - 东方财富</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.ithome.com/0/920/341.htm" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Switch 2 在日本卖的太好，反而伤害了任天堂盈利能力 - IT之家</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://cn.nikkei.com/industry/itelectric-appliance/57815-2025-01-17-10-26-16.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Switch 2终于来了！期待任天堂的独创惊喜 - 日经中文网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://zh.wikipedia.org/wiki/%E4%BB%BB%E5%A4%A9%E5%A0%82Switch_2" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">任天堂Switch 2 - 維基百科，自由的百科全書</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://m.gelonghui.com/p/1613216" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025年中国任天堂Switch游戏架市场发展现状和前景预测报告 - 格隆汇</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.zingala.com/blog/lazyguide/switch-comparison-2025" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">到底該不該買Switch ? 2025 年入手Switch 必看</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.cosmopolitan.com.hk/lifestyle/switch-games-suggestions" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Switch遊戲推薦2026｜40+款單人/雙人新作：最新瑪利歐賽車世界成 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="http://news.17173.com/content/12292025/175100617.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">无论任天堂再怎么努力，都无法搞砸2025 年Switch 2 的发布。 - 新闻</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.nintendo.com/us/whatsnew/nintendo-switch-2-to-be-released-in-2025/?srsltid=AfmBOoqvh0BCZmIwwqzViFTRVKd123hxEbFABgvbnxqM-2cnHa4lS4Ys" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Nintendo Switch 2 to be released in 2025 - News</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://tw.stock.yahoo.com/news/%E5%9C%8B%E9%9A%9B%E7%94%A2%E6%A5%AD-switch-2%E9%8A%B7%E9%87%8F%E8%A1%9D%E7%A0%B41700%E8%90%AC%E5%8F%B0-%E4%BB%BB%E5%A4%A9%E5%A0%82%E7%B6%AD%E6%8C%812025%E5%B9%B4%E5%BA%A6%E7%9B%AE%E6%A8%99-084749473.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">《國際產業》Switch 2銷量衝破1700萬台任天堂維持2025年度目標</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.reddit.com/r/nintendo/comments/1i9d4jl/nintendo_switch_estimated_to_have_sold_in_excess/?tl=zh-hans" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">任天堂Switch估计在2025年1月4日当周之后，销量超过 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.ifanr.com/app/1474448" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">任天堂Switch、微软Xbox，「御三家」游戏机怎么选购最合适？</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.zhihu.com/tardis/bd/art/366908277" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">游戏机推荐！索尼PS/任天堂Switch/微软Xbox系列哪个好？2026全新 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.163.com/dy/article/KKI252DH051100B9.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">微软“亲儿子”？ROG Xbox 掌机X评测：最接近主机的掌机 - 网易</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.163.com/dy/article/GDRMRNNI0511CIIP.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Xbox Series X的不完全跳坑指南：主机解读、游戏体验以及生态 - 网易</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.reddit.com/r/consoles/comments/xby6hw/xbox_series_x_or_nintendo_switch/?tl=zh-hans" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">Xbox Series X还是任天堂Switch？ : r/consoles - Reddit</a></li></ul></div></section></body>
+</html>

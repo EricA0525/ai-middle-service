@@ -1,0 +1,113 @@
+{
+  "platform": "xiaohongshu",
+  "data_type": "mock",
+  "generated_at": "2026-01-29T00:00:00Z",
+  "kol_list": [
+    {
+      "id": "xhs_kol_001",
+      "nickname": "美妆达人小雅",
+      "followers": 125000,
+      "avg_likes": 3500,
+      "avg_comments": 280,
+      "content_type": ["美妆测评", "护肤分享"],
+      "collaboration_price": "5000-8000",
+      "engagement_rate": 0.042
+    },
+    {
+      "id": "xhs_kol_002",
+      "nickname": "护肤研究所",
+      "followers": 89000,
+      "avg_likes": 2800,
+      "avg_comments": 350,
+      "content_type": ["成分分析", "产品对比"],
+      "collaboration_price": "3000-5000",
+      "engagement_rate": 0.056
+    },
+    {
+      "id": "xhs_kol_003",
+      "nickname": "日常好物分享",
+      "followers": 210000,
+      "avg_likes": 5200,
+      "avg_comments": 420,
+      "content_type": ["好物推荐", "开箱测评"],
+      "collaboration_price": "8000-12000",
+      "engagement_rate": 0.038
+    }
+  ],
+  "hot_notes": [
+    {
+      "id": "note_001",
+      "title": "用了三个月的真实感受！这款洗发水太绝了",
+      "author": "护发小能手",
+      "likes": 12500,
+      "comments": 890,
+      "collects": 3200,
+      "publish_date": "2026-01-15",
+      "tags": ["洗发水测评", "头皮护理", "控油"],
+      "sentiment": "positive"
+    },
+    {
+      "id": "note_002",
+      "title": "平价vs大牌洗发水对比，结果出乎意料",
+      "author": "理性消费派",
+      "likes": 8900,
+      "comments": 1200,
+      "collects": 2100,
+      "publish_date": "2026-01-10",
+      "tags": ["产品对比", "性价比", "洗护"],
+      "sentiment": "neutral"
+    },
+    {
+      "id": "note_003",
+      "title": "头皮敏感星人的救星！终于找到了",
+      "author": "敏感肌护理",
+      "likes": 6700,
+      "comments": 520,
+      "collects": 1800,
+      "publish_date": "2026-01-08",
+      "tags": ["敏感头皮", "温和洗护", "亲测有效"],
+      "sentiment": "positive"
+    }
+  ],
+  "trending_topics": [
+    {
+      "tag": "#控油洗发水",
+      "heat_index": 89000,
+      "trend": "rising",
+      "related_keywords": ["油头", "清爽", "持久控油"]
+    },
+    {
+      "tag": "#头皮护理",
+      "heat_index": 125000,
+      "trend": "stable",
+      "related_keywords": ["头皮健康", "去屑", "舒缓"]
+    },
+    {
+      "tag": "#洗护套装",
+      "heat_index": 67000,
+      "trend": "rising",
+      "related_keywords": ["护发素", "发膜", "组合装"]
+    }
+  ],
+  "consumer_insights": {
+    "top_concerns": [
+      {"concern": "控油效果", "mention_rate": 0.35},
+      {"concern": "头皮健康", "mention_rate": 0.28},
+      {"concern": "香味持久", "mention_rate": 0.22},
+      {"concern": "价格性价比", "mention_rate": 0.18},
+      {"concern": "成分安全", "mention_rate": 0.15}
+    ],
+    "pain_points": [
+      {"pain": "洗完还是油", "frequency": "high"},
+      {"pain": "头皮屑多", "frequency": "medium"},
+      {"pain": "香味太重/太淡", "frequency": "medium"},
+      {"pain": "用量大不耐用", "frequency": "low"}
+    ],
+    "positive_feedback": [
+      {"feedback": "控油效果明显", "frequency": "high"},
+      {"feedback": "香味清新持久", "frequency": "high"},
+      {"feedback": "洗后蓬松", "frequency": "medium"},
+      {"feedback": "包装设计好看", "frequency": "medium"}
+    ]
+  }
+}

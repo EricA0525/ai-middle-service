@@ -1,0 +1,195 @@
+{
+    "platform": "douyin",
+    "data_type": "mock",
+    "generated_at": "2026-01-29T00:00:00Z",
+    "creator_list": [
+        {
+            "id": "dy_creator_001",
+            "nickname": "美妆种草机",
+            "followers": 580000,
+            "avg_views": 125000,
+            "avg_likes": 8500,
+            "avg_comments": 620,
+            "content_type": [
+                "美妆教程",
+                "产品测评"
+            ],
+            "collaboration_price": "15000-25000",
+            "engagement_rate": 0.068
+        },
+        {
+            "id": "dy_creator_002",
+            "nickname": "日化好物推荐官",
+            "followers": 320000,
+            "avg_views": 85000,
+            "avg_likes": 5200,
+            "avg_comments": 380,
+            "content_type": [
+                "好物推荐",
+                "对比测评"
+            ],
+            "collaboration_price": "8000-12000",
+            "engagement_rate": 0.055
+        },
+        {
+            "id": "dy_creator_003",
+            "nickname": "科学护发实验室",
+            "followers": 210000,
+            "avg_views": 62000,
+            "avg_likes": 4100,
+            "avg_comments": 520,
+            "content_type": [
+                "成分科普",
+                "护发知识"
+            ],
+            "collaboration_price": "5000-8000",
+            "engagement_rate": 0.072
+        }
+    ],
+    "hot_videos": [
+        {
+            "id": "video_001",
+            "title": "油头救星！这款洗发水让我三天不洗头",
+            "author": "护发达人阿琳",
+            "views": 2850000,
+            "likes": 186000,
+            "comments": 12500,
+            "shares": 8900,
+            "publish_date": "2026-01-18",
+            "duration_seconds": 45,
+            "tags": [
+                "洗发水推荐",
+                "控油",
+                "油头"
+            ],
+            "sentiment": "positive"
+        },
+        {
+            "id": "video_002",
+            "title": "10款热门洗发水大测评，最后一款惊到我了",
+            "author": "测评小王子",
+            "views": 1920000,
+            "likes": 125000,
+            "comments": 28000,
+            "shares": 15600,
+            "publish_date": "2026-01-12",
+            "duration_seconds": 180,
+            "tags": [
+                "洗发水测评",
+                "横向对比",
+                "真实测试"
+            ],
+            "sentiment": "neutral"
+        },
+        {
+            "id": "video_003",
+            "title": "头皮问题你中了几个？皮肤科医生教你选洗发水",
+            "author": "皮肤科刘医生",
+            "views": 3200000,
+            "likes": 210000,
+            "comments": 18500,
+            "shares": 42000,
+            "publish_date": "2026-01-08",
+            "duration_seconds": 120,
+            "tags": [
+                "头皮健康",
+                "科学护发",
+                "医生推荐"
+            ],
+            "sentiment": "positive"
+        }
+    ],
+    "live_commerce_data": {
+        "top_live_rooms": [
+            {
+                "room_id": "live_001",
+                "host_name": "美妆直播间",
+                "avg_viewers": 15000,
+                "peak_viewers": 85000,
+                "gmv_estimate": "50万-80万",
+                "product_category": "洗护用品"
+            },
+            {
+                "room_id": "live_002",
+                "host_name": "日化好物馆",
+                "avg_viewers": 8500,
+                "peak_viewers": 32000,
+                "gmv_estimate": "20万-35万",
+                "product_category": "洗护套装"
+            }
+        ],
+        "trending_products": [
+            {
+                "name": "控油洗发水 500ml",
+                "sales_rank": 1,
+                "price_range": "49-79"
+            },
+            {
+                "name": "去屑洗发水 400ml",
+                "sales_rank": 2,
+                "price_range": "39-59"
+            },
+            {
+                "name": "洗护套装 750ml*2",
+                "sales_rank": 3,
+                "price_range": "89-129"
+            }
+        ]
+    },
+    "content_trends": {
+        "popular_formats": [
+            {
+                "format": "产品对比测评",
+                "engagement_rate": 0.082,
+                "trend": "rising"
+            },
+            {
+                "format": "使用前后对比",
+                "engagement_rate": 0.075,
+                "trend": "stable"
+            },
+            {
+                "format": "成分科普讲解",
+                "engagement_rate": 0.068,
+                "trend": "rising"
+            },
+            {
+                "format": "日常使用vlog",
+                "engagement_rate": 0.052,
+                "trend": "declining"
+            }
+        ],
+        "optimal_video_length": {
+            "short_form": {
+                "range": "15-30秒",
+                "avg_completion_rate": 0.72
+            },
+            "medium_form": {
+                "range": "1-3分钟",
+                "avg_completion_rate": 0.45
+            },
+            "long_form": {
+                "range": "3分钟以上",
+                "avg_completion_rate": 0.28
+            }
+        }
+    },
+    "audience_analytics": {
+        "gender_distribution": {
+            "female": 0.68,
+            "male": 0.32
+        },
+        "age_distribution": {
+            "18-24": 0.28,
+            "25-30": 0.35,
+            "31-40": 0.25,
+            "40+": 0.12
+        },
+        "city_tier": {
+            "tier_1": 0.32,
+            "new_tier_1": 0.28,
+            "tier_2": 0.22,
+            "tier_3_and_below": 0.18
+        }
+    }
+}

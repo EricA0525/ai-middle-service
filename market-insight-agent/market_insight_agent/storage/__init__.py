@@ -1,0 +1,5 @@
+"""任务存储模块。"""
+
+from .job_store import JobStore, get_job_store
+
+__all__ = ["JobStore", "get_job_store"]

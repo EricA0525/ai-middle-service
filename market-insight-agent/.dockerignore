@@ -1,0 +1,17 @@
+venv
+venv_new
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+.env
+.git
+.gitignore
+output/*
+!output/.gitkeep

@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海飞丝市场洞察深度报告 | Visualized Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+
+<body class="pb-32">
+
+    <header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider mb-6 border border-orange-200 hover:scale-105 transition-transform cursor-default">
+            <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+            2026 STRATEGY REPORT
+        </div>
+        <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+            海飞丝市场洞察
+        </h1>
+        <p class="text-lg text-gray-500 max-w-3xl mx-auto">
+            整合宏观趋势、全球化市场、人群画像与竞争分析
+        </p>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+
+        <section id="part1" class="section relative">
+            <div class="section-number">01</div>
+            <div class="pl-6 relative z-10">
+                <h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">
+                    <i data-lucide="bar-chart-2" class="text-orange-500"></i>
+                    宏观趋势与格局
+                </h2>
+                
+                <div class="glass-card p-8 mb-8 reveal">
+                    <div class="grid md:grid-cols-2 gap-12">
+                        <div>
+                            <h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模预测 (亿元)</h3>
+                            <div class="mb-6">
+                                <div class="flex justify-between text-sm font-semibold mb-1">
+                                    <span>2023 实际</span>
+                                    <span class="text-gray-500"><span class="count-up" data-target="621">0</span>亿</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+                                    <div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">621</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-semibold mb-1">
+                                    <span class="text-orange-600">2025 预测</span>
+                                    <span class="text-orange-600 font-bold"><span class="count-up" data-target="691">0</span>亿</span>
+                                </div>
+                                <div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+                                    <div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">691</div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex items-center gap-4">
+                                <div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">CAGR: 3.4% - 5.7%</div>
+                                <p class="text-xs text-gray-500">线上渠道（抖音）增速远超大盘，成为核心增长极。</p>
+                            </div>
+                        </div>
+
+                        <div class="border-l border-gray-200 md:pl-8">
+                            <h3 class="text-lg font-bold mb-4 text-gray-800">增长驱动与环境</h3>
+                            <div class="space-y-4">
+                                <div class="flex gap-4 items-start group">
+                                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="zap" size="18"></i></div>
+                                    <div>
+                                        <div class="font-bold text-sm text-gray-800">Skinification (头皮护理化)</div>
+                                        <div class="text-xs text-gray-500 mt-1">核心驱动力从“基础清洁”转向“精细化护发”。用户愿为防脱、蓬松付费。</div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-4 items-start group">
+                                    <div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+                                    <div>
+                                        <div class="font-bold text-sm text-gray-800">政策监管 (严查功效)</div>
+                                        <div class="text-xs text-gray-500 mt-1">必须提供人体评测报告，利好海飞丝研发背景，但提高合规成本。</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+                        <i data-lucide="users" class="text-orange-500"></i> 用户结构性演变
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white/60 p-4 rounded-xl border border-white">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">人群迁移</h4>
+                            <div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+                                <span class="line-through text-gray-400">家庭主妇</span>
+                                <i data-lucide="arrow-right" size="14" class="text-orange-500"></i>
+                                <span class="text-orange-600">Z世代 & 精致白领</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">消费主力从单一家庭采购向年轻化个人护理迁移。</p>
+                        </div>
+                        <div class="bg-white/60 p-4 rounded-xl border border-white">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">渠道渗透</h4>
+                            <div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+                                <span class="line-through text-gray-400">线下商超</span>
+                                <i data-lucide="arrow-right" size="14" class="text-orange-500"></i>
+                                <span class="text-orange-600">即时零售 & 兴趣电商</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">京东到家、美团闪购及抖音直播成为新阵地。</p>
+                        </div>
+                        <div class="bg-white/60 p-4 rounded-xl border border-white">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">心理变化</h4>
+                            <div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+                                <span class="line-through text-gray-400">便宜大碗</span>
+                                <i data-lucide="arrow-right" size="14" class="text-orange-500"></i>
+                                <span class="text-orange-600">专业对症 + 情绪价值</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">从单纯“无屑”转向“头皮不痒/发根蓬松”带来的社交自信。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 竞争格局概览</h3>
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+                        <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">NO.1</div>
+                        <h4 class="text-lg font-bold text-blue-900 mb-2">领军者</h4>
+                        <p class="text-sm font-bold text-gray-700 mb-2">海飞丝 / 清扬</p>
+                        <p class="text-xs text-gray-500 mb-4">海飞丝依然是国民级去屑第一心智。</p>
+                    </div>
+                    <div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+                        <div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">HOT</div>
+                        <h4 class="text-lg font-bold text-orange-900 mb-2">挑战者</h4>
+                        <p class="text-sm font-bold text-gray-700 mb-2">KONO / Spes</p>
+                        <p class="text-xs text-gray-500 mb-4">2024年在抖音爆发，凭“控油蓬松”抢夺存量。</p>
+                    </div>
+                    <div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+                        <div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">NEW</div>
+                        <h4 class="text-lg font-bold text-green-900 mb-2">新锐</h4>
+                        <p class="text-sm font-bold text-gray-700 mb-2">薇诺娜 / 同仁堂</p>
+                        <p class="text-xs text-gray-500 mb-4">主打强功效背书（敏感头皮、防脱）。</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+                    <div class="glass-card p-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800">核心竞争维度对比</h3>
+                        <ul class="space-y-4">
+                            <li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                                <div class="font-bold text-sm text-blue-800 mb-1">产品/技术线</div>
+                                <div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+                                    <span><strong>海飞丝:</strong> 专研头皮护理 + 微胶囊香氛 (基础科研强)</span>
+                                    <span><strong>竞品:</strong> 氨基酸控油 + 高颜值包装 (细分场景强)</span>
+                                </div>
+                            </li>
+                            <li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+                                <div class="font-bold text-sm text-orange-800 mb-1">市场心智定位</div>
+                                <div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+                                    <span><strong>海飞丝:</strong> “去屑专家” (老牌/可靠)</span>
+                                    <span><strong>KONO/Spes:</strong> “高颅顶神器” (网红/新潮)</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+                        <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+                            <i data-lucide="shield" class="text-orange-500"></i> 供应链与研发壁垒
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase mb-1">研发资产 (R&D)</h4>
+                                <p class="text-sm font-light text-gray-200">
+                                    宝洁拥有全球顶尖的<span class="text-orange-400 font-bold">头皮微生态实验室</span>。独家专利（如吡罗克酮复合配方）是核心壁垒，难以被快速复制。
+                                </p>
+                            </div>
+                            <div class="w-full h-px bg-white/10"></div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase mb-1">供应链溢价</h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+                                    <div>
+                                        <span class="block text-white font-bold">宝洁自建工厂</span>
+                                        质量稳定性极高<br>(溢价来源：信任)
+                                    </div>
+                                    <div>
+                                        <span class="block text-white font-bold">新锐 (OEM/ODM)</span>
+                                        反应快但配方同质化<br>(溢价来源：营销)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+                    <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i data-lucide="share-2" class="text-orange-400"></i>1.3 全平台生态框架分析</h3>
+                    <div class="grid md:grid-cols-3 gap-8 text-sm">
+                        <div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+                            <div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">市占与流量模型</div>
+                            <ul class="space-y-3">
+                                <li>
+                                    <strong class="text-white">平台占比:</strong>
+                                    <div class="text-gray-400 text-xs mt-1">天猫/京东是海飞丝基本盘(复购)；抖音是新客增长引擎(竞品占比高)。</div>
+                                </li>
+                                <li>
+                                    <strong class="text-white">流量演变:</strong>
+                                    <div class="text-gray-400 text-xs mt-1">从“人找货”(淘宝搜索) 向 “货找人”(抖音场景激发) 迁移。</div>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+                            <div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">人群场域与内容</div>
+                            <ul class="space-y-3">
+                                <li>
+                                    <strong class="text-white">核心人群:</strong>
+                                    <div class="text-gray-400 text-xs mt-1">淘宝/京东(成熟/目的性强) vs 抖音/小红书(年轻/易种草/关注颜值)。</div>
+                                </li>
+                                <li>
+                                    <strong class="text-white">内容形式:</strong>
+                                    <div class="text-gray-400 text-xs mt-1">抖音=剧情+测评(社交尴尬)；小红书=成分分析+避雷。</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+                            <div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">闭环与媒介矩阵</div>
+                            <ul class="space-y-3">
+                                <li>
+                                    <strong class="text-white">全链路闭环:</strong>
+                                    <div class="text-gray-400 text-xs mt-1">抖音(唤醒+收割) <i data-lucide="arrow-right" class="inline w-3 h-3"></i> 微信/私域 <i data-lucide="arrow-right" class="inline w-3 h-3"></i> 天猫(囤货)。</div>
+                                </li>
+                                <li>
+                                    <strong class="text-white">媒介现状:</strong>
+                                    <div class="text-gray-400 text-xs mt-1">海飞丝主流曝光巨大，但细分词(控油蓬松)SEO正被竞品蚕食。</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="part2" class="section relative">
+            <div class="section-number">02</div>
+            <div class="pl-6 relative z-10">
+                <h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">
+                    <i data-lucide="globe" class="text-orange-500"></i>
+                    全球化洞察
+                </h2>
+                <div class="glass-card p-0 overflow-hidden mb-8 reveal">
+                    <div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
+                        <h3 class="text-orange-800 font-bold m-0">2.1 区域市场心智矩阵</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs tracking-wider">
+                                <tr>
+                                    <th class="p-4">区域</th>
+                                    <th class="p-4">核心需求</th>
+                                    <th class="p-4">决策逻辑</th>
+                                    <th class="p-4">品牌角色期望</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="hover:bg-orange-50/30 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800">🇨🇳 中国</td>
+                                    <td class="p-4 text-orange-600 font-medium">养肤级去屑、蓬松</td>
+                                    <td class="p-4">始于颜值，忠于肤感，陷于成分</td>
+                                    <td class="p-4"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">美妆属性</span></td>
+                                </tr>
+                                <tr class="hover:bg-pink-50/30 transition-colors bg-pink-50/10">
+                                    <td class="p-4 font-bold text-gray-800">🇯🇵🇰🇷 日韩</td>
+                                    <td class="p-4 text-pink-600 font-medium">Scalp Spa, 防脱</td>
+                                    <td class="p-4">极致细分，关注头皮抗衰、毛囊健康</td>
+                                    <td class="p-4"><span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">高端头皮管理师</span></td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/30 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800">🇺🇸 北美</td>
+                                    <td class="p-4 text-blue-600 font-medium">Clinical Strength</td>
+                                    <td class="p-4">实用主义，看重“医生推荐”</td>
+                                    <td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">医疗属性</span></td>
+                                </tr>
+                                <tr class="hover:bg-green-50/30 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800">🇪🇺 欧洲</td>
+                                    <td class="p-4 text-green-600 font-medium">Eco-friendly</td>
+                                    <td class="p-4">极简，无塑料，成分天然</td>
+                                    <td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">环保属性</span></td>
+                                </tr>
+                                <tr class="hover:bg-cyan-50/30 transition-colors">
+                                    <td class="p-4 font-bold text-gray-800">🇹🇭 东南亚</td>
+                                    <td class="p-4 text-cyan-600 font-medium">Cooling (劲爽)</td>
+                                    <td class="p-4">气候驱动，追求极致清凉</td>
+                                    <td class="p-4"><span class="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">清爽救星</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 mb-8 reveal">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800">2.4 全球典型人群深度画像</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+                            <div class="text-xs font-bold text-gray-400 uppercase mb-2">Persona A (China/JK)</div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">城市精致派</h4>
+                            <p class="text-xs text-gray-500 mb-3">一二线城市，高压职场，熬夜多。</p>
+                            <div class="space-y-2 text-sm">
+                                <p><strong class="text-red-500">痛点:</strong> 头皮出油快、发根扁塌、偶尔头痒，担心去屑伤发。</p>
+                                <p><strong class="text-orange-500">期望:</strong> 既能去屑，又能护肤养头皮，还要味道高级。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+                            <div class="text-xs font-bold text-gray-400 uppercase mb-2">Persona B (Europe)</div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">绿色生活家</h4>
+                            <p class="text-xs text-gray-500 mb-3">伦敦/柏林，环保主义，反感化学添加。</p>
+                            <div class="space-y-2 text-sm">
+                                <p><strong class="text-red-500">痛点:</strong> 担心ZPT等化学成分污染水源，头皮敏感。</p>
+                                <p><strong class="text-green-600">期望:</strong> 成分透明，包装可降解，温和不刺激。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+                            <div class="text-xs font-bold text-gray-400 uppercase mb-2">Persona C (SEA)</div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2">热带通勤族</h4>
+                            <p class="text-xs text-gray-500 mb-3">曼谷/雅加达，摩托通勤，高温高湿。</p>
+                            <div class="space-y-2 text-sm">
+                                <p><strong class="text-red-500">痛点:</strong> 头皮极度油腻、汗味重、头屑反复。</p>
+                                <p><strong class="text-cyan-600">期望:</strong> 像冰块一样的清凉感，长效控油，去异味。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 reveal">
+                    <div class="glass-card p-6">
+                        <h4 class="font-bold text-gray-800 mb-3">价值观 & 行为差异</h4>
+                        <ul class="space-y-3 text-sm text-gray-600 list-check">
+                            <li><strong>全球共振:</strong> 头发健康=身体健康延伸；可持续发展是共识。</li>
+                            <li><strong>欧美:</strong> 信任“第三方认证” (素食/跳兔) & 真实用户证言。</li>
+                            <li><strong>东亚:</strong> 迷信“实验室数据” & “皮肤科医生推荐”。</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card p-6">
+                        <h4 class="font-bold text-gray-800 mb-3">沟通策略建议</h4>
+                        <ul class="space-y-3 text-sm text-gray-600 list-check">
+                            <li><strong>差异化叙事:</strong> 中国讲“微生态平衡”；美国讲“临床级去屑”。</li>
+                            <li><strong>视觉本土化:</strong> 中国用古风/流量明星；欧美用素人/医生。</li>
+                            <li><strong>成分合规:</strong> 严格遵守欧盟ZPT禁令，调整区域配方。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="part3" class="section relative">
+            <div class="section-number">03</div>
+            <div class="pl-6 relative z-10">
+                <h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">
+                    <i data-lucide="users" class="text-orange-500"></i>
+                    人群洞察与画像
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="glass-card p-8 reveal">
+                        <h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+                        <div class="mb-6">
+                            <div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+                                <span>女性 (决策者)</span>
+                                <span>男性 (使用者)</span>
+                            </div>
+                            <div class="flex h-6 rounded-full overflow-hidden">
+                                <div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">55%</div>
+                                <div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">45%</div>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">18-35岁为主，女性掌握家庭购买权，下沉市场渗透率高。</p>
+                        </div>
+                        <div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+                            <div>
+                                <div class="text-xs font-bold text-gray-500 uppercase">购买偏好</div>
+                                <p class="text-sm text-gray-800">从信赖“大牌背书”向追求“垂直功效（如针对性控油）”转变。</p>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-gray-500 uppercase">决策风格</div>
+                                <div class="flex gap-2 text-sm mt-1">
+                                    <span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">女性：感性种草 (KOL发质对比)</span>
+                                    <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">男性：习惯复购 / 理性测评</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-gray-600 mb-3">需求优先级排序</div>
+                            <div class="space-y-1">
+                                <div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>1. 去屑 (基础刚需)</span></div>
+                                <div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>2. 控油/蓬松 (进阶痛点)</span></div>
+                                <div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">3. 止痒/舒缓</div>
+                                <div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">4. 香氛/防脱</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+                        <h3 class="text-lg font-bold mb-4">3.2 生活方式 & 3.3 行为链路</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i> 生活场景与价值观</h4>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <span class="tag-pill orange">熬夜急救</span>
+                                    <span class="tag-pill orange">抗初老护肤</span>
+                                    <span class="tag-pill orange">健身运动</span>
+                                </div>
+                                <p class="text-sm text-gray-600 leading-snug">
+                                    <strong>心理诉求：</strong>消除“不洁感”带来的社交自卑；通过“蓬松高颅顶”获得显脸小的颜值提升。
+                                </p>
+                            </div>
+                            <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                                <h4 class="text-sm font-bold text-blue-800 mb-1">触点与信任</h4>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li><strong>认知:</strong> 抖音剧情短视频（痛点场景）、小红书KOL黑红榜、线下货架。</li>
+                                    <li><strong>信任链:</strong> <span class="text-blue-600 font-bold">皮肤科医生</span> > 成分博主 > 头部主播 > 品牌官方。</li>
+                                </ul>
+                            </div>
+                            <div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+                                <h4 class="text-sm font-bold text-red-800 mb-1">Top 3 决策 vs 流失痛点</h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div class="text-xs text-red-400 font-bold uppercase">考虑因素</div>
+                                        <ol class="list-decimal list-inside text-gray-700 text-xs">
+                                            <li>即时效果(蓬松)</li>
+                                            <li>控油持久度</li>
+                                            <li>香味(非廉价)</li>
+                                        </ol>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-red-400 font-bold uppercase">流失原因</div>
+                                        <p class="text-xs text-gray-600">觉得海飞丝“太传统/不够酷”、“洗完头发干涩”、“味道像上一代用的”。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="glass-card p-0 overflow-hidden group reveal">
+                        <div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+                        <div class="p-8">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">油头社畜</h4>
+                                    <p class="text-xs text-gray-500">女 / 成分党</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3 text-sm">
+                                <div class="bg-white/50 p-3 rounded-lg">
+                                    <strong class="text-gray-800 block mb-1">人群特征:</strong>
+                                    <p class="text-gray-600">天天洗头，离不开干发喷雾，追求“高颅顶”。早上洗头下午油。</p>
+                                </div>
+                                <div>
+                                    <strong class="text-red-500 block mb-1">核心痛点 (Pain Points):</strong>
+                                    <p class="text-gray-600">担心去屑洗发水伤发质，导致发尾干枯。</p>
+                                </div>
+                                <div>
+                                    <strong class="text-green-600 block mb-1">对品牌期望:</strong>
+                                    <p class="text-gray-800 font-medium">“控油不拔干”。希望像护肤品一样调节水油平衡，而不只是强力清洁。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-0 overflow-hidden group reveal">
+                        <div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+                        <div class="p-8">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">B</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">直男铁粉</h4>
+                                    <p class="text-xs text-gray-500">男 / 实用派</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3 text-sm">
+                                <div class="bg-white/50 p-3 rounded-lg">
+                                    <strong class="text-gray-800 block mb-1">人群特征:</strong>
+                                    <p class="text-gray-600">不爱研究成分，习惯性购买。家庭装主要使用者。</p>
+                                </div>
+                                <div>
+                                    <strong class="text-red-500 block mb-1">核心痛点 (Pain Points):</strong>
+                                    <p class="text-gray-600">头屑反复，头痒难耐。经常穿深色衣服，肩膀落雪很尴尬。</p>
+                                </div>
+                                <div>
+                                    <strong class="text-blue-600 block mb-1">对品牌期望:</strong>
+                                    <p class="text-gray-800 font-medium">“简单有效”。不需要花哨概念，只要洗一次就干净，止痒快。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+                    <h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+                    <ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+                        <li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+                            <span class="block text-xs font-bold text-orange-500 uppercase mb-1">核心冲突</span>
+                            强力去屑 vs 头发干涩/损伤屏障。用户怕“药性”太强。
+                        </li>
+                        <li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+                            <span class="block text-xs font-bold text-orange-500 uppercase mb-1">机会点</span>
+                            <strong>“护肤式去屑”</strong>：强调修护头皮屏障，像用面霜一样呵护头皮。
+                        </li>
+                        <li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+                            <span class="block text-xs font-bold text-orange-500 uppercase mb-1">媒介导向</span>
+                            人群A攻抖音/小红书剧情；人群B维持体育赛事赞助和搜索拦截。
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="part4" class="section relative">
+            <div class="section-number">04</div>
+            <div class="pl-6 relative z-10">
+                <h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">
+                    <i data-lucide="swords" class="text-orange-500"></i>
+                    竞品深度攻防
+                </h2>
+
+                <div class="mb-12">
+                    <h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;">
+                            <div class="text-sm font-bold text-gray-400 uppercase mb-2">第一梯队</div>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">存量博弈 (Core)</h4>
+                            <p class="text-lg font-bold text-blue-800 mb-2">清扬 (Clear)</p>
+                            <p class="text-sm text-gray-600">同定位、同价位、同渠道的国民级死对头，主攻男性市场。</p>
+                        </div>
+                        <div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;">
+                            <div class="text-sm font-bold text-orange-400 uppercase mb-2">第二梯队</div>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">赛道黑马 (New)</h4>
+                            <p class="text-lg font-bold text-orange-600 mb-2">KONO, Spes</p>
+                            <p class="text-sm text-gray-600">细分卖点切入（控油、蓬松、海盐），抢夺年轻流量的新兴品牌。</p>
+                        </div>
+                        <div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;">
+                            <div class="text-sm font-bold text-purple-400 uppercase mb-2">第三梯队</div>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">消费升级 (High)</h4>
+                            <p class="text-lg font-bold text-purple-800 mb-2">卡诗 (Kérastase)</p>
+                            <p class="text-sm text-gray-600">通过“头皮细胞科学”等专业概念吸引高净值人群（防脱、奢护）。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="glass-card p-8 reveal">
+                        <h3 class="font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">4.2 竞品话术拆解</h3>
+                        <div class="mb-6">
+                            <span class="text-xs font-bold text-gray-400 uppercase">Core Mindset (心智词云)</span>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="tag-pill red">高颅顶 (KONO/Spes)</span>
+                                <span class="tag-pill red">空气感</span>
+                                <span class="tag-pill red">控油3天</span>
+                                <span class="tag-pill blue">去屑 (海飞丝)</span>
+                                <span class="tag-pill blue">止痒</span>
+                                <span class="tag-pill blue">经典</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="block font-bold text-green-600 mb-1">🔥 对手卖点</span>
+                                    <ul class="list-disc pl-3 text-xs text-gray-600 space-y-1">
+                                        <li><strong>KONO:</strong> 解决"扁塌"，打沙龙级控油。</li>
+                                        <li><strong>Spes:</strong> 解决"懒人免洗"，海盐洁净。</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <span class="block font-bold text-red-500 mb-1">⚠️ 用户负评</span>
+                                    <ul class="list-disc pl-3 text-xs text-gray-600 space-y-1">
+                                        <li><strong>KONO:</strong> 长期用头皮痒，过度营销。</li>
+                                        <li><strong>Spes:</strong> 磨砂膏难冲洗，堵塞毛孔。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+                        <h3 class="font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">4.3 用户流向与舆情</h3>
+                        <div class="mb-6">
+                            <span class="text-xs font-bold text-gray-400 uppercase">Switching Path (切换路径)</span>
+                            <div class="flex flex-col gap-2 mt-2">
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+                                    <span>搜"控油洗发水"</span>
+                                </div>
+                                <div class="h-4 border-l-2 border-dashed border-gray-300 ml-3"></div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+                                    <span>看KOL测评 (高颅顶对比图)</span>
+                                </div>
+                                <div class="h-4 border-l-2 border-dashed border-gray-300 ml-3"></div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+                                    <span>嫌海飞丝"功能单一" <i data-lucide="arrow-right" class="inline w-3 h-3"></i> 尝试竞品</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="bg-green-50 p-2 rounded border border-green-100">
+                                <span class="text-xs font-bold text-green-700 block">👍 对手优势</span>
+                                <p class="text-xs text-gray-600">颜值高(拍照)、香味像大牌香水、洗感新奇(颗粒)。</p>
+                            </div>
+                            <div class="bg-red-50 p-2 rounded border border-red-100">
+                                <span class="text-xs font-bold text-red-700 block">👎 对手弱点</span>
+                                <p class="text-xs text-gray-600">控油不持久、性价比低、刺激性争议。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12">
+                    <h3 class="font-bold text-orange-900 mb-4">4.4 竞品“反攻”路径</h3>
+                    <ul class="space-y-4">
+                        <li class="bg-white p-4 rounded-xl shadow-sm">
+                            <div class="font-bold text-gray-800 text-sm mb-1">场景化拦截</div>
+                            <p class="text-sm text-gray-600">针对“约会前”、“吃火锅后”、“熬夜加班”投放短视频，拦截“日常清洁”场景。</p>
+                        </li>
+                        <li class="bg-white p-4 rounded-xl shadow-sm">
+                            <div class="font-bold text-gray-800 text-sm mb-1">多用法开发 (Spes案例)</div>
+                            <p class="text-sm text-gray-600">通过“干发喷雾”拓宽非洗头场景清洁需求，覆盖海飞丝盲区。</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+                
+                <div class="space-y-12">
+                    
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+                            <div>
+                                <h4 class="text-2xl font-bold text-gray-900">A. 小红书：从“种草”到“搜索截流”</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded">竞品占位分析</span>
+                                    <span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded">关键词矩阵</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8">
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h5 class="text-sm font-bold text-red-800 uppercase mb-3 flex items-center gap-2">
+                                        <i data-lucide="search" size="14"></i> 竞品检索市占率
+                                    </h5>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border border-red-50">
+                                            <span class="text-gray-600">搜 "去屑"</span>
+                                            <span class="font-bold text-red-500">Selsun/KONO ~40%</span>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border border-red-50">
+                                            <span class="text-gray-600">搜 "高颅顶"</span>
+                                            <span class="font-bold text-red-500">Spes 垄断 60%+</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="text-sm font-bold text-red-800 uppercase mb-3 flex items-center gap-2">
+                                        <i data-lucide="hash" size="14"></i> 关键词效能矩阵
+                                    </h5>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="tag-pill tag-pill-gray">品牌: 海飞丝(被动)</span>
+                                        <span class="tag-pill red">功效: 控油蓬松(Spes)</span>
+                                        <span class="tag-pill orange">功效: 沙龙香氛(KONO)</span>
+                                        <span class="tag-pill blue">功效: 二硫化硒(Selsun)</span>
+                                        <span class="tag-pill green">场景: 约会前/早八人</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+                        <div class="grid gap-6">
+
+                            <div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+                                <div class="grid md:grid-cols-12 h-full">
+                                    <div class="md:col-span-7 p-6 flex flex-col justify-center">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                            <span class="text-xs font-bold text-red-500 uppercase tracking-widest">Spes 诗裴丝</span>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-gray-900 mb-2">“高颅顶神器” (海盐洁发膏)</h3>
+                                        <p class="text-sm text-gray-600 mb-4">
+                                            <strong>场景诱引：</strong>“扁塌星人的换头术”。直击细软塌人群，设定为“见男神前”、“证件照拍摄前”。<br>
+                                            <strong>文案风格：</strong>“震惊体”+“干货感”。例：“发根站起来了！这还是我的头吗？”
+                                        </p>
+                                        <div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded">槽点拦截</span>
+                                            <span class="text-gray-500">用户吐槽“太干/像枯草” -> 我方打“去屑不干涩”</span>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+                                        <div class="absolute inset-0 grid grid-cols-2">
+                                            <div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20">
+                                                Before<br>贴头皮/油腻
+                                            </div>
+                                            <div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold">
+                                                After<br>发根直立3cm
+                                            </div>
+                                        </div>
+                                        <div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">视觉公式: 极致对比</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+                                <div class="grid md:grid-cols-12 h-full">
+                                    <div class="md:col-span-7 p-6 flex flex-col justify-center">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                                            <span class="text-xs font-bold text-orange-500 uppercase tracking-widest">KONO</span>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-gray-900 mb-2">“氛围感香氛” (香氛控油系列)</h3>
+                                        <p class="text-sm text-gray-600 mb-4">
+                                            <strong>场景诱引：</strong>“行走的荷尔蒙”。弱化清洁力，强调洗完后的“斩男香”和“富家千金感”。<br>
+                                            <strong>文案风格：</strong>“情绪体”。例：“被男神追着问了三条街的伪体香，其实只是洗发水。”
+                                        </p>
+                                        <div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded">槽点拦截</span>
+                                            <span class="text-gray-500">用户吐槽“过度营销” -> 我方打“专业背书”</span>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+                                        <div class="text-center p-4">
+                                            <div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+                                                <span class="text-[10px] text-orange-300">High-End<br>Bottle</span>
+                                            </div>
+                                            <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+                                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">视觉公式: 浴室水雾+精致感</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+                                <div class="grid md:grid-cols-12 h-full">
+                                    <div class="md:col-span-7 p-6 flex flex-col justify-center">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                            <span class="text-xs font-bold text-yellow-600 uppercase tracking-widest">Selsun</span>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-gray-900 mb-2">“去屑猛药” (黄瓶药物)</h3>
+                                        <p class="text-sm text-gray-600 mb-4">
+                                            <strong>场景诱引：</strong>“烂脸/烂头急救”。针对头皮发红、大块头屑的病理性焦虑。<br>
+                                            <strong>文案风格：</strong>“成分党专家体”。例：“别乱买！脂溢性皮炎认准二硫化硒，亲测有效。”
+                                        </p>
+                                        <div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+                                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded">槽点拦截</span>
+                                            <span class="text-gray-500">用户吐槽“味道难闻” -> 我方打“香氛级去屑”</span>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+                                        <div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+                                            <div class="h-12 bg-yellow-200 rounded w-full"></div>
+                                            <div class="h-12 bg-yellow-300 rounded w-full"></div>
+                                            <div class="h-12 bg-yellow-300 rounded w-full"></div>
+                                            <div class="h-12 bg-yellow-200 rounded w-full"></div>
+                                        </div>
+                                        <div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">视觉公式: 真实/粗糙/药店感</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="mt-6 flex flex-wrap gap-4 text-sm">
+                            <div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+                                <div class="font-bold text-gray-900 mb-1">头部 (Top)</div>
+                                <div class="text-gray-500 text-xs">竞品绑定李佳琦; 我方需利用“老爸测评”做科学背书。</div>
+                            </div>
+                            <div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+                                <div class="font-bold text-gray-900 mb-1">KOC</div>
+                                <div class="text-gray-500 text-xs">建立“头皮健康打卡团”，用显微镜数据对抗摆拍。</div>
+                            </div>
+                            <div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+                                <div class="font-bold text-gray-900 mb-1">人设</div>
+                                <div class="text-gray-500 text-xs">找“三甲医生/配方师”，用White Coat对抗网红滤镜。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+                            <div>
+                                <h4 class="text-2xl font-bold text-gray-900">B. 抖音：从“视觉奇观”到“信任闭环”</h4>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded">创意帧拆解</span>
+                                    <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded">卖点可视化</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-6">
+
+                            <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+                                <div class="grid md:grid-cols-12 h-full">
+                                    <div class="md:col-span-7 p-6 flex flex-col justify-center">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded">Type 1: 视觉奇观</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">“头皮炒菜”与ASMR</h3>
+                                        <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                                            <li class="flex gap-2"><span class="text-gray-400">前3秒:</span> 刮板在头皮刮出油脂，或满头泡沫的酥麻声。</li>
+                                            <li class="flex gap-2"><span class="text-gray-400">可视化:</span> 吸油纸按压刚洗完的刘海 -> 0油光。</li>
+                                            <li class="flex gap-2"><span class="text-gray-400">痛点:</span> “早上洗头，下午就成了条形码？”</li>
+                                        </ul>
+                                    </div>
+                                    <div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+                                        <div class="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
+                                        <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform cursor-pointer">
+                                            <i data-lucide="play" class="fill-white text-white ml-1"></i>
+                                        </div>
+                                        <div class="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">Spes: 刮油解压</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+                                <div class="grid md:grid-cols-12 h-full">
+                                    <div class="md:col-span-7 p-6 flex flex-col justify-center">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded">Type 2: 剧情反转</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">社交尴尬瞬间 -> 氛围感逆袭</h3>
+                                        <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                                            <li class="flex gap-2"><span class="text-gray-400">前3秒:</span> 女主因头油/头屑被面试官嫌弃，或约会不敢摘帽。</li>
+                                            <li class="flex gap-2"><span class="text-gray-400">可视化:</span> 慢动作甩发，路人回头率100%。</li>
+                                            <li class="flex gap-2"><span class="text-gray-400">痛点:</span> “因为头屑，你错过了多少机会？”</li>
+                                        </ul>
+                                    </div>
+                                    <div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+                                        <div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                                        <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform cursor-pointer">
+                                            <i data-lucide="play" class="fill-white text-white ml-1"></i>
+                                        </div>
+                                        <div class="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">KONO: 自信开关</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+                                <div class="grid md:grid-cols-12 h-full">
+                                    <div class="md:col-span-7 p-6 flex flex-col justify-center">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded">Type 3: 硬核测评</span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">打假/避雷 (海飞丝主战场)</h3>
+                                        <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                                            <li class="flex gap-2"><span class="text-gray-400">前3秒:</span> “这几瓶千万别买，全是增稠剂！”直接倒桌上。</li>
+                                            <li class="flex gap-2"><span class="text-gray-400">可视化:</span> 荧光剂/PH值测试，清水溶解看残留。</li>
+                                            <li class="flex gap-2"><span class="text-gray-400">痛点:</span> “几百块的洗发水，正在毁掉你的头皮屏障。”</li>
+                                        </ul>
+                                    </div>
+                                    <div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+                                        <div class="absolute inset-0 flex flex-col">
+                                            <div class="h-1/2 bg-blue-900/40 w-full"></div>
+                                            <div class="h-1/2 bg-red-900/40 w-full"></div>
+                                        </div>
+                                        <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform cursor-pointer absolute z-10">
+                                            <i data-lucide="play" class="fill-white text-white ml-1"></i>
+                                        </div>
+                                        <div class="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded z-10">老爸测评: 成分党</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+                            <h5 class="text-sm font-bold text-gray-800 uppercase mb-4">总结：海飞丝的视觉化升级策略</h5>
+                            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <span class="block text-gray-400 text-xs mb-1">视觉奇观</span>
+                                    <p class="font-medium text-gray-800">竞品做“泡沫多”；我们做<span class="text-blue-600">“显微镜下的螨虫消除”</span>或“红转白”过程。</p>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-400 text-xs mb-1">痛点共鸣</span>
+                                    <p class="font-medium text-gray-800">下沉到具体体感：<span class="text-red-500">“头痒抓破皮”</span>、“换季敏感”。</p>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-400 text-xs mb-1">可视化升级</span>
+                                    <p class="font-medium text-gray-800">竞品用吸油纸；我们用<span class="text-blue-600">“荧光残留实验”</span>或“甚至可以直接喝的温和度”。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8">
+                    <h3 class="text-sm font-bold text-blue-800 mb-2">4.6 竞品国外社媒投放分析</h3>
+                    <div class="text-sm text-gray-700 space-y-2">
+                        <p><strong>欧美策略:</strong> 竞品在Instagram/TikTok更侧重展示多元化发质（卷发、爆炸头）的护理，强调“Self-care（悦己）”和“Routine（护发流程）”。内容风格原生，少滤镜。</p>
+                        <p><strong>主要动作:</strong> 邀请皮肤科医生（Dermatologist）做“Reaction Video”（反应视频），辟谣错误洗头方式，树立权威。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="part5" class="section relative pb-24">
+            <div class="section-number">05</div>
+            <div class="pl-6 relative z-10">
+                <h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">
+                    <i data-lucide="crosshair" class="text-orange-500"></i>
+                    战略总结与资源
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="glass-card p-8 reveal">
+                        <h3 class="font-bold mb-4">5.1 战略空白区 (蓝海)</h3>
+                        <div class="space-y-3">
+                            <div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+                                <div class="font-bold text-orange-800">1. 不干涩的强效去屑</div>
+                                <div class="text-xs text-orange-600 mt-1">打破“去屑=干涩”的魔咒。</div>
+                            </div>
+                            <div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+                                <div class="font-bold text-orange-800">2. 头皮抗衰/防脱洗护合一</div>
+                                <div class="text-xs text-orange-600 mt-1">引入胜肽、视黄醇等面部抗衰成分。</div>
+                            </div>
+                            <div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+                                <div class="font-bold text-orange-800">3. 情绪疗愈香氛</div>
+                                <div class="text-xs text-orange-600 mt-1">缓解职场焦虑的芳疗级香型。</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+                        <h3 class="font-bold mb-6">5.2 资源分配矩阵</h3>
+                        <div class="grid grid-cols-2 gap-4 h-64">
+                            <div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+                                <i data-lucide="star" class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider text-white/80">INVEST (重金投入)</span>
+                                <div>
+                                    <div class="font-bold text-lg leading-tight">Z世代 & 抖音</div>
+                                    <div class="text-xs text-white/70 mt-1">高端专研线 / 科普+种草</div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+                                <span class="text-xs font-bold uppercase tracking-wider text-white/50">TEST (测试)</span>
+                                <div>
+                                    <div class="font-bold text-sm">防脱/跨界新品</div>
+                                    <div class="text-xs text-white/50 mt-1">小规模试水</div>
+                                </div>
+                            </div>
+                            <div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+                                <i data-lucide="circle-dollar-sign" class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider text-white/80">HOLD (核心堡垒)</span>
+                                <div>
+                                    <div class="font-bold text-lg">大众男性 & 家庭市场</div>
+                                    <div class="text-xs text-white/70 mt-1">京东/超市渠道 | 巩固性价比与去屑实力</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <nav class="nav-pill">
+        <a href="#part1" class="nav-link">宏观</a>
+        <a href="#part2" class="nav-link">全球</a>
+        <a href="#part3" class="nav-link">人群</a>
+        <a href="#part4" class="nav-link">竞品</a>
+        <a href="#part5" class="nav-link">战略</a>
+    </nav>
+
+    <script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
