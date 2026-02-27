@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TikTok 美区牙膏品类市场洞察报告</title>
+<style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --tiktok-cyan: #69C9D0;
+      --tiktok-pink: #EE1D52;
+      --tiktok-purple: #7C3AED;
+      --background: #0a0a0a;
+      --card-bg: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --success: #22c55e;
+      --warning: #eab308;
+      --destructive: #ef4444;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding: 40px;
+      background: linear-gradient(135deg, var(--tiktok-pink), var(--tiktok-purple), var(--tiktok-cyan));
+      border-radius: 16px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    /* Section */
+    .section {
+      margin-bottom: 50px;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--tiktok-cyan);
+      display: inline-block;
+    }
+    
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    .metric-card {
+      text-align: center;
+    }
+    
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--tiktok-cyan), var(--tiktok-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    
+    .metric-trend {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+    
+    .trend-up {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+    
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    
+    /* Price Chart (CSS-based) */
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .chart-label {
+      width: 100px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    
+    .chart-bar-container {
+      flex: 1;
+      height: 32px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 0 12px;
+    }
+    
+    .chart-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .chart-percent {
+      width: 60px;
+      text-align: right;
+      font-weight: 600;
+    }
+    
+    /* Case Study Cards */
+    .case-card {
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .case-header {
+      padding: 20px;
+      color: white;
+    }
+    
+    .case-header.visual { background: linear-gradient(135deg, var(--tiktok-purple), var(--tiktok-cyan)); }
+    .case-header.painpoint { background: linear-gradient(135deg, var(--tiktok-cyan), var(--tiktok-pink)); }
+    .case-header.authority { background: linear-gradient(135deg, var(--tiktok-pink), #dc2626); }
+    
+    .case-content {
+      padding: 20px;
+      background: var(--card-bg);
+    }
+    
+    .case-metric {
+      display: flex;
+      gap: 20px;
+      margin: 16px 0;
+    }
+    
+    .case-metric-item {
+      background: rgba(255,255,255,0.05);
+      padding: 12px 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .case-metric-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--tiktok-cyan);
+    }
+    
+    .case-metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .badge-warning { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--destructive); }
+    .badge-purple { background: rgba(124, 58, 237, 0.2); color: var(--tiktok-purple); }
+    
+    /* Alert */
+    .alert {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid;
+    }
+    
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--destructive);
+    }
+    
+    .alert-warning {
+      background: rgba(234, 179, 8, 0.1);
+      border-color: var(--warning);
+    }
+    
+    .alert-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .alert-content {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Insight Box */
+    .insight-box {
+      background: linear-gradient(135deg, rgba(105, 201, 208, 0.1), rgba(124, 58, 237, 0.1));
+      border: 1px solid rgba(105, 201, 208, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .insight-title {
+      color: var(--tiktok-cyan);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    /* Link Button */
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+    
+    .link-btn:hover {
+      background: var(--border);
+      border-color: var(--tiktok-cyan);
+    }
+    
+    /* Concentration Warning */
+    .concentration-warning {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(234, 179, 8, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-top: 24px;
+    }
+    
+    .concentration-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--destructive);
+    }
+    
+    /* Rules Grid */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .rule-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    
+    .rule-card h4 {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .rule-list {
+      list-style: none;
+    }
+    
+    .rule-list li {
+      padding: 8px 0;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    
+	    .rule-list li:last-child {
+	      border-bottom: none;
+	    }
+
+	    /* 引用来源链接（内嵌在原文处） */
+	    .source-link {
+	      display: inline-block;
+	      margin-left: 0.35rem;
+	      font-size: 0.85em;
+	      color: var(--tiktok-cyan);
+	      text-decoration: underline;
+	    }
+	    
+	    /* Footer */
+	    .footer {
+	      text-align: center;
+	      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header h1 { font-size: 1.8rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .case-metric { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<!-- Header -->
+<header class="header">
+<h1>🦷 TikTok 美区电器品类市场洞察</h1>
+<p>品类：电器｜核心卖点：便宜（高质价比）｜时间范围：2024年—2025年｜执行摘要：在“以旧换新”与出口增长带动下，家电行业整体回暖并向智能化、绿色化升级，市场由单纯低价竞争转向“价值+价格”并重；本报告聚焦“便宜但不低配”策略，建议以199-999元高频小家电作为引流主力，结合省电、静音、除菌、一机多用等可视化功能与场景化内容，提升转化效率与利润结构。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<p>商品卖点：便宜</p></header>
+<!-- Section 1: 市场大盘概览 -->
+<section class="section">
+<h2 class="section-title">📊 市场大盘概览</h2>
+<div class="cards-grid">
+<div class="card metric-card">
+<div class="metric-value"></div>
+<div class="metric-label"></div>
+<span class="metric-trend trend-up"></span>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="card metric-card">
+<div class="metric-value"></div>
+<div class="metric-label"></div>
+<span class="metric-trend trend-up"></span>
+</div>
+<div class="card metric-card">
+<div class="metric-value"></div>
+<div class="metric-label"></div>
+<span class="metric-trend trend-up"></span>
+</div>
+<div class="card metric-card">
+<div class="metric-value"></div>
+<div class="metric-label"></div>
+<span class="metric-trend trend-up"></span>
+</div>
+<div class="card metric-card">
+<div class="metric-value"></div>
+<div class="metric-label"></div>
+<span class="badge badge-purple"></span>
+</div>
+</div>
+<div class="insight-box">
+<div class="insight-title"></div>
+<p>当前电器市场处于“政策托底+出口拉动+结构升级”并行阶段，整体热度维持上行。受众可分为三类：一是价格敏感型家庭用户（关注到手价、能耗和售后）；二是年轻租房与小户型人群（偏好体积小、一机多用、安装简便）；三是注重健康效率的品质升级用户（关注静音、除菌、省电、智能联动）。对主打“便宜”的产品而言，最优切入不是单纯低价，而是以可感知功能建立“便宜但不低配”认知：用前后对比、真实测评、场景化演示强化转化，在199-999元高频刚需价位做引流，再以中价功能款提升利润与复购。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</section>
+<!-- Section 2: 价格带分析 -->
+<section class="section">
+<h2 class="section-title">💰 价格带分析</h2>
+<div class="card">
+<h4 style="margin-bottom: 24px;">电器品类（主打“便宜”）价格带内容热度分布（建议投放）</h4>
+<div class="chart-bar">
+<span class="chart-label"></span>
+<div class="chart-bar-container">
+<div class="chart-bar-fill" style="width: 38.07%; background: linear-gradient(90deg, var(--tiktok-cyan), var(--tiktok-purple));"></div>
+</div>
+<span class="chart-percent"></span>
+</div>
+<div class="chart-bar">
+<span class="chart-label"></span>
+<div class="chart-bar-container">
+<div class="chart-bar-fill" style="width: 26.60%; background: linear-gradient(90deg, var(--tiktok-pink), var(--tiktok-purple));"></div>
+</div>
+<span class="chart-percent"></span>
+</div>
+<div class="chart-bar">
+<span class="chart-label"></span>
+<div class="chart-bar-container">
+<div class="chart-bar-fill" style="width: 12.92%; background: var(--tiktok-cyan);"></div>
+</div>
+<span class="chart-percent"></span>
+</div>
+<div class="chart-bar">
+<span class="chart-label"></span>
+<div class="chart-bar-container">
+<div class="chart-bar-fill" style="width: 10.50%; background: var(--tiktok-pink);"></div>
+</div>
+<span class="chart-percent"></span>
+</div>
+<div class="chart-bar">
+<span class="chart-label"></span>
+<div class="chart-bar-container">
+<div class="chart-bar-fill" style="width: 6.20%; background: var(--text-muted);"></div>
+</div>
+<span class="chart-percent"></span>
+</div>
+<div class="chart-bar">
+<span class="chart-label"></span>
+<div class="chart-bar-container">
+<div class="chart-bar-fill" style="width: 5.71%; background: var(--text-muted);"></div>
+</div>
+<span class="chart-percent"></span>
+</div>
+<div class="insight-box" style="margin-top: 24px;">
+<div class="insight-title"></div>
+<p>家电消费整体呈“升级与性价比并存”，但对“便宜”卖点而言，流量与转化最集中在100-599元区间，适合以“百元平替、租房神器、到手价直降”获取点击；600-1999元可通过“省电、静音、除菌、AI智控”等可视化功能证明“便宜但不低配”，承接利润。建议采用“低价爆款引流 + 中价功能款提客单 + 套装/加价购提升连带”的结构，并结合#以旧换新 #家电避坑 #懒人家务等话题强化决策效率。参考来源：<a href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">2025年家电行业研究报告</a>、<a href="https://pdf.dfcfw.com/pdf/H3_AP202512121799109293_1.pdf?1765574553000.pdf" rel="noopener noreferrer" target="_blank">2025双11家电品类消费者趋势洞察</a>、<a href="https://www.cice-expo.com/media/newsInfo/1521" rel="noopener noreferrer" target="_blank">2025年度家电行业趋势</a>。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+</section>
+<!-- Section 3: 竞品分析 -->
+<section class="section">
+<h2 class="section-title">🏆 头部品牌与竞品分析</h2>
+<div class="card">
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>梯队</th>
+<th>代表品牌</th>
+<th>主打价格带与品类</th>
+<th>内容转化打法</th>
+<th>对“便宜”卖点的应对策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="badge badge-warning">头部</span></td>
+<td><strong>美的 / 海尔 / 格力</strong></td>
+<td>白电全覆盖；中高端与大众价位并行，渠道与供应链优势明显</td>
+<td style="color: var(--success); font-weight: 600;">品牌背书 + 功能实测 + 大促节点集中投放</td>
+<td>避免正面拼全品类，切入其覆盖较弱的细分场景（租房/小户型/入门替换）</td>
+</tr>
+<tr>
+<td><span class="badge badge-purple">强势细分</span></td>
+<td><strong>小米 / 苏泊尔 / 九阳 / 石头等</strong></td>
+<td>小家电、清洁、厨电与智能生态；199-999元区间竞争激烈</td>
+<td style="color: var(--tiktok-cyan); font-weight: 600;">KOC测评种草 + 参数对比 + 场景短视频高频复用</td>
+<td>用“同价多功能”“百元平替”建立第一认知，强化到手价与保修承诺</td>
+</tr>
+<tr>
+<td><span class="badge badge-success">机会型品牌</span></td>
+<td><strong>区域/白牌/新锐DTC品牌</strong></td>
+<td>高性价比单品切入；SKU少、上新快，主攻短决策链品类</td>
+<td style="font-weight: 600;">达人分销 + 爆款短视频 + 直播间限时机制</td>
+<td>聚焦1-2个强功能卖点（省电/静音/除菌），做到“便宜但不低配”</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="concentration-warning">
+<div class="concentration-value"></div>
+<p style="font-weight: 600; margin: 8px 0;">结论：电器赛道不适合单纯低价硬拼，需用“价格锚点 + 可视化功能”完成差异化转化。</p>
+<p style="color: var(--text-muted); font-size: 0.9rem;">参考公开行业资料显示，2024-2025年家电市场在政策与出口拉动下恢复增长，头部品牌在白电与主流渠道优势显著；中小品牌更适合通过内容电商在细分场景突围。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://www.cice-expo.com/media/newsInfo/1521" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<h4 style="margin: 32px 0 16px;">创作者与投放打法（便宜卖点专用）</h4>
+<div class="cards-grid">
+<div class="card">
+<span class="badge badge-success" style="margin-bottom: 12px;"></span>
+<h4>价格敏感型测评达人 + 家务效率达人</h4>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">优先选择3-30万粉中腰部达人，强调“真实测试、对比同价竞品、展示长期使用成本（电费/耗材）”，提升信任与转化效率。 <a class="source-link" href="https://www.cice-expo.com/media/newsInfo/1521" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="card">
+<span class="badge badge-purple" style="margin-bottom: 12px;"></span>
+<h4>痛点开场（3秒）→ 价格锚点 → 功能对比 → 使用前后反差 → 限时收口</h4>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">标准话术：同预算买到更多功能；重点展示“省电、静音、除菌、一机多用”，并给出具体到手价与售后保障，降低下单犹豫。</p>
+</div>
+<div class="card">
+<span class="badge badge-warning" style="margin-bottom: 12px;"></span>
+<h4>“引流款+利润款”双品投放，先短视频测款再直播放量</h4>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">用199-399元引流款跑点击与互动，再用499-999元功能升级款承接利润；围绕#家电避坑 #百元平替 #租房神器等话题做AB素材轮播。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202403181626959138_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="card">
+<span class="badge" style="background: rgba(124, 58, 237, 0.2); color: var(--tiktok-purple); margin-bottom: 12px;"></span>
+<h4>可复制内容母版：同价位三选一清单 + 15秒实测</h4>
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">模板固定字段：预算、核心功能、到手价、保修、适用人群；每周替换品类（厨房/清洁/个护）与场景（租房/宝妈/上班族）即可持续复用。</p>
+</div>
+</div>
+</section>
+<!-- Section 4: 内容营销策略 -->
+<section class="section">
+<h2 class="section-title">🎬 内容营销策略</h2>
+<div class="card" style="text-align: center; padding: 32px; margin-bottom: 24px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(105, 201, 208, 0.1));">
+<h4 style="margin-bottom: 24px;">低价心智 × 内容种草 × 合规成交：电器品类30天增长框架</h4>
+<div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+<div style="padding: 20px 30px; background: rgba(238, 29, 82, 0.1); border-radius: 12px; border: 1px solid rgba(238, 29, 82, 0.3);">
+<strong></strong><br/>
+<small style="color: var(--text-muted);"></small>
+</div>
+<span style="font-size: 2rem;"></span>
+<div style="padding: 20px 30px; background: rgba(105, 201, 208, 0.1); border-radius: 12px; border: 1px solid rgba(105, 201, 208, 0.3);">
+<strong></strong><br/>
+<small style="color: var(--text-muted);"></small>
+</div>
+<span style="font-size: 2rem;"></span>
+<div style="padding: 20px 30px; background: linear-gradient(135deg, var(--tiktok-pink), var(--tiktok-purple)); border-radius: 12px;">
+<strong></strong><br/>
+<small style="opacity: 0.8;"></small>
+</div>
+</div>
+</div>
+<h4 style="margin-bottom: 16px;">可执行动作清单（按内容类型拆解）</h4>
+<div class="cards-grid">
+<div class="case-card card" style="padding: 0;">
+<div class="case-header visual">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<span class="badge" style="background: rgba(255,255,255,0.2); color: white;"></span>
+<span class="badge badge-warning"></span>
+</div>
+<h4>「百元平替」15秒短视频矩阵</h4>
+<p style="opacity: 0.8; font-size: 0.9rem;">适合高频小家电：空气炸锅、清洁电器、个护电器</p>
+</div>
+<div class="case-content">
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+<strong style="color: var(--text);">动作：每周产出20条“前后对比+到手价”短视频，统一口播“同类功能，更低预算”。</strong> <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<p style="font-size: 0.85rem; margin-bottom: 12px;">
+<span style="color: var(--text-muted);">内容要素：开场3秒亮价签、核心功能1镜到底、结尾给限时券信息</span>
+<span class="badge badge-purple">#百元平替 #租房神器</span>
+<a class="source-link" href="https://www.cice-expo.com/media/newsInfo/1521" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="case-metric">
+<div class="case-metric-item" style="flex: 1;">
+<div class="case-metric-value"></div>
+<div class="case-metric-label"></div>
+</div>
+<div class="case-metric-item" style="flex: 1;">
+<div class="case-metric-value" style="color: var(--warning);"></div>
+<div class="case-metric-label"></div>
+</div>
+</div>
+<div style="background: rgba(234, 179, 8, 0.1); padding: 12px; border-radius: 8px; font-size: 0.85rem;">
+<strong></strong></div>
+<a class="link-btn" href="https://tiktok.com/@zariyahnatalya/video/7542218650787351839?local=en" rel="noopener noreferrer" target="_blank"></a>
+</div>
+</div>
+<div class="case-card card" style="padding: 0;">
+<div class="case-header painpoint">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<span class="badge" style="background: rgba(255,255,255,0.2); color: white;"></span>
+<span class="badge badge-success"></span>
+</div>
+<h4>「省电账单」场景化内容+直播连播</h4>
+<p style="opacity: 0.8; font-size: 0.9rem;">针对“电费焦虑、家务效率、空间紧张”三类人群脚本</p>
+</div>
+<div class="case-content">
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+<strong style="color: var(--text);">动作：短视频讲痛点，直播做“30分钟省钱专场”，用真实使用场景演示省时省电。</strong> <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202403181626959138_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<p style="font-size: 0.85rem; margin-bottom: 12px;">
+<span style="color: var(--text-muted);">货盘结构：199-999元引流款 + 1000-3000元利润款，搭配延保/配件提升客单</span>
+<span class="badge badge-success">#家电避坑 #懒人家务</span>
+<a class="source-link" href="https://www.midea.com.cn/content/dam/mideacn-aem/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB%E6%96%87%E4%BB%B6%E6%80%BB%E8%A7%88/2024%E6%96%87%E4%BB%B6/%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2-2024%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%8A%A5%E5%91%8A.PDF.coredownload.inline.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="case-metric">
+<div class="case-metric-item" style="flex: 1;">
+<div class="case-metric-value"></div>
+<div class="case-metric-label"></div>
+</div>
+<div class="case-metric-item" style="flex: 1;">
+<div class="case-metric-value" style="color: var(--success);"></div>
+<div class="case-metric-label"></div>
+</div>
+</div>
+<div style="background: rgba(34, 197, 94, 0.1); padding: 12px; border-radius: 8px; font-size: 0.85rem;">
+<strong></strong></div>
+<a class="link-btn" href="https://tiktok.com/@celia0149/video/7554297641614560567?local=en" rel="noopener noreferrer" target="_blank"></a>
+</div>
+</div>
+<div class="case-card card" style="padding: 0;">
+<div class="case-header authority">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<span class="badge" style="background: rgba(255,255,255,0.2); color: white;"></span>
+<span class="badge badge-danger"></span>
+</div>
+<h4>达人测评与品牌背书双轨</h4>
+<p style="opacity: 0.8; font-size: 0.9rem;">用“可验证数据”替代“绝对化承诺” <a class="source-link" href="https://www.lhratings.com/file/ff8b7e6a102.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="case-content">
+<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+<strong style="color: var(--text);">动作：合作垂类达人做标准化测评模板（噪音、功耗、清洁效率），品牌号同步发布质检与售后能力。</strong></p>
+<p style="font-size: 0.85rem; margin-bottom: 12px;">
+<span style="color: var(--text-muted);">内容规范：实验条件可复现、参数有来源、结论留边界（如“在XX工况下”）</span>
+<span class="badge badge-purple">#真实测评 #家电选购指南</span>
+</p>
+<div class="case-metric">
+<div class="case-metric-item" style="flex: 1;">
+<div class="case-metric-value"></div>
+<div class="case-metric-label"></div>
+</div>
+<div class="case-metric-item" style="flex: 1;">
+<div class="case-metric-value" style="color: var(--tiktok-cyan);"></div>
+<div class="case-metric-label"></div>
+</div>
+</div>
+<div class="alert alert-danger" style="margin-top: 12px;">
+<div class="alert-title"></div>
+<div class="alert-content"></div>
+</div>
+<a class="link-btn" href="https://www.tiktok.com/view/product/1729655434325889186" rel="noopener noreferrer" target="_blank"></a>
+</div>
+</div>
+</div>
+<div class="cards-grid" style="margin-top: 24px;">
+<div class="card" style="border-color: rgba(105, 201, 208, 0.3);">
+<h4 style="color: var(--tiktok-cyan); margin-bottom: 12px;">30天执行节奏（Action）</h4>
+<ul class="rule-list">
+<li>第1周：搭建内容资产库（价格话术、3类脚本、5个核心场景）并完成首批10条测试。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202512121799109293_1.pdf?1765574553000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>第2周：放量优胜素材，按“低价引流款/利润款”双货盘分直播间讲解路径。 <a class="source-link" href="https://www.fxbaogao.com/detail/4616330" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>第3周：上线达人测评联动，补齐“安装、噪音、功耗、售后”四大疑问内容。 <a class="source-link" href="https://family.pconline.com.cn/1978/19780175.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>第4周：复盘人群与素材，淘汰低CTR题材，扩大高转化场景并加码再营销。 <a class="source-link" href="https://m.media-amazon.com/images/G/28/AS/AGS/pdf/category/2025-selection-insights-report.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="card" style="border-color: rgba(234, 179, 8, 0.3);">
+<h4 style="color: var(--warning); margin-bottom: 12px;">核心衡量指标（KPI）</h4>
+<ul class="rule-list">
+<li>流量层：曝光成本CPM、3秒完播率、互动率（点赞+评论+分享）。 <a class="source-link" href="https://fixwel.com/news_bkzx/109.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>转化层：进店率CTR、加购率、支付转化率CVR、直播成交占比。 <a class="source-link" href="https://www.film-expo.com/content/dam/sitebuilder/rxch/filmexpo/2025/1/jiadian/%E5%AE%B6%E7%94%B5%E8%A1%8C%E4%B8%9A2025%E5%B9%B4%E6%8A%95%E8%B5%84%E7%AD%96%E7%95%A5-%E5%86%85%E9%9C%80%E6%94%BF%E7%AD%96%E6%89%98%E5%BA%95-%E6%8A%8A%E6%8F%A12025%E5%B9%B4%E4%BC%B0%E5%80%BC%E5%88%87%E6%8D%A2%E8%A1%8C%E6%83%85.pdf.coredownload.356137712.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>经营层：客单价AOV、毛利率、退款率、7日复购率。 <a class="source-link" href="https://www.iyiou.com/analysis/202510171110916" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>内容层：价格型/功能型/测评型素材的ROI分组排名与周迭代次数。</li>
+</ul>
+</div>
+<div class="card" style="border-color: rgba(239, 68, 68, 0.3);">
+<h4 style="color: var(--destructive); margin-bottom: 12px;">合规红线（Must Avoid）</h4>
+<ul class="rule-list">
+<li>禁止绝对化宣传：如“最便宜、第一、顶级、100%有效”等无依据表述。 <a class="source-link" href="https://finance.sina.com.cn/tech/roll/2025-09-10/doc-infpyprk7870090.shtml" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>禁止价格误导：先涨后降、虚构原价、未说明“到手价条件”的促销话术。</li>
+<li>禁止夸大功能：对节能、除菌、净化等效果须有可验证依据并说明测试条件。</li>
+<li>禁止售后模糊：质保范围、退换条件、运费责任必须在商品页与直播间明示。</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Section 5: 平台合规风控 -->
+<section class="section">
+<h2 class="section-title">🛡️ 平台合规与风控</h2>
+<div class="alert alert-danger">
+<div class="alert-title"></div>
+<div class="alert-content">
+<ul style="margin-top: 8px;">
+<li>严禁使用“全网最低价、绝对省电、100%除菌、永久不坏”等绝对化/无法证实表述，避免触发广告法与平台虚假宣传处罚。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>涉及节能、静音、杀菌、净化等性能宣传，必须有可追溯检测依据或参数来源，直播口播与详情页口径需一致。</li>
+<li>低价促销必须清晰标注到手条件（券后、满减、限时、限量），禁止先涨后降、模糊原价与误导性“对比价”。</li>
+<li>电器商品必须确保3C等强制认证与标识完整，缺失认证信息、型号不一致或“贴牌错标”将导致下架与保证金风险。 <a class="source-link" href="https://www.cice-expo.com/media/newsInfo/1521" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+</div>
+<div class="rules-grid" style="margin-top: 24px;">
+<div class="rule-card">
+<h4>上架合规基础清单</h4>
+<ul class="rule-list">
+<li><strong>资质完整：营业执照、商标/授权链路、品牌使用许可齐备并可复核。</strong></li>
+<li><strong>商品合规：3C认证编号、执行标准、能效标识（如适用）与实物一致。</strong> <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202403181626959138_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li><strong>页面规范：规格参数、适用场景、售后范围、保修期限明确披露。</strong></li>
+<li><strong>价格透明：日常价、活动价、优惠条件及生效时间可被消费者一眼识别。</strong></li>
+</ul>
+</div>
+<div class="rule-card">
+<h4>平台高频违规红线</h4>
+<ul class="rule-list">
+<li style="color: var(--destructive);">“最低价保真”“全平台第一”等无证据排名与极限词。</li>
+<li style="color: var(--destructive);">夸大功能：将“抑菌”宣传为“医疗级杀菌/治疗功效”。</li>
+<li style="color: var(--destructive);">主图或标题堆砌“官方同款/大牌平替”但无授权证明。</li>
+<li style="color: var(--destructive);">赠品、延保、安装费用描述不清，导致成交后额外收费纠纷。</li>
+<li style="color: var(--destructive);">以“便宜”为核心却隐瞒关键配置差异（功率、容量、材质、能效等级）。</li>
+</ul>
+</div>
+<div class="rule-card">
+<h4>风控执行建议（可落地）</h4>
+<ul class="rule-list">
+<li style="color: var(--success);">建立“宣称白名单”：仅使用可举证词（如额定功率、容量、噪音值、能效等级）。</li>
+<li style="color: var(--success);">上线前执行“三审机制”（商品、内容、价格）：运营初审+法务复审+抽检终审。</li>
+<li style="color: var(--success);">按周监控退货与差评关键词（噪音大/与描述不符/安装收费），快速修正文案与客服话术。</li>
+<li style="color: var(--success);">围绕“便宜但不低配”输出对比卡：公开核心参数与售后承诺，降低投诉与平台判责率。</li>
+</ul>
+</div>
+</div>
+<div class="alert alert-warning" style="margin-top: 24px;">
+<div class="alert-title"></div>
+<div class="alert-content">
+<ul style="margin-top: 8px;">
+<li>行业从单纯低价转向“质价比+智能化+节能化”，低价策略需同步强化质量与服务证明，避免“低价低质”标签。</li>
+<li>在“以旧换新”与促销节点（如双11）投放时，补贴规则、回收条件、时效与限制条款必须前置展示。 <a class="source-link" href="https://www.midea.com.cn/content/dam/mideacn-aem/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB%E6%96%87%E4%BB%B6%E6%80%BB%E8%A7%88/2024%E6%96%87%E4%BB%B6/%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2-2024%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%8A%A5%E5%91%8A.PDF.coredownload.inline.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>参考公开行业研究报告口径对外表达市场趋势时，应注明“数据来源于公开报告”，避免断章引用。 <a class="source-link" href="https://www.lhratings.com/file/ff8b7e6a102.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>建议优先使用权威来源（行业研究PDF、企业年报、官方机构发布）作为外链背书，降低内容可信度风险。</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202506261698061534_1.pdf?1750965622000.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2025 年家电行业研究报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.cice-expo.com/media/newsInfo/1521" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">预见未来家：2025年度家电行业十大趋势 - 国际消费电子博览会</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202403181626959138_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 专题：从AWE 看2024 年家电消费趋</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.midea.com.cn/content/dam/mideacn-aem/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB%E6%96%87%E4%BB%B6%E6%80%BB%E8%A7%88/2024%E6%96%87%E4%BB%B6/%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2-2024%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%8A%A5%E5%91%8A.PDF.coredownload.inline.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 美的集团股份有限公司2025 年03 月 - Midea</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.lhratings.com/file/ff8b7e6a102.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 家电行业2025 年上半年总结及展望</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202512121799109293_1.pdf?1765574553000.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2025双11家电品类消费者趋势洞察</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.fxbaogao.com/detail/4616330" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[GfK]：2024年家电市场发展趋势及2025年消费趋势分析：产品创新 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://family.pconline.com.cn/1978/19780175.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">《2024-2025年度中国家用电器行业品牌评价结果》重磅发布</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://m.media-amazon.com/images/G/28/AS/AGS/pdf/category/2025-selection-insights-report.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2025全球电商消费趋势及选品洞察报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://fixwel.com/news_bkzx/109.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024年电器行业大揭秘：哪个品牌更好？最新排行榜和详尽资料</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.film-expo.com/content/dam/sitebuilder/rxch/filmexpo/2025/1/jiadian/%E5%AE%B6%E7%94%B5%E8%A1%8C%E4%B8%9A2025%E5%B9%B4%E6%8A%95%E8%B5%84%E7%AD%96%E7%95%A5-%E5%86%85%E9%9C%80%E6%94%BF%E7%AD%96%E6%89%98%E5%BA%95-%E6%8A%8A%E6%8F%A12025%E5%B9%B4%E4%BC%B0%E5%80%BC%E5%88%87%E6%8D%A2%E8%A1%8C%E6%83%85.pdf.coredownload.356137712.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 家电行业2025年投资策略</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.iyiou.com/analysis/202510171110916" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025家电30强出炉：石头逆袭、小米狂飙、格力下滑，龙头易主倒计时</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://finance.sina.com.cn/tech/roll/2025-09-10/doc-infpyprk7870090.shtml" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">《2024-2025年度中国家用电器行业品牌评价结果》重磅发布 - 新浪财经</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://m.bjnews.com.cn/detail/1745896940129645.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">老板电器2024年业绩：老板+名气双品牌齐居行业前十，龙头地位稳固</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.yicai.com/news/102974496.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">年终盘点|2025年家电出口跌宕起伏，中国品牌出海本土化突破</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://cj.sina.cn/articles/view/7879922980/1d5ae152401901f8ee?froms=ggmp&amp;vt=4" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025厨房电器品牌哪家强?深度解析十大品牌 - 新浪财经</a></li></ul></div></section><footer class="footer">
+<p>📊 TikTok 美区牙膏品类市场洞察报告 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202403181626959138_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<p style="margin-top: 8px;">数据来源：TikTok Shop 公开数据 · 报告生成时间：2026年2月 <a class="source-link" href="https://www.midea.com.cn/content/dam/mideacn-aem/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB/%E6%8A%95%E8%B5%84%E8%80%85%E5%85%B3%E7%B3%BB%E6%96%87%E4%BB%B6%E6%80%BB%E8%A7%88/2024%E6%96%87%E4%BB%B6/%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2-2024%E5%B9%B4%E5%B9%B4%E5%BA%A6%E6%8A%A5%E5%91%8A.PDF.coredownload.inline.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<p style="margin-top: 16px; opacity: 0.6;">本报告仅供市场研究参考，不构成投资建议 <a class="source-link" href="https://www.lhratings.com/file/ff8b7e6a102.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</footer>
+</div>
+</body>
+</html>

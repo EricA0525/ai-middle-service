@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>海飞丝市场洞察深度报告 | Visualized Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        /* Design Tokens */
+        :root {
+            --primary: #FF7F00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            /* 动态呼吸背景 */
+            background:
+                radial-gradient(at 0% 0%, rgba(255, 127, 0, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 200, 150, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255, 127, 0, 0.05) 0px, transparent 50%),
+                #F3F4F6;
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: bg-breathe 15s ease infinite alternate;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        @keyframes bg-breathe {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* 核心卡片样式 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px -5px rgba(255, 127, 0, 0.15);
+            border-color: rgba(255, 127, 0, 0.3);
+            z-index: 10;
+        }
+
+        /* 滚动显现动画类 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 标题渐变 */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF4500 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 图表动画基础 */
+        .chart-bar-bg {
+            background-color: #f3f4f6;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #FF7F00, #FF4500);
+            height: 100%;
+            border-radius: 9999px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* 标签云 Pills */
+        .tag-pill {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .tag-pill:hover { transform: scale(1.05); }
+        .tag-pill.orange { background: #FFF7ED; color: #C2410C; border: 1px solid #FFEDD5; }
+        .tag-pill.blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+        .tag-pill.red { background: #FEF2F2; color: #B91C1C; border: 1px solid #FEE2E2; }
+        .tag-pill.green { background: #F0FDF4; color: #15803D; border: 1px solid #DCFCE7; }
+        .tag-pill-gray { background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB; }
+        
+        /* 章节数字 */
+        .section-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 127, 0, 0.08);
+            line-height: 1;
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            z-index: 0;
+            pointer-events: none;
+            transition: transform 0.5s;
+        }
+        section:hover .section-number { transform: translateX(10px); }
+
+        /* 底部导航 */
+        .nav-pill {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            padding: 0.5rem 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            animation: slideUpNav 0.8s 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            z-index: 50;
+            display: flex;
+            gap: 0.5rem;
+        }
+        @keyframes slideUpNav { to { transform: translateX(-50%) translateY(0); } }
+
+        .nav-link {
+            color: #6B7280;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-link:hover { background: #f3f4f6; color: #1f2937; }
+        .nav-link.active {
+            background: #FF7F00;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 127, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 列表增强 */
+        .list-check li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+        .list-check li::before {
+            content: "✓"; position: absolute; left: 0; color: var(--primary); font-weight: bold;
+            opacity: 0; transform: scale(0);
+            transition: all 0.4s ease 0.2s;
+        }
+	        .reveal.active .list-check li::before { opacity: 1; transform: scale(1); }
+
+	        /* 引用来源链接（内嵌在原文处） */
+	        .source-link {
+	            display: inline-block;
+	            margin-left: 0.25rem;
+	            font-size: 0.8em;
+	            color: var(--primary);
+	            text-decoration: underline;
+	        }
+	    </style>
+</head>
+<body class="pb-32">
+<header class="header max-w-7xl mx-auto px-6 pt-20 pb-12 text-center relative z-10 reveal active">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-xs font-bold tracking-wider mb-6 border border-orange-200 hover:scale-105 transition-transform cursor-default">
+<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>海飞丝洗发水市场洞察</div>
+<h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">海飞丝｜洗发水品类市场洞察（2024–2025）</h1>
+<p class="text-lg text-gray-500 max-w-3xl mx-auto">品类范围聚焦洗发水及头皮护理延展场景。海飞丝依托“去屑”核心心智，正向控油、止痒、防脱等多功效升级，在行业规模增长与价格带上移趋势中保持强渗透；但在防脱等高期待赛道，消费者对可感知效果与证据透明度要求显著提高。当前增长关键在于：以“去屑+控油+防脱”分层产品矩阵匹配细分头皮人群，并通过内容电商中的测评、教程与周期化护理方案，提升转化效率与复购稳定性。 <a class="source-link" href="https://beaut.taobao.com/topic/toufahuli_260/de1d1ca47a21f9f6a54292e3221b76d8.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</header>
+<main class="max-w-7xl mx-auto px-6 space-y-20 relative z-10">
+<section class="section relative" id="part1">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">宏观趋势与格局</h2>
+<div class="glass-card p-8 mb-8 reveal">
+<div class="grid md:grid-cols-2 gap-12">
+<div>
+<h3 class="text-lg font-bold mb-6 text-gray-800">1.1 市场规模预测（亿元）</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span>2023年中国洗发水市场规模</span>
+<span class="text-gray-500">约 477.96</span>
+</div>
+<div class="w-full bg-gray-100 rounded-full h-8 flex items-center px-1">
+<div class="chart-bar-fill bg-gray-300 flex items-center justify-end px-3 text-xs text-white font-bold" data-width="89%">477.96</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm font-semibold mb-1">
+<span class="text-orange-600">2027年中国洗护发市场预测</span>
+<span class="text-orange-600 font-bold">约 827.9</span>
+</div>
+<div class="w-full bg-orange-50 rounded-full h-10 flex items-center px-1 border border-orange-100 shadow-inner">
+<div class="chart-bar-fill bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-end px-3 text-sm text-white font-bold shadow-lg" data-width="100%">827.9</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg text-sm font-bold border border-green-100 hover:scale-105 transition-transform">定性：正向支撑</div>
+<p class="text-xs text-gray-500">参考行业报告口径，洗护赛道保持稳健增长，功效型产品贡献更高客单与溢价。 <a class="source-link" href="https://beaut.taobao.com/topic/toufahuli_260/de1d1ca47a21f9f6a54292e3221b76d8.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="border-l border-gray-200 md:pl-8">
+<h3 class="text-lg font-bold mb-4 text-gray-800">增速核心驱动</h3>
+<div class="space-y-4">
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">外资主导</div>
+<div>
+<div class="font-bold text-sm text-gray-800">功效化升级驱动单价提升</div>
+<div class="text-xs text-gray-500 mt-1">去屑、控油、防脱、强韧等诉求强化，消费者从“清洁”转向“头皮护理方案”。</div>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors"><i data-lucide="scale" size="18"></i></div>
+<div>
+<div class="font-bold text-sm text-gray-800">渠道内容化提升转化效率</div>
+<div class="text-xs text-gray-500 mt-1">测评、榜单、场景教程影响决策，促进“洗发露+头皮精华/焕活乳”组合购买。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://beaut.taobao.com/topic/toufahuli_260/de1d1ca47a21f9f6a54292e3221b76d8.html" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 mb-8 bg-gradient-to-br from-white to-orange-50/30 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+<i class="text-orange-500" data-lucide="users"></i>消费者需求迁移</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">价值判断</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">仅看去屑速度</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">看长期头皮健康与复发控制</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">用户更关注可持续改善，而非一次洗后“瞬时清爽”。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">产品形态</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">单一洗发产品</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">分场景组合护理</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">油头、敏感头皮、轻脱人群倾向按周期搭配使用不同品类。</p>
+</div>
+<div class="bg-white/60 p-4 rounded-xl border border-white">
+<h4 class="text-xs font-bold text-gray-500 uppercase mb-2">信任机制</h4>
+<div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+<span class="line-through text-gray-400">品牌背书优先</span>
+<i class="text-orange-500" data-lucide="arrow-right" size="14"></i>
+<span class="text-orange-600">证据化与体验并重</span>
+</div>
+<p class="text-xs text-gray-500 mt-2">功效宣称合规、真实口碑与使用教程成为关键决策因子。</p>
+</div>
+</div>
+</div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 pl-2 border-l-4 border-orange-400 reveal">1.2 竞争格局概览</h3>
+<div class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass-card p-6 border-t-4 border-t-blue-500 relative overflow-hidden reveal">
+<div class="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">477.96</div>
+<h4 class="text-lg font-bold text-blue-900 mb-2">国际品牌加速回归</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">新品密度提升，主打科技功效</p>
+<p class="text-xs text-gray-500 mb-4">外资品牌通过成分升级、细分线扩张和营销重投，强化在高线市场与主流渠道的话语权。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202507231714284243_1.pdf?17" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-orange-500 relative bg-orange-50/40 reveal">
+<div class="absolute top-0 right-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">海飞丝位置</div>
+<h4 class="text-lg font-bold text-orange-900 mb-2">去屑心智强，向头皮护理延展</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">从“去屑王者”走向“头皮专家”</p>
+<p class="text-xs text-gray-500 mb-4">依托长期品牌资产与技术叙事，海飞丝在去屑基本盘稳固，同时切入防脱与控油等高关注赛道。</p>
+</div>
+<div class="glass-card p-6 border-t-4 border-t-green-500 relative reveal">
+<div class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg"></div>
+<h4 class="text-lg font-bold text-green-900 mb-2">性价比与本土沟通强势</h4>
+<p class="text-sm font-bold text-gray-700 mb-2">中低价带竞争持续加剧</p>
+<p class="text-xs text-gray-500 mb-4">国货品牌在内容平台响应快、场景表达本土化，持续分流大众价格带与年轻客群。</p>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8 reveal">
+<div class="glass-card p-6">
+<h3 class="text-lg font-bold mb-4 text-gray-800">行业机会与风险</h3>
+<ul class="space-y-4">
+<li class="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+<div class="font-bold text-sm text-blue-800 mb-1">机会：功效细分红利仍在释放</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>增长来源：</strong>防脱/控油/敏感头皮</span>
+<span><strong>品牌抓手：</strong>分人群矩阵+组合客单</span>
+</div>
+<a class="source-link" href="https://www.cbndata.com/information/293394" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li class="p-3 bg-orange-50/50 rounded-xl border border-orange-100">
+<div class="font-bold text-sm text-orange-800 mb-1">风险：高期待与低满意形成口碑压力</div>
+<div class="text-xs text-gray-600 grid grid-cols-2 gap-2">
+<span><strong>主要风险：</strong>功效感知不足导致复购波动</span>
+<span><strong>应对方向：</strong>临床证据与使用教育协同</span>
+</div>
+</li>
+</ul>
+</div>
+<div class="glass-card p-6 bg-gray-900 text-white border-gray-800">
+<h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+<i class="text-orange-500" data-lucide="shield"></i>海飞丝宏观判断</h3>
+<div class="space-y-4">
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">中期结论</h4>
+<p class="text-sm font-light text-gray-200"><span class="text-orange-400 font-bold">守强项、拓高潜：</span>去屑基本盘稳健，需在防脱等高期待赛道建立更强证据壁垒。</p>
+</div>
+<div class="w-full h-px bg-white/10"></div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase mb-1">关键不确定性</h4>
+<div class="grid grid-cols-2 gap-4 text-sm font-light text-gray-200">
+<div>
+<span class="block text-white font-bold">守强项、拓高潜：</span><br/></div>
+<div>
+<span class="block text-white font-bold">价格竞争</span><br/></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="text-orange-400" data-lucide="share-2"></i>1.3 全平台生态框架分析</h3>
+<div class="grid md:grid-cols-3 gap-8 text-sm">
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">货架平台（天猫/京东）</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">核心角色：规模成交与复购阵地</strong>
+<div class="text-gray-400 text-xs mt-1">通过大单品+套装策略承接去屑与控油的高频需求。</div>
+</li>
+<li>
+<strong class="text-white">趋势信号：搜索词向功效组合迁移</strong>
+<div class="text-gray-400 text-xs mt-1">“去屑+控油”“去屑+防脱”成为更常见的购买入口。</div>
+<a class="source-link" href="https://www.sohu.com/a/776618245_120113054" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">内容平台（小红书/短视频）</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">核心角色：教育与信任构建</strong>
+<div class="text-gray-400 text-xs mt-1">真实测评、场景教程、成分解析影响首购与品牌偏好。</div>
+</li>
+<li>
+<strong class="text-white">趋势信号：问题导向内容效率更高</strong>
+<div class="text-gray-400 text-xs mt-1">“油头怎么办”“头屑反复”等痛点内容更易拉动转化。</div>
+<a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202412091641235013_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+<div class="hover:bg-white/5 p-4 rounded-xl transition-colors border border-white/5">
+<div class="font-bold text-orange-400 uppercase text-xs mb-3 tracking-wider">品牌经营闭环</div>
+<ul class="space-y-3">
+<li>
+<strong class="text-white">推荐路径：检测—推荐—组合—追踪</strong>
+<div class="text-gray-400 text-xs mt-1">头皮评估<i class="inline w-3 h-3" data-lucide="arrow-right"></i>分型方案<i class="inline w-3 h-3" data-lucide="arrow-right"></i>周期复购，提升客单与留存。</div>
+</li>
+<li>
+<strong class="text-white">落地重点：证据化内容资产</strong>
+<div class="text-gray-400 text-xs mt-1">以实验数据、用户前后对比和规范宣称提升品牌护城河。</div>
+<a class="source-link" href="https://beaut.taobao.com/topic/toufahuli_260/3e619cc7f7969715942c8e9dda56012e.html" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part2">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">全球化洞察</h2>
+<div class="glass-card p-0 overflow-hidden mb-8 reveal">
+<div class="bg-gradient-to-r from-orange-50 to-white p-4 border-b border-orange-100">
+<h3 class="text-orange-800 font-bold m-0">2.1 区域市场心智矩阵</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs tracking-wider">
+<tr>
+<th class="p-4">区域市场</th>
+<th class="p-4">核心需求焦点</th>
+<th class="p-4">海飞丝策略重点</th>
+<th class="p-4">优先级</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-orange-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">中国（成熟增量市场）</td>
+<td class="p-4 text-orange-600 font-medium">去屑+控油+防脱复合诉求，重视“可感知功效”和成分安全</td>
+<td class="p-4">以“头皮护理专家”升级品牌叙事，推进去屑主线与ScalpX等细分场景组合，强化内容电商教育闭环</td>
+<td class="p-4"><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">战略核心</span></td>
+</tr>
+<tr class="hover:bg-pink-50/30 transition-colors bg-pink-50/10">
+<td class="p-4 font-bold text-gray-800">东南亚（高湿热市场）</td>
+<td class="p-4 text-pink-600 font-medium">高频清洁、控油止痒、闷热环境下头皮舒适度</td>
+<td class="p-4">突出“清爽去屑+快速起泡易冲洗”，以高温高湿场景内容做本地化传播，并配置高性价比规格</td>
+<td class="p-4"><span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">增长优先</span></td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">北美（功效证据市场）</td>
+<td class="p-4 text-blue-600 font-medium">关注临床证据、成分透明、头皮敏感管理</td>
+<td class="p-4">强化“去屑有效性+温和性”双证据表达，优化专业渠道与皮肤学背书内容，提升高端线渗透</td>
+<td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">价值提升</span></td>
+</tr>
+<tr class="hover:bg-green-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">欧洲（可持续导向市场）</td>
+<td class="p-4 text-green-600 font-medium">功效之外重视环保包装、配方简洁与品牌责任</td>
+<td class="p-4">在去屑科技叙事外叠加可持续表达，推进包装减塑与长期头皮健康教育，提升品牌好感度</td>
+<td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">品牌建设</span></td>
+</tr>
+<tr class="hover:bg-cyan-50/30 transition-colors">
+<td class="p-4 font-bold text-gray-800">拉美/中东（渗透提升市场）</td>
+<td class="p-4 text-cyan-600 font-medium">价格敏感但追求“强功效感”，依赖线下可见度与口碑扩散</td>
+<td class="p-4">采用“大单品+本地明星渠道”打法，强化终端陈列和试用转化，以去屑领导心智带动全线增长</td>
+<td class="p-4"><span class="bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">规模扩张</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="glass-card p-8 mb-8 reveal">
+<h3 class="text-lg font-bold mb-4 text-gray-800">2.4 全球典型人群深度画像</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">人群A｜都市油头通勤族</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">高频洗护效率型</h4>
+<p class="text-xs text-gray-500 mb-3">集中于亚洲与热带城市，追求“早晚清爽、无屑可见、快速冲洗”，受短视频测评影响明显。</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：中午出油塌发、反复头屑带来的社交压力</strong></p>
+<p><strong class="text-orange-500">对应方案：去屑控油主洗+便携补洁产品，强调即刻体感与7-14天周期改善</strong> <a class="source-link" href="https://beaut.taobao.com/topic/toufahuli_260/de1d1ca47a21f9f6a54292e3221b76d8.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">人群B｜轻熟抗衰焦虑人群</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">防脱修护进阶型</h4>
+<p class="text-xs text-gray-500 mb-3">分布于中产城市圈，关注发量变化与头皮屏障，愿为“证据化功效”支付溢价。</p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：季节性掉发、细软塌与长期效果不确定</strong></p>
+<p><strong class="text-green-600">对应方案：去屑洗发露+焕活乳/头皮精华组合，提供阶段化使用建议与可视化追踪</strong></p>
+</div>
+</div>
+<div class="bg-white/60 p-5 rounded-2xl border border-white hover:shadow-lg transition-shadow">
+<div class="text-xs font-bold text-gray-400 uppercase mb-2">人群C｜成分理性消费者</div>
+<h4 class="text-lg font-bold text-gray-800 mb-2">安全与长期主义型</h4>
+<p class="text-xs text-gray-500 mb-3">在北美、欧洲及中国一二线城市增长较快，偏好成分透明、功效边界清晰的品牌表达。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202507231714284243_1.pdf?17" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+<div class="space-y-2 text-sm">
+<p><strong class="text-red-500">核心痛点：担心刺激与“过度宣称”，需要可信来源背书</strong></p>
+<p><strong class="text-cyan-600">对应方案：强化配方透明、专业机构合作与科学科普，提升品牌信任与复购黏性</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-6 reveal">
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">跨市场统一打法（Global Playbook）</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>一个全球母叙事：</strong>以“头皮健康=头发状态基础”统一海飞丝品牌认知，保持去屑领导资产不动摇。</li>
+<li><strong>两层产品架构：</strong>全球共通大单品承接规模，本地功能支线承接差异化需求（控油、防脱、敏感头皮）。</li>
+<li><strong>三段转化闭环：</strong>内容种草（症状教育）—方案推荐（人群分层）—周期复购（组合装与提醒机制）。</li>
+</ul>
+</div>
+<div class="glass-card p-6">
+<h4 class="font-bold text-gray-800 mb-3">国际化落地关键动作（2025-2026）</h4>
+<ul class="space-y-3 text-sm text-gray-600 list-check">
+<li><strong>证据国际化：</strong>统一功效话术标准，分区域补充消费者实证与专业合作，降低“高期待低满意”落差。</li>
+<li><strong>渠道本地化：</strong>中国强化内容电商与直播教育，海外强化药妆/商超终端陈列与试用触达。</li>
+<li><strong>价格带协同：</strong>高端线负责利润与科技形象，主流线负责渗透与份额，入门线应对本土品牌价格竞争。 <a class="source-link" href="https://www.cbndata.com/information/293394" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="section relative" id="part3">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">人群洞察与画像</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="text-lg font-bold mb-4">3.1 基础属性与消费特征</h3>
+<div class="mb-6">
+<div class="flex justify-between text-sm mb-2 font-bold text-gray-600">
+<span>性别结构（估算）</span>
+<span>女性 55% / 男性 45%</span>
+</div>
+<div class="flex h-6 rounded-full overflow-hidden">
+<div class="bg-pink-400 w-[55%] flex items-center justify-center text-xs text-white font-bold hover:w-[60%] transition-all duration-500">女性 55%</div>
+<div class="bg-blue-400 w-[45%] flex items-center justify-center text-xs text-white font-bold hover:w-[40%] transition-all duration-500">男性 45%</div>
+</div>
+<p class="text-xs text-gray-400 mt-2">去屑为高普适需求，女性偏“去屑+柔顺”，男性偏“去屑+控油/清爽”。</p>
+</div>
+<div class="space-y-3 mb-6 bg-gray-50 p-4 rounded-xl">
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">核心年龄带</div>
+<p class="text-sm text-gray-800">18-39 岁为主力，覆盖初入职场到成家阶段；40+ 人群在防脱与头皮健康诉求上增速明显。 <a class="source-link" href="https://beaut.taobao.com/topic/toufahuli_260/de1d1ca47a21f9f6a54292e3221b76d8.html" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-500 uppercase">价格敏感度</div>
+<div class="flex gap-2 text-sm mt-1">
+<span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs border border-pink-100">重体验/不强比价</span>
+<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs border border-blue-100">促销敏感/比价</span>
+</div>
+</div>
+</div>
+<div>
+<div class="text-sm font-bold text-gray-600 mb-3">购买决策权重（相对）</div>
+<div class="space-y-1">
+<div class="bg-orange-500 text-white text-xs font-bold p-2 rounded w-full flex justify-between chart-bar-fill" data-width="100%"><span>可感知功效（去屑/控油/止痒） 100</span></div>
+<div class="bg-orange-400 text-white text-xs font-bold p-2 rounded w-[85%] flex justify-between chart-bar-fill" data-width="85%"><span>安全温和与品牌信任 85</span></div>
+<div class="bg-orange-300 text-white text-xs font-bold p-2 rounded w-[70%]">气味与洗后肤感 70</div>
+<div class="bg-orange-200 text-white text-xs font-bold p-2 rounded w-[55%]">价格促销与渠道便利 55</div>
+</div>
+</div>
+<p class="text-xs text-gray-400 mt-2 qualitative-note">注：此处为定性示意（AI 推断/公开量化数据不足）。 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202507231714284243_1.pdf?17" rel="noopener noreferrer" target="_blank">[来源]</a></p></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+<h3 class="text-lg font-bold mb-4">3.2 生活方式 &amp; 3.3 行为链路</h3>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="coffee" size="14"></i>高频生活场景</h4>
+<div class="flex flex-wrap gap-2 mb-2">
+<span class="tag-pill orange">通勤出油快</span>
+<span class="tag-pill orange">熬夜与压力型头屑</span>
+<span class="tag-pill orange">健身后头皮闷痒</span>
+</div>
+<p class="text-sm text-gray-600 leading-snug">
+<strong>消费者从“洗干净”升级到“头皮状态管理”，希望 1-2 周内看到头屑减少、出油延后、头皮舒缓等可感知变化。</strong> <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202507231714284243_1.pdf?17" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+<h4 class="text-sm font-bold text-blue-800 mb-1">典型购买路径（内容驱动）</h4>
+<ul class="text-sm text-gray-700 space-y-1">
+<li><strong>触发：</strong>出现“黑衣可见头屑/头痒/头油塌发”后主动搜索榜单、测评、避坑内容。</li>
+<li><strong>转化：</strong>在电商详情页对比功效证据与评价，</li>
+</ul>
+</div>
+<div class="bg-red-50/50 p-3 rounded-xl border border-red-100">
+<h4 class="text-sm font-bold text-red-800 mb-1">决策阻力与破局点</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">主要阻力</div>
+<ol class="list-decimal list-inside text-gray-700 text-xs">
+<li><strong>复购关键：</strong> <span class="text-blue-600 font-bold">7-14 天体感改善 + 套装组合优惠（洗发露+头皮精华/焕活乳）</span> <a class="source-link" href="https://www.cbndata.com/information/293394" rel="noopener noreferrer" target="_blank">[来源]</a></li>
+<li>担心“去屑强但不温和”</li>
+<li>防脱宣称难验证，效果预期落差</li>
+</ol>
+</div>
+<div>
+<div class="text-xs text-red-400 font-bold uppercase">品牌应对</div>
+<p class="text-xs text-gray-600">用头皮类型分诊式推荐、周期化使用指南与真实实证内容，降低试错焦虑并提升信任。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-pink-400 to-red-400"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">A</div>
+<div>
+<h4 class="font-bold text-lg">都市效率护理人群</h4>
+<p class="text-xs text-gray-500">25-34岁｜一二线白领｜复购主力 <a class="source-link" href="https://www.sohu.com/a/776618245_120113054" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">去屑控油稳定、洗后清爽不干涩，适配高频洗头与快节奏生活。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">午后出油塌发、季节性头屑反复，担心换季刺激导致头皮不适。</p>
+</div>
+<div>
+<strong class="text-green-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">“黑衣可见头屑”社交尴尬 + 大促囤货 + 明确功效分型（去屑/控油/柔顺）。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-0 overflow-hidden group reveal">
+<div class="h-2 bg-gradient-to-r from-gray-400 to-blue-500"></div>
+<div class="p-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform"></div>
+<div>
+<h4 class="font-bold text-lg">头皮进阶管理人群</h4>
+<p class="text-xs text-gray-500">30-45岁｜轻脱/敏感倾向｜愿意为证据付费 <a class="source-link" href="https://pdf.dfcfw.com/pdf/H3_AP202412091641235013_1.pdf" rel="noopener noreferrer" target="_blank">[来源]</a></p>
+</div>
+</div>
+<div class="space-y-3 text-sm">
+<div class="bg-white/50 p-3 rounded-lg">
+<strong class="text-gray-800 block mb-1"></strong>
+<p class="text-gray-600">在去屑基础上兼顾防脱强韧、头皮屏障与长期稳定性。</p>
+</div>
+<div>
+<strong class="text-red-500 block mb-1"></strong>
+<p class="text-gray-600">对“防脱”效果存疑，过去使用中存在短期见效、长期反复体验。</p>
+</div>
+<div>
+<strong class="text-blue-600 block mb-1"></strong>
+<p class="text-gray-800 font-medium">看到可验证实证、专业背书与完整方案后，更易接受组合购买与周期护理。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-orange-50/50 border-orange-100 reveal">
+<h3 class="text-sm font-bold text-orange-800 mb-2">3.5 洞察总结: 沟通策略</h3>
+<ul class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">功效细分多，选择成本高</li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略一</span>以“头皮类型 × 场景”表达产品差异：油头、痒屑、轻脱三类一键匹配。</li>
+<li class="p-3 bg-white rounded-lg shadow-sm border border-orange-100">
+<span class="block text-xs font-bold text-orange-500 uppercase mb-1">策略二</span>
+<strong>强化证据化内容</strong>：用周期前后对比、使用频次建议与成分解释提升可信度。</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="section relative" id="part4">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal"><i class="text-orange-500" data-lucide="swords"></i>竞品深度攻防</h2>
+<div class="mb-12">
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.1 竞品矩阵定义</h3>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="glass-card p-6 border-t-4 border-gray-400 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="text-sm text-gray-500 mb-2">注：此处内容由AI生成（原因：单模块生成超时。）</p><p class="font-semibold text-gray-800">攻防结论 1</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：海飞丝洗发水的竞争正从“单点参数”转向“场景可感知体验”。</li><li>差异：对比主要竞品，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-orange-500 bg-orange-50/20 reveal" style="transition-delay: 0.2s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 2</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比主要竞品，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+<div class="glass-card p-6 border-t-4 border-purple-500 reveal" style="transition-delay: 0.3s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 3</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li></ul></div></div>
+</div>
+</div>
+<div class="grid md:grid-cols-2 gap-8 mb-12">
+<div class="glass-card p-8 reveal"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 4</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>渠道：优先占位搜索/评测/直播等高意图入口，再用短视频与图文扩散种草。</li><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://www.cbndata.com/information/293394" rel="noopener noreferrer" target="_blank">[来源]</a></li></ul></div></div>
+<div class="glass-card p-8 reveal" style="transition-delay: 0.1s;"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 5</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>动作：按周复盘转化数据，持续迭代选题、脚本与卖点表达顺序。 <a class="source-link" href="https://www.sohu.com/a/776618245_120113054" rel="noopener noreferrer" target="_blank">[来源]</a></li><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li></ul></div></div>
+</div>
+<div class="glass-card p-8 bg-orange-50/30 border-orange-100 reveal mb-12"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 6</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>风险：缺乏可核验来源时只做定性表述，不编造数字/百分比。</li><li>结论：海飞丝洗发水的竞争正从“单点参数”转向“场景可感知体验”。</li></ul></div></div>
+<h3 class="text-xl font-bold mb-6 text-gray-800 border-l-4 border-orange-400 pl-3 reveal">4.5 社媒爆款深度拆解</h3>
+<div class="space-y-12">
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-red-500 text-white p-2 rounded-lg"><i data-lucide="instagram" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-red-50/30 border-red-100 mb-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 7</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>结论：海飞丝洗发水的竞争正从“单点参数”转向“场景可感知体验”。</li><li>差异：对比主要竞品，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li></ul></div></div>
+<h5 class="text-lg font-bold text-gray-800 mb-6 pl-2 border-l-4 border-red-400">2. 爆文内容逻辑拆解</h5>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-xs font-bold text-red-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-gray-100 to-gray-200 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 grid grid-cols-2">
+<div class="flex items-center justify-center bg-gray-300/50 text-gray-500 text-xs font-bold border-r border-white/20"><br/></div>
+<div class="flex items-center justify-center bg-white/50 text-gray-800 text-xs font-bold"><br/></div>
+</div>
+<div class="absolute bottom-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-xs font-bold text-orange-500 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-gradient-to-br from-pink-50 to-orange-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="text-center p-4">
+<div class="w-24 h-32 mx-auto border-2 border-orange-200 rounded-t-full bg-white/60 backdrop-blur-sm shadow-xl flex items-center justify-center mb-2">
+<span class="text-[10px] text-orange-300"><br/></span>
+</div>
+<div class="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-xs font-bold text-yellow-600 uppercase tracking-widest"></span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 mb-2"></h3>
+<p class="text-sm text-gray-600 mb-4">
+<strong></strong><br/>
+<strong></strong></p>
+<div class="mt-auto pt-4 border-t border-gray-100 flex items-center gap-2 text-xs">
+<span class="bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+<span class="text-gray-500"></span>
+</div>
+</div>
+<div class="md:col-span-5 bg-yellow-50 relative min-h-[200px] flex items-center justify-center overflow-hidden">
+<div class="grid grid-cols-2 gap-2 w-full px-8 opacity-70">
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-300 rounded w-full"></div>
+<div class="h-12 bg-yellow-200 rounded w-full"></div>
+</div>
+<div class="absolute bottom-4 bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 text-sm">
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+<div class="flex-1 bg-white border border-gray-200 rounded-xl p-4">
+<div class="font-bold text-gray-900 mb-1"></div>
+<div class="text-gray-500 text-xs"></div>
+</div>
+</div>
+</div>
+<div class="reveal">
+<div class="flex items-center gap-3 mb-6">
+<div class="bg-gray-900 text-white p-2 rounded-lg"><i data-lucide="video" size="24"></i></div>
+<div>
+<h4 class="text-2xl font-bold text-gray-900"></h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+<span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded"></span>
+</div>
+</div>
+</div>
+<div class="grid gap-6">
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-[url('https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&amp;fit=crop&amp;q=80')] bg-cover bg-center"></div>
+<div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform cursor-pointer">
+<i class="fill-white text-white ml-1" data-lucide="play"></i>
+</div>
+<div class="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 opacity-50 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+<div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform cursor-pointer">
+<i class="fill-white text-white ml-1" data-lucide="play"></i>
+</div>
+<div class="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded"></div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 group">
+<div class="grid md:grid-cols-12 h-full">
+<div class="md:col-span-7 p-6 flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xs font-bold bg-blue-600 text-white px-2 py-1 rounded"></span>
+</div>
+<h3 class="text-lg font-bold text-gray-900 mb-2"></h3>
+<ul class="text-sm text-gray-600 space-y-2 mb-4">
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+<li class="flex gap-2"><span class="text-gray-400"></span></li>
+</ul>
+</div>
+<div class="md:col-span-5 bg-black relative min-h-[200px] flex items-center justify-center overflow-hidden group">
+<div class="absolute inset-0 flex flex-col">
+<div class="h-1/2 bg-blue-900/40 w-full"></div>
+<div class="h-1/2 bg-red-900/40 w-full"></div>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform cursor-pointer absolute z-10">
+<i class="fill-white text-white ml-1" data-lucide="play"></i>
+</div>
+<div class="absolute bottom-2 left-2 text-white text-xs font-bold bg-black/50 px-2 py-1 rounded z-10"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+<h5 class="text-sm font-bold text-gray-800 uppercase mb-4"></h5>
+<div class="grid md:grid-cols-3 gap-4 text-sm">
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-red-500"></span></p>
+</div>
+<div>
+<span class="block text-gray-400 text-xs mb-1"></span>
+<p class="font-medium text-gray-800"><span class="text-blue-600"></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-6 bg-blue-50/20 border-blue-100 reveal mt-8"><div class="fallback-content space-y-3 text-gray-700"><p class="font-semibold text-gray-800">攻防结论 8</p><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700"><li>差异：对比主要竞品，优先突出“综合稳定性/通话与风噪/多场景降噪/生态联动”等可解释卖点。</li><li>内容：以“场景对比评测 + 高频疑问答复”作为主内容形态，减少泛化夸赞。</li></ul></div></div>
+</div>
+</section>
+<section class="section relative pb-24" id="part5">
+<div class="section-number"></div>
+<div class="pl-6 relative z-10">
+<h2 class="section-title text-3xl font-bold mb-8 flex items-center gap-3 reveal">战略总结与资源</h2>
+<div class="grid md:grid-cols-2 gap-8 mb-8">
+<div class="glass-card p-8 reveal">
+<h3 class="font-bold mb-4">5.1 战略空白区（优先级行动）</h3>
+<div class="space-y-3">
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P1：去屑×防脱一体化方案（12周可见）</div>
+<div class="text-xs text-orange-600 mt-1">以“油头轻脱、换季头屑、反复瘙痒”三大高频场景切入，推出洗发露+焕活乳组合与周期化使用指南；用前后对比、消费者实证与合规话术提升信任和复购。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P2：头皮检测驱动的内容电商闭环</div>
+<div class="text-xs text-orange-600 mt-1">构建“30秒头皮自测—分型推荐—组合下单—第4/8/12周追踪”链路，在电商详情页与短视频统一表达，缩短决策路径并提高客单价。</div>
+</div>
+<div class="p-4 border border-dashed border-orange-300 rounded-xl bg-orange-50/50">
+<div class="font-bold text-orange-800">P3：高性价比入口+进阶功效双价格带</div>
+<div class="text-xs text-orange-600 mt-1">守住大众去屑基本盘，同时放大控油、防脱、头皮护理进阶线；通过小规格试用装与组合装承接国货价格竞争，减少流失并扩大新客渗透。</div>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 bg-gray-900 text-white border-gray-800 reveal" style="transition-delay: 0.1s;">
+<h3 class="font-bold mb-6">5.2 资源分配矩阵</h3>
+<div class="grid grid-cols-2 gap-4 min-h-[16rem] h-auto auto-rows-min">
+<div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="star"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">核心投入 45%</span>
+<div>
+<div class="font-bold text-lg leading-tight">产品与证据体系</div>
+<div class="text-xs text-white/70 mt-1">去屑+防脱+控油配方迭代、功效测试、合规宣称与专家内容资产。</div>
+</div>
+</div>
+<div class="bg-gray-800 rounded-xl p-4 flex flex-col justify-between border border-white/10 opacity-60">
+<span class="text-xs font-bold uppercase tracking-wider text-white/50">运营保障 20%</span>
+<div>
+<div class="font-bold text-sm">渠道与供应协同</div>
+<div class="text-xs text-white/50 mt-1">电商货盘、套组机制、试用装投放与重点节点备货效率优化。</div>
+</div>
+</div>
+<div class="bg-blue-600 rounded-xl p-4 flex flex-col justify-between border border-white/20 relative overflow-hidden col-span-2 group">
+<i class="absolute top-2 right-2 text-white/20 w-12 h-12 group-hover:scale-110 transition-transform" data-lucide="circle-dollar-sign"></i>
+<span class="text-xs font-bold uppercase tracking-wider text-white/80">增长拉动 35%</span>
+<div>
+<div class="font-bold text-lg">内容种草与转化中台（里程碑：Q2测通、Q3放大、Q4固化）</div>
+<div class="text-xs text-white/70 mt-1">Q2完成分人群内容模板与自测工具上线；Q3重点加码大促与男性油头/轻脱人群；Q4沉淀会员复购运营，目标提升组合购占比与90天复购率。</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="nav-pill">
+<a class="nav-link" href="#part1">宏观</a>
+<a class="nav-link" href="#part2">全球</a>
+<a class="nav-link" href="#part3">人群</a>
+<a class="nav-link" href="#part4">竞品</a>
+<a class="nav-link" href="#part5">战略</a>
+</nav>
+<script>
+        lucide.createIcons();
+        
+        // --- 动态交互脚本 ---
+
+        // 1. 滚动显现 Observer
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // 2. 图表增长动画 Observer
+        const chartBars = document.querySelectorAll('.chart-bar-fill');
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetWidth = entry.target.getAttribute('data-width');
+                    entry.target.style.width = targetWidth;
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        chartBars.forEach(bar => chartObserver.observe(bar));
+
+        // 3. 数字滚动动画
+        const countElements = document.querySelectorAll('.count-up');
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 2000;
+                    const start = 0;
+                    let startTime = null;
+
+                    function animation(currentTime) {
+                        if(!startTime) startTime = currentTime;
+                        const progress = currentTime - startTime;
+                        const value = Math.min(Math.floor((progress / duration) * target), target);
+                        el.innerText = value;
+                        if(progress < duration) {
+                            requestAnimationFrame(animation);
+                        } else {
+                            el.innerText = target;
+                        }
+                    }
+                    requestAnimationFrame(animation);
+                    countObserver.unobserve(el);
+                }
+            });
+        });
+        countElements.forEach(el => countObserver.observe(el));
+
+
+        // 4. 导航高亮
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 400)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+<section class="section" style="max-width: 860px; margin: 4rem auto 2rem; padding: 0 1.5rem;"><div style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; opacity: 0.5;">· · ·</div><h2 style="text-align: center; font-size: 1.1rem; font-weight: 700; color: #ea8c00; margin-bottom: 1.2rem; letter-spacing: 0.05em;">🔗 数据来源</h2><div style="background: rgba(255,255,255,0.7); border: 1px solid rgba(255,165,0,0.25); border-radius: 16px; padding: 1.5rem 2rem; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(255,140,0,0.06);"><ul style="list-style: none; margin: 0; padding: 0; columns: 1; column-gap: 1.5rem; text-align: center;"><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://beaut.taobao.com/topic/toufahuli_260/de1d1ca47a21f9f6a54292e3221b76d8.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">海飞丝经典新升级到底怎么选？去屑/控油/柔顺哪款更适合你？</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202507231714284243_1.pdf?17" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2025年洗发护发产品行业词条报告</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.cbndata.com/information/293394" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">扎堆上新，外资洗护品牌上演“大反攻” - CBNData</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/776618245_120113054" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024年中国洗发水行业市场深度分析及投资战略咨询报告 - 搜狐</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202412091641235013_1.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 美妆行业周度市场观察</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://beaut.taobao.com/topic/toufahuli_260/3e619cc7f7969715942c8e9dda56012e.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">海飞丝焕活乳130g防脱效果到底咋样？2025年真实测评揭秘 - 美妆</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://beaut.taobao.com/topic/xifashui_10/c9fc9c6928e4b7dcd6187dbe0184e143.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024洗发水红黑榜！海飞丝丝质柔滑去屑洗发露真实测评！到期还能 ...</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://beaut.taobao.com/topic/toufahuli_260/3e44ebf0dddef9aed872cc6adca16663.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">海飞丝ScalpX防脱洗发露真能防脱吗？2025年新规揭秘！ - 淘宝美妆网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://beaut.taobao.com/topic/toufahuli_260/ec8a10af19b815b82206343daa8964c0.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">刘德华同款海飞丝泡沫洗发水到底有多香？2025年最新真相曝光！</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.163.com/dy/article/KBRCS5Q70556FVU7.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025油头星人看过来！公认十大洗头膏排行榜，第一名超好用 - 网易</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.digitaling.com/articles/1301264.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2024年度十大刷屏代言，第一个就绷不住了！ - 数英网</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/802572855_121353633" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">从“去屑王者”到头皮护理，海飞丝来华36年讲出新故事</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://pdf.dfcfw.com/pdf/H3_AP202512071795568462_1.pdf?1765115621000.pdf" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">[PDF] 2025年头发洗护品类社媒营销趋势洞察</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.pharmnews.com/news/articleView.html?idxno=249071" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">重磅开启「头皮探月」，新升级海飞丝让头皮无盲区</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.sohu.com/a/965632960_122512792" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">2025洗发水红黑榜：避开网红款和全能坑，科学选品护头皮健康 - 搜狐</a></li><li style="padding: 0.4rem 0; font-size: 0.85rem; break-inside: avoid; line-height: 1.6;"><a href="https://www.nbd.com.cn/articles/2026-02-26/4270177.html" rel="noopener noreferrer" style="color: #d97706; text-decoration: none; border-bottom: 1px dashed rgba(217,119,6,0.3); transition: color 0.2s, border-color 0.2s;" target="_blank">宝洁新CEO“紧急干预” 拟重塑全球5800亿元快消版图</a></li></ul></div></section></body>
+</html>
